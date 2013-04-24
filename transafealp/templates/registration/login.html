@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block extrahead %}
+{% load staticfiles %}
+
+    <meta charset="utf-8">
+    <title>Sign in TransafeAlp</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- form custom styles -->
+
+    <style type="text/css">
+      body {
+        height: 90%;
+        padding-top: 40px;
+        padding-bottom: 40px;
+        background-color: #f5f5f5;
+      }
+
+      .container_form{
+        opacity:1;
+        filter:alpha(opacity=100); /* For IE8 and earlier */
+      }
+
+      .form-signin {
+        max-width: 300px;
+        padding: 19px 29px 29px;
+        margin: 0 auto 20px;
+        background-color: #fff;
+        border: 1px solid #e5e5e5;
+        -webkit-border-radius: 5px;
+           -moz-border-radius: 5px;
+                border-radius: 5px;
+        -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+           -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+                box-shadow: 0 1px 2px rgba(0,0,0,.05);
+        opacity:1;
+        filter:alpha(opacity=100); /* For IE8 and earlier */
+
+      }
+      .form-signin .form-signin-heading,
+      .form-signin .checkbox {
+        margin-bottom: 10px;
+      }
+      .form-signin input[type="text"],
+      .form-signin input[type="password"] {
+        font-size: 16px;
+        height: auto;
+        margin-bottom: 15px;
+        padding: 7px 9px;
+      }
+      .footer-form{
+          padding-top: 13px;
+      }
+
+    </style>
+
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="{% static "js/html5shiv.js" %}"></script>
+    <![endif]-->
+
+    <!-- popover bootstrap windows shows on input focus -->
+    <script type="text/javascript">
+        jQuery(document).ready(function() {
+            $('#id_username').popover({'trigger':'focus', 'title': 'Login form','content':'Insert username'});
+            $('#id_password').popover({'trigger':'focus', 'title': 'Login form','content':'Insert password'});
+
+        });
+    </script>
+    <script src="{% static "js/jquery.backstretch.min.js" %}"></script>
+
+{% endblock %}
+{% block loading %}{% endblock %}
+{% block topnavbar %}
+{%  endblock %}
+{% block wrap %}{% endblock %}
+{% block sidebar %}{% endblock %}
+{% block content %}
+       <!-- This hidden div is a modal object of bootstrap framework to show a fine alert.
+            I show it when there is an error on the login form (wrgon pwd or username). -->
+
+        <script>
+            $.backstretch([
+
+              "{% static "img/dome.jpg" %}",
+              ], {
+                fade: 1250,
+                duration: 4000,
+                opacity: 80
+            });
+        </script>
+       <!-- this class is a popup modal of bootstrap framework.  -->
+       <div class="modal hide fade" id="modal-content">
+          <div class="modal-header">
+
+             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               <h3>Login error</h3>
+                </div>
+                <!-- modal body text -->
+                <div class="modal-body">
+                    <p>Wrong Username or Password! Please retry!</p>
+                </div>
+          <div class="modal-footer">
+                 <a href="#" class="btn" data-dismiss="modal">Close</a>
+          </div>
+        </div>
+        <!-- end of bootstrap modal div -->
+
+
+    <!-- if the form goes in error show the modal popup -->
+    {% if form.errors %}
+            <script>
+                 jQuery(document).ready(function() {
+                     $('#modal-content').modal('show');
+                 });
+            </script>
+    {% endif %}
+    <div class="container_form">
+         <form class="form-signin" method="POST" action="{% url 'django.contrib.auth.views.login' %}">
+            {% csrf_token %}
+             <legend>
+                 Login Form
+                    <img alt="" src="{% static "img/logo_small.png" %}" class="login-logo">
+
+             </legend>
+            <input id="id_username" name="username" type="text" class="input-block-level" placeholder="Login">
+            <input type="password" name="password" id="id_password" class="input-block-level" placeholder="Password" />
+            <button class="btn btn-large btn-primary" type="submit">Sign in</button>
+            <input type="hidden" name="next" value="/" />
+            <div class="footer-form">Restricted area for only authorized people</div>
+         </form>
+
+    </div>
+{% endblock %}
+
+{% block push %}{% endblock %}
+{% block footer %}{% endblock %}

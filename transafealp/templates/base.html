@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<!-- ========================Page Description======================== -->
+<!-- This page is the base template for all the other extended template of all
+the views written in django views files.
+The *blocks* template tag identify all the template section that can be overwritten.
+In this file there are all the importing string command for js and css files.-->
+<!-- ========================end page description==================== -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>TransafeAlp WebAPP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="ernesto.arbirio@gmail.com">
+    {% load staticfiles %}
+    <!-- styles -->
+    <link href="{% static "css/bootstrap.css" %}" rel="stylesheet">
+    <link href="{% static "css/footer.css" %}" rel="stylesheet">
+    <style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+
+    </style>
+    <link href="{% static "css/bootstrap-responsive.css" %}" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="{% static "js/html5shiv.js" %}"></script>
+    <![endif]-->
+    <script src="{% static "js/jquery.js" %}"></script>
+    <script>
+        $(window).load(function(){
+            /*script js for loading image before page load*/
+            $(".loading").delay(1000) /*to remove*/
+            $(".loading").hide();
+
+            $("#id_navbar").fadeIn("slow"); /*show the navbar*/
+            $("#id_containerfluid").fadeIn("slow");/*show the container*/
+            $("#footer").fadeIn("slow"); /*show the footer*/
+        });
+
+        jQuery(document).ready(function() {
+            $('.navbar-link').tooltip({'placement':'bottom'}); /*enable tooltip bootstrap to all navbar-link class tags*/
+
+        });
+    </script>
+    {% block extrahead %}
+
+    {% endblock %}
+  </head>
+
+  <body>
+    {% block loading %}
+        <div class="loading" style="text-align: center">
+            <img src="{% static "img/load.gif" %}"/><p>Loading... please wait</p>
+        </div>
+    {% endblock %}
+    {% block topnavbar %}
+    <div class="navbar navbar-fixed-top" style="display: none;" id="id_navbar">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+
+          <a class="brand" href="#"><img class="navbar-link" data-toggle="tooltip" title="TransafeAlp"  src="{% static "img/logo_toosmall.png" %}"></a>
+          <div class="nav-collapse collapse">
+            <!-- template block for auth section -->
+            {% block logged %}
+                {% if user.is_authenticated %}
+                    <p class="navbar-text pull-right">
+                        Logged in as <a href="#" class="navbar-link badge badge-info" data-toggle="tooltip" title="{{ user.email }}">{{user.username}}</a> |
+                        <a href="{% url "django.contrib.auth.views.logout" %}" class="navbar-link" data-toggle="tooltip" title="logout"><img src="{% static "img/logout.png" %}"></a>
+                    </p>
+                    <p class="navbar-text pull-middle">
+                        <img class="navbar-link" data-toggle="tooltip" title="Alpine Space" src="{% static "img/alpine.png" %}">
+                    </p>
+                {% else %}
+                    <p class="navbar-text pull-right">ciao</p>
+                {% endif %}
+            {% endblock %}
+            <!-- endblock auth section -->
+            {% block menu %}
+            <ul class="nav">
+              <li class="active" ><a href="#">Home</a></li>
+              <li><a href="#about">About</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+            {% endblock %}
+
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+
+    {% endblock %}
+    {% block wrap %}<div id="wrap">{% endblock %}
+        <div class="container-fluid" style="display: none;" id="id_containerfluid">
+
+            <div class="row-fluid">
+            {% block sidebar %}
+            <!-- the sidebar menu customizable for different access level-->
+            <div class="span2">
+              <div class="well sidebar-nav">
+                <ul class="nav nav-list">
+
+                  <li class="nav-header">Scenario</li>
+                  <li><a href="#">Link</a></li>
+                  <li><a href="#">Link</a></li>
+                  <li><a href="#">Link</a></li>
+                  <li><a href="#">Link</a></li>
+
+                  <li class="nav-header">JITIES</li>
+                  <li><a href="#">Link</a></li>
+                  <li><a href="#">Link</a></li>
+
+                  <li class="nav-header">HowTo</li>
+                  <li><a href="#">Link</a></li>
+                  <li><a href="#">Link</a></li>
+                  <li><a href="#">Link</a></li>
+                </ul>
+              </div><!--/.well -->
+            </div><!--/span-->
+            {% endblock %}
+            <div class="span10">
+
+                {% block content %}{% endblock %}
+            </div>
+
+            </div><!--/row-->
+
+        </div><!-- /container -->
+
+   {% block push %}<div id="push"></div>
+    </div>
+    {% endblock %}
+    {% block footer %}
+      <div id="footer" style="display: none">
+        <div class="container">
+            <p class="muted credit">TransafeAlp <a href="#">http://transafealp.fbk.eu</a> and <a href="http://www.fbk.eu">Fondazione Bruno Kessler</a>.</p>
+        </div>
+      </div>
+    {% endblock %}
+
+    <!-- =================bootstrap javascript files=============== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="{% static "js/bootstrap-transition.js" %}"></script>
+    <script src="{% static "js/bootstrap-alert.js" %}"></script>
+    <script src="{% static "js/bootstrap-modal.js" %}"></script>
+    <script src="{% static "js/bootstrap-dropdown.js" %}"></script>
+    <script src="{% static "js/bootstrap-scrollspy.js" %}"></script>
+    <script src="{% static "js/bootstrap-tab.js" %}"></script>
+    <script src="{% static "js/bootstrap-tooltip.js" %}"></script>
+    <script src="{% static "js/bootstrap-popover.js" %}"></script>
+    <script src="{% static "js/bootstrap-button.js" %}"></script>
+    <script src="{% static "js/bootstrap-collapse.js" %}"></script>
+    <script src="{% static "js/bootstrap-carousel.js" %}"></script>
+    <script src="{% static "js/bootstrap-typeahead.js" %}"></script>
+    <!-- ==================end import section====================== -->
+  </body>
+</html>
