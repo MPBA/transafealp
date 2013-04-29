@@ -21,15 +21,16 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'mltest.sqlite3',                      # Or path to database file if using sqlite3.
+        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'transafe_dev',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',          # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '',          # Set to empty string for default.
+        'USER': 'transafe_dev',
+        'PASSWORD': 'transafe2K13alp!!',
+        'HOST': 'geopg',          # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'PORT': '5432',          # Set to empty string for default.
     }
 }
+
 
 
 ALLOWED_HOSTS = ['localhost',]
@@ -76,6 +77,7 @@ STATICFILES_FINDERS = (
     #'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
+
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'aju$z286k2lj37mdcxi(3b2xu8s7yf)jdjwt17(bl-8mfq%6^7'
 
@@ -86,6 +88,17 @@ TEMPLATE_LOADERS = (
     #'django.template.loaders.eggs.Loader',
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.core.context_processors.request',
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.core.context_processors.tz",
+    "django.contrib.messages.context_processors.messages",
+)
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -94,6 +107,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'django.middleware.transaction.TransactionMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -122,20 +136,31 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
+ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'transafealp.dashboard.CustomAppIndexDashboard'
+ADMIN_TOOLS_INDEX_DASHBOARD = 'transafealp.dashboard.CustomIndexDashboard'
+
+
 INSTALLED_APPS = (
+    #»»»»»»»»»»»»»3rd part app»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»
+    #'south',
+    'debug_toolbar',
+    #django admin tools apps
+    'admin_tools.theming',
+    'admin_tools.menu',
+    'admin_tools.dashboard',
+    #-----------------------
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
+    # admin apps
     'django.contrib.admin',
     'django.contrib.formtools',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
-    #'south',
-    'debug_toolbar',
+    #»»»»»»»»»»»»»»» transafealp apps »»»»»»»»»»»»»»»»
+    'scenario',
+
 
 )
 
@@ -145,4 +170,4 @@ INSTALLED_APPS = (
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
 
-PROJECT_NAME="Transafe Alp"
+PROJECT_NAME = "Transafe Alp"
