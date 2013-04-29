@@ -22,13 +22,57 @@ class CustomIndexDashboard(Dashboard):
     Custom index dashboard for transafealp.
     """
 
+    columns = 3
 
-    columns = 2
+    def __init__(self, **kwargs):
+        Dashboard.__init__(self, **kwargs)
 
-    class Media:
-        css = ('admin_tools/css/dashboard.css',)
-        js = ('admin_tools/js/dashboard.js',)
+        site_name = "admin"
+        # append a link list module for "quick links"
+        self.children.append(modules.LinkList(
+            _('Quick links'),
+            #layout='inline',
+            draggable=True,
+            deletable=False,
+            collapsible=False,
+            children=[
+                [_('Return to site'), '/'],
+                [_('Change password'),
+                 reverse('%s:password_change' % site_name)],
+                [_('New Scenario'), 'scenario/scenario/add'],
+                [_('Add User'), 'auth/user/add'],
+            ]
+        ))
 
+        self.children += [
+            modules.RecentActions(title=_('Recent Actions'), limit=5),
+        ]
+
+        self.children.append(modules.Group(
+            title="Applications",
+            display="tabs",
+            deletable=False,
+            children=[
+                modules.AppList(
+                    title='Modules',
+                    exclude=('django.contrib.*',)
+                ),
+                 modules.AppList(
+                    title='Administration',
+                    models=('django.contrib.*',)
+                )
+            ]
+        ))
+
+
+
+
+
+
+
+
+
+'''
     def __init__(self, **kwargs):
         Dashboard.__init__(self, **kwargs)
 
@@ -64,7 +108,7 @@ class CustomIndexDashboard(Dashboard):
 
         # append a recent actions module
         self.children.append(modules.RecentActions(_('Recent Actions'), 15))
-
+'''
 
 
 
