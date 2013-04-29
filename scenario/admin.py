@@ -24,6 +24,7 @@ class ActorAdmin(admin.ModelAdmin):
     list_display = ('name', 'istitution','contact_info')
     search_fields = ['name','istitution']
 
+
 class ActionAdmin(AutocompleteAdmin, admin.ModelAdmin):
     list_display = ('name', 'scenario', 'numcode')
     list_filter = ('scenario',)
@@ -31,7 +32,19 @@ class ActionAdmin(AutocompleteAdmin, admin.ModelAdmin):
     autocomplete_fields = {'scenario': {'search_fields': '^name', 'add_button': False, 'lookup': True}}
 
 
-admin.site.register(Scenario)
+class ScenarioAdmin(AutocompleteAdmin, admin.ModelAdmin):
+    list_display = ('name', 'subcategory', 'managing_authority')
+    list_filter = ('managing_authority', 'subcategory')
+    search_fields = ['name', 'managing_authority__name', 'subcategory__name']
+    autocomplete_fields = {
+        'managing_authority': {'search_fields': '^name', 'add_button': False, 'lookup': True},
+        'subcategory': {'search_fields': '^name', 'add_button': False, 'lookup': True}
+    }
+
+
+
+
+admin.site.register(Scenario, ScenarioAdmin)
 admin.site.register(ScenarioCategory)
 admin.site.register(ScenarioSubcategory, SubCatAdmin)
 admin.site.register(Action, ActionAdmin)

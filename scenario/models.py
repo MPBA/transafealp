@@ -21,7 +21,7 @@ class ManagingAuthority(models.Model):
         ordering = ['name']
 
     def __unicode__(self):
-        return u'%s %s' % (self.name, self. email)
+        return u'%s' % (self.name)
 
 
 #scenario app
