@@ -1,3 +1,4 @@
+__author__ = 'ernesto'
 # Django base settings for transafealp project.
 # -*- coding: utf-8 -*-
 
@@ -24,10 +25,10 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'transafe_dev',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
-        'USER': 'transafe_dev',
-        'PASSWORD': 'transafe2K13alp!!',
-        'HOST': 'geopg',          # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '5432',          # Set to empty string for default.
+        'USER': 'youruser',
+        'PASSWORD': 'yourpassword',
+        'HOST': 'yourhost',          # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'PORT': 'yourport',          # Set to empty string for default.
     }
 }
 
