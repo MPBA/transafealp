@@ -26,8 +26,9 @@ authorities have a tool that can simplify the choices of action and information 
 * psycopg2==2.5
 * wsgiref==0.1.2
 
-
+```python
     pip install -r transafealp/requirements.txt
+```
 
 ## Running Server
 
