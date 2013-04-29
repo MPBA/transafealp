@@ -5,5 +5,5 @@ db/*
 *#
 *~
 *.sqlite3
-settings/base.py
+transafealp/settings/locale.py
 
