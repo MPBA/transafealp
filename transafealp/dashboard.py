@@ -65,55 +65,6 @@ class CustomIndexDashboard(Dashboard):
         ))
 
 
-
-
-
-
-
-
-
-'''
-    def __init__(self, **kwargs):
-        Dashboard.__init__(self, **kwargs)
-
-        site_name = "admin"
-        # append a link list module for "quick links"
-        self.children.append(modules.LinkList(
-            _('Quick links'),
-            layout='inline',
-            draggable=False,
-            deletable=False,
-            collapsible=False,
-            children=[
-                [_('Return to site'), '/'],
-                [_('Change password'),
-                 reverse('%s:password_change' % site_name)],
-                [_('Log out'), reverse('%s:logout' % site_name)],
-            ]
-        ))
-
-        # append an app list module for "Applications"
-        self.children.append(modules.AppList(
-            _('Applications'),
-            deletable=False,
-            exclude=('django.contrib.*',),
-        ))
-
-        # append an app list module for "Administration"
-        self.children.append(modules.AppList(
-            _('Administration'),
-            deletable=False,
-            models=('django.contrib.*',),
-        ))
-
-        # append a recent actions module
-        self.children.append(modules.RecentActions(_('Recent Actions'), 15))
-'''
-
-
-
-
-
 class CustomAppIndexDashboard(AppIndexDashboard):
     """
     Custom app index dashboard for transafealp.

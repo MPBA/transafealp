@@ -28,4 +28,8 @@ urlpatterns = patterns('',
         (r'^$', 'transafealp.views.main_view'),
         (r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'registration/login.html'}),
         (r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'next_page': '/accounts/login'}),
+
+        #################### SCENARIO URLS #########################
+        (r'^scenario/',   include('scenario.urls')),
+
 )

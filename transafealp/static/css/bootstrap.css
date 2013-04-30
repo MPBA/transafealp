@@ -2006,6 +2006,17 @@ table {
   margin-bottom: 20px;
 }
 
+.table caption {
+    font-size: 14px;
+    font-weight: bold;
+    padding: 5px;
+    margin-bottom: 5px;
+    background-color: #e3e3e3;
+    -moz-border-radius: 15px;
+    border-radius: 15px;
+
+}
+
 .table th,
 .table td {
   padding: 8px;

@@ -398,7 +398,7 @@ class AutocompleteView(object):
         return self.paths[path].view(request)
 
     def get_urls(self):
-        from django.conf.urls.defaults import patterns, url
+        from django.conf.urls import patterns, url
 
         urlpatterns = patterns('',
             url(r'(.+)/$', self, name='autocomplete'))
