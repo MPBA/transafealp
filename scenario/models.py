@@ -3,7 +3,6 @@ __author__ = 'ernesto (arbitrio@fbk.eu)'
 
 from django.db import models
 from django.contrib.auth.models import User
-#from transafealp.geomodelcollection import CollectionFrom
 from django.db import connection, transaction
 
 #scenario app

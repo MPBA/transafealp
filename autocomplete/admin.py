@@ -135,7 +135,7 @@ class AutocompleteAdmin(object):
     def get_urls(self):
         # This ensures that `admin_site.admin_view` is applied to the
         # autocomplete_view.
-        from django.conf.urls.defaults import patterns, url
+        from django.conf.urls import patterns, url
 
         info = self.model._meta.app_label, self.model._meta.module_name
 
