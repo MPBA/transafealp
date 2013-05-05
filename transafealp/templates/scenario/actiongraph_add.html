@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+<script type="text/javascript">
+    $(function(ready){
+        $('#id_action').change(function() {
+        var idaction = $(this).find(':selected').val();
+        $.ajax({
+            type: 'GET',
+            url: 'http://localhost:8000/scenario/json_action/'+idaction,
+            data: {'id': idaction},
+            success: function(html) {
+                if (html=="") {
+                    $('#modal-content').modal('show');
+                    $('#id_action').focus();
+                }
+                $('#id_parent').html("<option value=" + $.parseJSON(html)[0] +">" + $.parseJSON(html)[1] + "</option>" );
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="modal hide fade" id="modal-content">
+          <div class="modal-header">
+
+             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               <h3>Association Action-Parent error!</h3>
+                </div>
+                <!-- modal body text -->
+                <div class="modal-body">
+                    <p>The action selected has no parent available.</p>
+                </div>
+          <div class="modal-footer">
+                 <a href="#" class="btn" data-dismiss="modal">Close</a>
+          </div>
+        </div>
+     {% if messages %}
+        <div class="alert alert-success">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+
+                {% for message in messages %}
+                    <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+
+        </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+         <fieldset>
+             <legend>Add a new graph association</legend>
+        </fieldset>
+        <label><strong>Action</strong></label>
+        {{ form.action }}
+         <label><strong>Parent</strong></label>
+         <select name="parent_select" id="id_parent" required="True"></select>
+         <div class="form-actions">
+            <input type="submit" value="Save" name="add" id="id_submit_add" class="btn btn-info">
+         </div>
+    </form>
+    <table class="table table-striped table-bordered">
+    <thead>
+        <tr><th>Parent</th><th>Action</th><th></th></tr>
+    </thead>
+        {% for action in graph %}
+        <tr>
+            <td>{{ action.parent.name }}</td>
+            <td>{{ action.action.name }}</td>
+            <td width="4%">
+                <a href="{% url 'scenario.views.delete_action_from_graph' scenario.id action.id %}"><img src="{% static 'img/delete.png' %}"></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <div class="form-actions">
+        <a href="{% url 'scenario.views.insert_actors_to_action' scenario.id action_id %}"><button class="btn btn-primary pull-right">Next >></button></a>
+    </div>
+    {{ error }}
+{% endblock %}
+
+

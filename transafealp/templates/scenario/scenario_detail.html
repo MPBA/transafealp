@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+    <script src="{% static 'openlayer/js/open-layer-custom.js' %}"></script>
+
+
+     <script type="text/javascript">
+
+
+    jQuery('#geom_scenario').ready(function() {
+            // map, layer, vector, poly;
+            vector = new OpenLayers.Layer.Vector("scenario",{
+                //projection: new OpenLayers.Projection("EPSG:4326")
+            });
+
+            poly = new OpenLayers.Format.GeoJSON();
+            var output = poly.read('{% autoescape off %}{{ geometry }}{% endautoescape %}');
+            vector.addFeatures(
+                output
+            );
+            map = new OpenLayers.Map({
+                theme:"{% static 'openlayer/css/style.css' %}",
+                //projection: new OpenLayers.Projection("EPSG:900913"),
+                //displayProjection: new OpenLayers.Projection("EPSG:4326")
+                //maxExtent: [],
+            });
+            layer = new OpenLayers.Layer.OSM( "Simple OSM Map");
+            map.addLayers([layer,vector]);
+            map.zoomToExtent(vector.getDataExtent());
+
+        setTimeout(function(){
+            map.render('geom_scenario')
+        },2000)
+
+        });
+    </script>
+{% endblock %}
+{% block content %}
+
+        <p class="text-info lead">{{ scenario.0 }} details [Owner: {{ request.session.ma|capfirst }}]</p>
+        <hr>
+        <table class="table table-bordered">
+            <tr>
+                <td width="10%"><strong>Name</strong></td>
+                <td>{{ scenario.0 }}</td>
+            </tr>
+            <tr>
+                <td><strong>Category</strong></td>
+                <td>
+                    <presmall>
+                        {{ category.category }}
+                        └── {{ category.name }}
+                    </presmall>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Description</strong></td>
+                <td style="text-align: justify">{{ scenario.2 }}</td>
+            </tr>
+            <tr>
+                <td><strong>Geometry</strong></td>
+                <td>
+                    <div id="geom_scenario" style=" height: 500px;"></div>
+                </td>
+            </tr>
+        </table>
+
+{% endblock %}
+
+

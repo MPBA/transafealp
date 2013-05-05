@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+    <script type="text/javascript" src="{% static 'js/jquery.fancybox-1.3.4.pack.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/jquery.fancybox-1.3.4.css'%}" type="text/css" media="screen" />
+    <script type="text/javascript">
+    $(document).ready(function() {
+	    $("#iframe").fancybox({
+    'width'         : '75%',
+    'height'        : '75%',
+    'autoScale'     : false,
+    'transitionIn'  : 'none',
+    'transitionOut' : 'none',
+    'type'          : 'iframe'
+});
+    });
+
+    $(function(ready){
+      $('.checkall').click(function () {
+        $(this).closest('table').find('input[type=checkbox]').prop('checked', this.checked);
+      });
+    });
+    </script>
+{% endblock %}
+
+{% block content %}
+
+     {% if messages %}
+        <div class="alert alert-success">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+
+                {% for message in messages %}
+                    <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+
+        </div>
+    {% endif %}
+		<a id="iframe" href="http://www.google.it">Iframe</a>
+    <table class="table table-striped table-bordered" id="scenarios" >
+    <caption>Actors available for {{ action.name }} (Scenario: {{ scenario.name }})</caption>
+        <thead>
+            <tr>
+                <th><input type="checkbox" id="checkall" class="checkall"></th>
+                <th style="width: 3%">#</th>
+                <th style="width: 25%">Name</th>
+                <th style="width: 40%">Istitution</th>
+                <th style="width: 70%">Scenario</th>
+                <th style="width: 20%">Email</th>
+                <th style="width: 20%">Phone</th>
+            </tr>
+        </thead>
+        <tbody>
+            <form method="POST" id="id_form_actor">
+            {% csrf_token %}
+            {% for actor in actors_av %}
+                <tr>
+                    <td><input type="checkbox" value="{{ actor.actor.id }}" id="id_actor_{{ actor.id }}" name="actor_id"></td>
+                    <td>{{ actor.pk }}</td>
+                    <td>{{ actor.actor.name|capfirst }}</td>
+                    <td>{{ actor.actor.istitution|capfirst|truncatechars:50 }}</td>
+                    <td>{{ actor.action.scenario }}</td>
+                    <td>{{ actor.actor.email }}</td>
+                    <td>{{ actor.actor.phone }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+         <div class="form-actions pagination-centered">
+            <input type="submit" value="Add selected Actors" name="add" id="id_submit_add" class="btn btn-info">
+         </div>
+        </form>
+    <table class="table table-striped table-bordered" id="scenarios" >
+    <caption>Actors already assigned for {{ action.name }} (Scenario: {{ scenario.name }})</caption>
+        <thead>
+            <tr>
+                <th style="width: 3%">#</th>
+                <th style="width: 25%">Name</th>
+                <th style="width: 30%">Istitution</th>
+                <th style="width: 20%">Email</th>
+                <th style="width: 18%">Phone</th>
+                <th style="width: 10%"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <form method="POST" id="id_form_actor">
+            {% for actor in actors_aa %}
+                <tr>
+                    <td>{{ actor.pk }}</td>
+                    <td>{{ actor.actor.name|capfirst }}</td>
+                    <td>{{ actor.actor.istitution|capfirst|truncatechars:50 }}</td>
+                    <td>{{ actor.actor.email }}</td>
+                    <td>{{ actor.actor.phone }}</td>
+                    <td>
+                        <a href="{% url 'scenario.views.delete_actor_action' actor.pk %}"
+                           onclick="return confirm('You are deleting {{ actor.actor.name }} association! Are you sure?')">
+                            <img src="{% static 'img/delete.png' %}">
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </form>
+        </tbody>
+    </table>
+    <div class="form-actions">
+        <a href="#"><button class="btn btn-primary pull-right">Next >></button></a>
+    </div>
+{% endblock %}

@@ -1010,6 +1010,14 @@ pre.prettyprint {
   margin-bottom: 20px;
 }
 
+presmall {
+  margin-top: 600px;
+  text-align: left;
+  width: 150px;
+  font-size: 16px;
+  white-space: pre-line;
+}
+
 pre code {
   padding: 0;
   color: inherit;
@@ -6161,6 +6169,10 @@ a.badge:focus {
     float: right;
     margin-right: 2em;
     margin-top:8px;
+}
+
+.pull-center{
+    text-align: center;
 }
 
 .pull-left {

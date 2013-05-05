@@ -5,7 +5,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db import connection, transaction
 
-#scenario app
+
 class ManagingAuthority(models.Model):
     auth_user = models.ForeignKey(User)
     name = models.TextField(unique=True)
@@ -23,7 +23,6 @@ class ManagingAuthority(models.Model):
         return u'%s' % (self.name)
 
 
-#scenario app
 class Scenario(models.Model):
     managing_authority = models.ForeignKey(ManagingAuthority)
     subcategory = models.ForeignKey('ScenarioSubcategory', null=True, blank=True)
@@ -50,10 +49,9 @@ class Scenario(models.Model):
         ordering = ['name', 'subcategory']
 
     def __unicode__(self):
-        return u'%s %s' % (self.name, self.subcategory)
+        return u'%s' % (self.name,)
 
 
-#scenario app
 class ScenarioCategory(models.Model):
     name = models.TextField(unique=True)
     description = models.TextField()
@@ -67,7 +65,6 @@ class ScenarioCategory(models.Model):
         return u'%s' % (self.name)
 
 
-#scenario app
 class ScenarioSubcategory(models.Model):
     category = models.ForeignKey(ScenarioCategory, null=True, blank=True, verbose_name='Parent')
     name = models.TextField(unique=True)
@@ -79,7 +76,7 @@ class ScenarioSubcategory(models.Model):
         ordering = ['name']
 
     def __unicode__(self):
-        return u'%s' % (self.name)
+        return u'%s %s %s' % (self.category, ' -> ', self.name)
 
 
 class Actor(models.Model):
@@ -96,21 +93,21 @@ class Actor(models.Model):
         return u'%s' % (self.name)
 
 
-#scenario app
 class Action(models.Model):
     scenario = models.ForeignKey('Scenario')
     name = models.TextField()
     numcode = models.IntegerField()
     description = models.TextField()
+    duration = models.IntegerField()
 
     class Meta:
+        unique_together = ('name', 'scenario')
         db_table = 'action'
 
     def __unicode__(self):
         return u'%s %s' % (self.name, self.scenario)
 
 
-#scenario app
 class ActionGraph(models.Model):
     action = models.ForeignKey(Action)
     parent = models.ForeignKey(Action, related_name="parent")
@@ -122,23 +119,26 @@ class ActionGraph(models.Model):
         verbose_name_plural = 'Action Graphs'
 
     def __unicode__(self):
-        return u'%s %s %s' % (self.action, self.parent, self.is_main_parent)
+        return u'%s %s %s %s' % (self.parent, ' => ', self.action, self.is_main_parent)
 
 
-#scenario app
 class ActionM2MActor(models.Model):
     action = models.ForeignKey(Action)
     actor = models.ForeignKey(Actor)
+
     class Meta:
         db_table = 'action_m2m_actor'
 
+    def __unicode__(self):
+        return u'%s %s' % (self.action, self.actor)
 
-#scenario app
+
 class Visualization(models.Model):
     action = models.ForeignKey(Action)
     description = models.TextField(blank=True)
     type = models.TextField()
     content = models.TextField()
+
     class Meta:
         db_table = 'visualization'
         verbose_name = 'Visualization'
