@@ -137,7 +137,7 @@ class Visualization(models.Model):
     action = models.ForeignKey(Action)
     description = models.TextField(blank=True)
     type = models.TextField()
-    content = models.TextField()
+    content = models.FileField(upload_to='visualization')
 
     class Meta:
         db_table = 'visualization'

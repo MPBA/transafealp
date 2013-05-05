@@ -119,8 +119,27 @@ def actors_add(request, scenario_id):
             messages.add_message(request, messages.INFO, 'Actor correctly saved!')
             return redirect('scenario.views.actors_list')
         form = ActorAddForm()
-    context = {'form': form, }
+    context = {'form': form}
     return render_to_response('scenario/actor_add.html', context, context_instance=RequestContext(request))
+
+
+@login_required
+def actors_add_popup(request, scenario_id):
+    scenario = Scenario.objects.get(pk=scenario_id, managing_authority=Membership(request.user).membership_auth)
+    action = Action.objects.filter(scenario=scenario, name='root').latest('id')
+    form = ActorAddForm()
+    if request.method == 'POST':
+        form = ActorAddForm(request.POST)
+        if form.is_valid:
+            obj = form.save(commit=False)
+            obj.save()
+            actor = Actor.objects.get(pk=obj.id)
+            actorm2maction = ActionM2MActor(action=action, actor=actor)
+            actorm2maction.save()
+            messages.add_message(request, messages.INFO, 'Actor correctly saved!')
+        form = ActorAddForm()
+    context = {'form': form}
+    return render_to_response('scenario/add_actor_popup.html', context, context_instance=RequestContext(request))
 
 
 @login_required
@@ -219,6 +238,14 @@ def delete_action_from_graph(request, scenario_id, graph_id):
             db_error = e
             messages.add_message(request, messages.INFO, smart_str(db_error))
         return redirect('scenario.views.action_graph_add', scenario_id)
+
+
+@login_required
+def visualization(request, action_id):
+    action = Action.objects.get(pk=action_id)
+    pass
+    context = {'action': action}
+    return render_to_response('scenario/visualization.html', context, context_instance=RequestContext(request))
 
 
 @login_required

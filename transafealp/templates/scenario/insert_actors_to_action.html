@@ -6,13 +6,17 @@
     <script type="text/javascript">
     $(document).ready(function() {
 	    $("#iframe").fancybox({
-    'width'         : '75%',
-    'height'        : '75%',
-    'autoScale'     : false,
-    'transitionIn'  : 'none',
-    'transitionOut' : 'none',
-    'type'          : 'iframe'
-});
+               'width'         : '55%',
+               'height'        : '70%',
+               'autoScale'     : true,
+               'transitionIn'  : 'none',
+               'transitionOut' : 'none',
+               'type'          : 'iframe',
+               'hideOnOverlayClick': false,
+               'onClosed'          : function() {
+                                  parent.location.reload(true);
+                                  }
+        });
     });
 
     $(function(ready){
@@ -35,7 +39,6 @@
 
         </div>
     {% endif %}
-		<a id="iframe" href="http://www.google.it">Iframe</a>
     <table class="table table-striped table-bordered" id="scenarios" >
     <caption>Actors available for {{ action.name }} (Scenario: {{ scenario.name }})</caption>
         <thead>
@@ -68,6 +71,11 @@
 
          <div class="form-actions pagination-centered">
             <input type="submit" value="Add selected Actors" name="add" id="id_submit_add" class="btn btn-info">
+            <a href="{% url 'scenario.views.actors_add_popup' scenario.id %}" id="iframe">
+                <button value="Add a new Actor" class="btn btn-success pull-right">
+                    <img src="{% static 'img/users.png' %}"> Add a new Actor +
+                </button>
+            </a>
          </div>
         </form>
     <table class="table table-striped table-bordered" id="scenarios" >
@@ -103,6 +111,6 @@
         </tbody>
     </table>
     <div class="form-actions">
-        <a href="#"><button class="btn btn-primary pull-right">Next >></button></a>
+        <a href="{% url 'scenario.views.visualization' action.id %}"><button class="btn btn-primary pull-right">Next >></button></a>
     </div>
 {% endblock %}
