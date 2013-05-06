@@ -6,8 +6,8 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
-from .models import Scenario, ScenarioSubcategory, ActionM2MActor, Action, Actor, ActionGraph
-from .forms import ScenarioAddForm, ActionAddForm, ActorAddForm, ActionGraphAddForm
+from .models import Scenario, ScenarioSubcategory, ActionM2MActor, Action, Actor, ActionGraph, Visualization
+from .forms import ScenarioAddForm, ActionAddForm, ActorAddForm, ActionGraphAddForm, VisualizationForm
 from utility import Membership, Actor_Action_Association
 from django.db import connection, transaction
 from django.contrib import messages
@@ -28,7 +28,7 @@ def scenario_list(request):
 def scenario_detail(request, scenario_id):
     cursor = connection.cursor()
     cursor.execute(
-        "SELECT name, subcategory_id, description , ST_AsGeoJSON(ST_Transform(ST_SetSRID(geom,4326),900913)) FROM scenario WHERE id=%s AND managing_authority_id=%s",
+        "SELECT name, subcategory_id, description , ST_AsGeoJSON(ST_Transform(ST_SetSRID(geom,900913),900913)) FROM scenario WHERE id=%s AND managing_authority_id=%s",
         [scenario_id, Membership(request.user).membership_auth.pk])
     row = cursor.fetchone()
 
@@ -243,8 +243,22 @@ def delete_action_from_graph(request, scenario_id, graph_id):
 @login_required
 def visualization(request, action_id):
     action = Action.objects.get(pk=action_id)
-    pass
-    context = {'action': action}
+    form = VisualizationForm()
+    visualizations = Visualization.objects.filter(action=action)
+    if request.method == 'POST':
+        form = VisualizationForm(request.POST, request.FILES)
+        if form.is_valid:
+            obj = form.save(commit=False)
+            obj.action = action
+            try:
+                obj.save()
+                messages.add_message(request, messages.INFO, 'Attach correctly uploaded!')
+            except Exception, e:
+                transaction.rollback()
+                db_error = e
+                messages.add_message(request, messages.INFO, smart_str(db_error))
+        form = VisualizationForm()
+    context = {'action': action, 'form': form, 'visualizations': visualizations}
     return render_to_response('scenario/visualization.html', context, context_instance=RequestContext(request))
 
 

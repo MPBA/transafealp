@@ -8,28 +8,39 @@
 
 
     jQuery('#geom_scenario').ready(function() {
-            // map, layer, vector, poly;
-            vector = new OpenLayers.Layer.Vector("scenario",{
-                //projection: new OpenLayers.Projection("EPSG:4326")
-            });
+        var map, layer, vector, json, extent;
 
-            poly = new OpenLayers.Format.GeoJSON();
-            var output = poly.read('{% autoescape off %}{{ geometry }}{% endautoescape %}');
-            vector.addFeatures(
-                output
-            );
-            map = new OpenLayers.Map({
-                theme:"{% static 'openlayer/css/style.css' %}",
-                //projection: new OpenLayers.Projection("EPSG:900913"),
-                //displayProjection: new OpenLayers.Projection("EPSG:4326")
-                //maxExtent: [],
-            });
-            layer = new OpenLayers.Layer.OSM( "Simple OSM Map");
-            map.addLayers([layer,vector]);
-            map.zoomToExtent(vector.getDataExtent());
+        vector = new OpenLayers.Layer.Vector("scenario");
+        extent =  new OpenLayers.Bounds(596825.316768,5437464.443338,1800249.889923,6097880.36763);
+        json = new OpenLayers.Format.GeoJSON();
+
+        vector.addFeatures(
+            json.read('{% autoescape off %}{{ geometry }}{% endautoescape %}')
+        );
+        layer = new OpenLayers.Layer.OSM( "Simple OSM Map");
+
+        map = new OpenLayers.Map({
+            theme:"{% static 'openlayer/css/style.css' %}",
+            restrictedExtent: extent,
+            maxExtent: extent,
+            projection: 'EPSG:900913',
+            controls: [
+                new OpenLayers.Control.PanZoom(),
+                new OpenLayers.Control.Attribution(),
+                new OpenLayers.Control.Scale(),
+                new OpenLayers.Control.ScaleLine()
+            ]
+        });
+
+        var boxes = new OpenLayers.Layer.Boxes("boxes");
+        var box = new OpenLayers.Marker.Box(extent);
+        boxes.addMarker(box);
+
+        map.addLayers([layer,vector,boxes]);
 
         setTimeout(function(){
             map.render('geom_scenario')
+            map.zoomToExtent(vector.getDataExtent());
         },2000)
 
         });
