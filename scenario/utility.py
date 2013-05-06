@@ -21,7 +21,7 @@ class Membership(object):
     def membership_auth(self):
         try:
             ma = ManagingAuthority.objects.get(auth_user=User.objects.get(pk=self.user_id))
-        except ManagingAuthority.DoesNotExists:
+        except ManagingAuthority.DoesNotExist:
             ma = None
         return ma
 
