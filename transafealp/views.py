@@ -14,6 +14,7 @@ def main_view(request):
         managing_authority = Membership(request.user).membership_auth
     except ManagingAuthority.DoesNotExists:
         managing_authority = ""
+    request.session["ma"] = managing_authority
     context = {'ma': managing_authority}
     return render_to_response('transafealp/home_page.html', context, context_instance=RequestContext(request))
 

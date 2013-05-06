@@ -5,6 +5,16 @@ from django.contrib import admin
 from scenario.models import *
 from autocomplete.views import autocomplete, AutocompleteSettings
 from autocomplete.admin import AutocompleteAdmin
+from django import forms
+from django.db import models
+
+
+class ActionInline(admin.TabularInline):
+    model = Action
+    can_delete = True
+    allow_add = True
+    fk_name = "scenario"
+    extra = 5
 
 
 class SubCatAdmin(AutocompleteAdmin, admin.ModelAdmin):
@@ -40,15 +50,29 @@ class ScenarioAdmin(AutocompleteAdmin, admin.ModelAdmin):
         'managing_authority': {'search_fields': '^name', 'add_button': False, 'lookup': True},
         'subcategory': {'search_fields': '^name', 'add_button': False, 'lookup': True}
     }
+    inlines = [
+        ActionInline,
+    ]
 
+class ActionGraphAdmin(admin.ModelAdmin):
+    list_display = ('parent', 'action')
+    search_fields = ['parent__name', 'action__name']
 
-
+class ActionM2MActorAdmin(AutocompleteAdmin, admin.ModelAdmin):
+    list_display = ('action', 'actor')
+    list_filter = ('actor',)
+    search_fields = ['actor__name', 'action__name']
+    autocomplete_fields = {
+        'actor': {'search_fields': '^name', 'add_button': True, 'lookup': True},
+        'action': {'search_fields': '^name', 'add_button': True, 'lookup': True},
+    }
 
 admin.site.register(Scenario, ScenarioAdmin)
 admin.site.register(ScenarioCategory)
 admin.site.register(ScenarioSubcategory, SubCatAdmin)
 admin.site.register(Action, ActionAdmin)
 admin.site.register(Actor, ActorAdmin)
-admin.site.register(ActionGraph)
+admin.site.register(ActionGraph, ActionGraphAdmin)
+admin .site.register(ActionM2MActor, ActionM2MActorAdmin)
 admin.site.register(ManagingAuthority, AuthManagerAdmin)
 admin.site.register(Visualization)

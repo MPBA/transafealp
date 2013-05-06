@@ -156,64 +156,11 @@ CREATE TABLE IF NOT EXISTS action (
 	UNIQUE(scenario_id,name)
 );
 
--- private func --
-DROP FUNCTION IF EXISTS find_descendants (bigint) CASCADE;
-CREATE OR REPLACE FUNCTION find_descendants (action_id bigint)
-RETURNS TABLE (action bigint) AS
-$BODY$
-DECLARE
-	act action%ROWTYPE;
-BEGIN
-	SELECT INTO act * FROM action WHERE id = action_id;
-	IF NOT FOUND THEN
-		RAISE EXCEPTION 'Action not found.';
-	END IF;
-
-	RETURN QUERY WITH RECURSIVE childtree(elem) AS (
-		(SELECT ag.action_id FROM action_graph ag WHERE parent_id = $1)
-		UNION
-		(SELECT ag.action_id FROM action_graph ag,childtree
-		 WHERE ag.parent_id = childtree.elem)
-	) 
-	SELECT elem FROM childtree;
-END
-$BODY$
-LANGUAGE plpgsql;
-COMMENT ON FUNCTION find_descendants (bigint) IS 'TODO';
-
--- private func --
-DROP FUNCTION IF EXISTS find_ancestors (bigint) CASCADE;
-CREATE OR REPLACE FUNCTION find_ancestors (action_id bigint)
-RETURNS TABLE (action bigint) AS
-$BODY$
-DECLARE
-	act action%ROWTYPE;
-BEGIN
-	SELECT INTO act * FROM action WHERE id = action_id;
-	IF NOT FOUND THEN
-		RAISE EXCEPTION 'Action not found.';
-	END IF;
-
-	RETURN QUERY WITH RECURSIVE ancestors(elem) AS (
-		(SELECT ag.action_id FROM action_graph ag WHERE parent_id = $1)
-		UNION
-		(SELECT ag.action_id FROM action_graph ag,ancestors
-		 WHERE ag.parent_id = ancestors.elem)
-	)
-	SELECT elem FROM ancestors;
-END
-$BODY$
-LANGUAGE plpgsql;
-COMMENT ON FUNCTION find_ancestors (bigint) IS 'TODO';
-
-select * from find_childtree(2);
-
-
 DROP FUNCTION IF EXISTS new_action() CASCADE;
 CREATE OR REPLACE FUNCTION new_action() RETURNS TRIGGER AS
 $BODY$
 DECLARE
-	parent action%ROWTYPE;
+	parent_id bigint;
 BEGIN
 	IF (NEW.name = 'root') THEN
 		RETURN NEW;
@@ -224,21 +171,17 @@ BEGIN
 	END IF;
 
 	IF (TG_OP = 'INSERT') THEN
-		SELECT INTO parent * FROM action WHERE name = 'root' AND scenario_id = NEW.scenario_id;
-		INSERT INTO action_graph VALUES (DEFAULT,NEW.id,parent.id,TRUE);
+		SELECT INTO parent_id id FROM action WHERE name = 'root' AND scenario_id = NEW.scenario_id;
+		INSERT INTO action_graph VALUES (DEFAULT,NEW.id,parent_id,TRUE);
 	END IF;
-
-	
 
 	RETURN NEW;
 END
 $BODY$
 LANGUAGE plpgsql;
 COMMENT ON FUNCTION new_action() IS '';
-DROP TRIGGER IF EXISTS new_action ON action CASCADE;
-CREATE TRIGGER new_action AFTER INSERT OR UPDATE ON action FOR EACH ROW EXECUTE PROCEDURE new_action();
-
-select *,ST_ASEWKT(geom) from scenario;
+DROP TRIGGER IF EXISTS new_action_check ON action CASCADE;
+CREATE TRIGGER new_action_check AFTER INSERT OR UPDATE ON action FOR EACH ROW EXECUTE PROCEDURE new_action();
 
 --grafo delle azioni
 DROP TABLE IF EXISTS action_graph CASCADE;
@@ -250,6 +193,107 @@ CREATE TABLE IF NOT EXISTS action_graph (
 	CHECK (action_id != parent_id),
 	UNIQUE (action_id, parent_id)
 );
+
+-- private func --
+DROP FUNCTION IF EXISTS find_descendants (bigint) CASCADE;
+CREATE OR REPLACE FUNCTION find_descendants (action_id bigint)
+RETURNS TABLE (action bigint) AS
+$BODY$
+BEGIN
+	PERFORM id FROM action WHERE id = action_id;
+	IF NOT FOUND THEN
+		RAISE EXCEPTION 'Action not found.';
+	END IF;
+
+	RETURN QUERY WITH RECURSIVE childtree(elem) AS (
+		(SELECT ag.action_id FROM action_graph ag WHERE parent_id = $1)
+		UNION
+		(SELECT ag.action_id FROM action_graph ag,childtree
+		 WHERE ag.parent_id = childtree.elem)
+	)
+	SELECT elem FROM childtree;
+END
+$BODY$
+LANGUAGE plpgsql;
+COMMENT ON FUNCTION find_descendants (bigint) IS 'TODO';
+
+-- private func --
+DROP FUNCTION IF EXISTS find_ancestors (bigint) CASCADE;
+CREATE OR REPLACE FUNCTION find_ancestors (action_id bigint)
+RETURNS TABLE (action bigint) AS
+$BODY$
+BEGIN
+	PERFORM id FROM action WHERE id = action_id;
+	IF NOT FOUND THEN
+		RAISE EXCEPTION 'Action not found.';
+	END IF;
+
+	RETURN QUERY WITH RECURSIVE ancestors(elem) AS (
+		(SELECT ag.parent_id FROM action_graph ag WHERE ag.action_id = $1)
+		UNION
+		(SELECT ag.parent_id FROM action_graph ag,ancestors
+		 WHERE ag.action_id = ancestors.elem)
+	)
+	SELECT elem FROM ancestors;
+END
+$BODY$
+LANGUAGE plpgsql;
+COMMENT ON FUNCTION find_ancestors (bigint) IS 'TODO';
+
+DROP FUNCTION IF EXISTS find_available_parents (bigint) CASCADE;
+CREATE OR REPLACE FUNCTION find_available_parents (action_id bigint)
+RETURNS TABLE (action bigint) AS
+$BODY$
+DECLARE
+	scen_id bigint;
+BEGIN
+	SELECT INTO scen_id a.scenario_id FROM action a WHERE a.id = action_id;
+	IF NOT FOUND THEN
+		RAISE EXCEPTION 'Action not found.';
+	END IF;
+
+	RETURN QUERY SELECT id FROM action a WHERE a.scenario_id = scen_id AND a.id NOT IN
+	(
+		(SELECT action_id)
+		UNION
+		(SELECT * FROM find_ancestors(action_id))
+		UNION
+		(SELECT * FROM find_descendants(action_id))
+	);
+END
+$BODY$
+LANGUAGE plpgsql;
+COMMENT ON FUNCTION find_available_parents (bigint) IS 'TODO';
+
+DROP FUNCTION IF EXISTS new_action_graph() CASCADE;
+CREATE OR REPLACE FUNCTION new_action_graph() RETURNS TRIGGER AS
+$BODY$
+DECLARE
+	parent_id bigint;
+BEGIN
+	IF (NEW.parent_id NOT IN (SELECT * FROM find_available_parents(NEW.action_id))) THEN
+		RAISE EXCEPTION 'Cannot set action % as parent for action %',NEW.parent_id,NEW.action_id;
+	END IF;
+
+	--Is the parent troublesome? check if we need to delete some redundant links
+	IF (NEW.parent_id IN (SELECT DISTINCT find_descendants(parent_id)
+		FROM action_graph WHERE action_id = NEW.action_id)
+	) THEN
+		
+	END IF;
+
+	RETURN NEW;
+END
+$BODY$
+LANGUAGE plpgsql;
+COMMENT ON FUNCTION new_action_graph() IS '';
+DROP TRIGGER IF EXISTS new_action_graph ON action_graph CASCADE;
+CREATE TRIGGER new_action_graph BEFORE INSERT OR UPDATE ON action_graph
+	FOR EACH ROW EXECUTE PROCEDURE new_action_graph();
+
+select DISTINCT x.parent_id FROM (
+SELECT DISTINCT parent_id,find_descendants(parent_id) FROM action_graph WHERE action_id = 8
+) x
 
 --attori associati alle azioni
 DROP TABLE IF EXISTS action_m2m_actor CASCADE;
