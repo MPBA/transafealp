@@ -14,7 +14,6 @@ $BODY$
 	pixmap <- gdkPixmapNew(w=width, h=height, depth=24)
 	asCairoDevice(pixmap)
 
-	#conn <- dbConnect(PostgreSQL(), host = "geopg", dbname = "transafe_dev", user= "transafe_dev", pass="transafe2K13alp!!")
 	query <- paste("select ap.name as parent,a.name as action from action_graph ag left join action a on a.id = ag.action_id left join action ap on ap.id = ag.parent_id where a.scenario_id = ",scenario_id,sep="")
 	data <- dbGetQuery(conn, query)
 	g <- plot(graph.edgelist(as.matrix(data)))
