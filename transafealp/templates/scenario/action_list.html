@@ -189,7 +189,7 @@
                 <th style="width: 20%">Num code</th>
                 <th style="width: 90%">Description</th>
                 <th style="width: 20%">Duration</th>
-                <th style="width: 1%"></th>
+                <th style="width: 5%"></th>
             </tr>
         </thead>
         <tbody>
@@ -203,6 +203,12 @@
                     <td>
                         <a href="{% url 'scenario.views.action_graph_add' action.scenario.id action.pk %}" data-toggle="tooltip" title="Action Graph" class="sublink">
                             <img src="{% static 'img/tree.png' %}">
+                        </a>
+                        <a href="{% url 'scenario.views.insert_actors_to_action' action.scenario.id action.pk %}">
+                            <img src="{% static 'img/users.png' %}">
+                        </a>
+                        <a href="{% url 'scenario.views.visualization' action.pk %}">
+                            <img src="{% static 'img/attach.png' %}">
                         </a>
                     </td>
                 </tr>
