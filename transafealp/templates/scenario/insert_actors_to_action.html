@@ -58,7 +58,7 @@
             {% for actor in actors_av %}
                 <tr>
                     <td><input type="checkbox" value="{{ actor.actor.id }}" id="id_actor_{{ actor.id }}" name="actor_id"></td>
-                    <td>{{ actor.pk }}</td>
+                    <td>{{ actor.actor.pk }}</td>
                     <td>{{ actor.actor.name|capfirst }}</td>
                     <td>{{ actor.actor.istitution|capfirst|truncatechars:50 }}</td>
                     <td>{{ actor.action.scenario }}</td>
@@ -78,6 +78,7 @@
                 </a>
          </div>
         </form>
+
     <table class="table table-striped table-bordered" id="scenarios" >
     <caption>Actors already assigned for {{ action.name }} (Scenario: {{ scenario.name }})</caption>
         <thead>
