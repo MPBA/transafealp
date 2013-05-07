@@ -54,7 +54,9 @@ class Actor_Action_Association(object):
                                                               exclude(action=self.action).\
                                                               exclude(actor__in=l).\
                                                               order_by('actor__name')
-        except ActionM2MActor.DoesNotExists:
+            print actors
+
+        except ActionM2MActor.DoesNotExist:
             actors = None
         return actors
 

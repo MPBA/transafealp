@@ -13,10 +13,12 @@ from django.db import connection, transaction
 from django.contrib import messages
 from django.utils.encoding import smart_str
 from django.db import IntegrityError
+from django.contrib.auth.decorators import user_passes_test
 import json
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def scenario_list(request):
     managing_auth = Membership(request.user).membership_auth
     scenarios = Scenario.objects.filter(managing_authority=managing_auth).order_by('-id', 'name')
@@ -25,6 +27,7 @@ def scenario_list(request):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def scenario_detail(request, scenario_id):
     cursor = connection.cursor()
     cursor.execute(
@@ -41,6 +44,7 @@ def scenario_detail(request, scenario_id):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def scenario_add(request):
     form = ScenarioAddForm()
     if request.POST:
@@ -73,6 +77,7 @@ def scenario_add(request):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def action_add(request, scenario_id):
     db_error = ""
     scenario = Scenario.objects.get(pk=scenario_id, managing_authority=Membership(request.user).membership_auth)
@@ -96,6 +101,7 @@ def action_add(request, scenario_id):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def actions_list(request, scenario_id):
     scenario = Scenario.objects.get(pk=scenario_id, managing_authority=Membership(request.user).membership_auth)
     actions = Action.objects.filter(scenario=scenario)
@@ -104,6 +110,7 @@ def actions_list(request, scenario_id):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def actors_add(request, scenario_id):
     scenario = Scenario.objects.get(pk=scenario_id, managing_authority=Membership(request.user).membership_auth)
     action = Action.objects.filter(scenario=scenario, name='root').latest('id')
@@ -124,6 +131,7 @@ def actors_add(request, scenario_id):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def actors_add_popup(request, scenario_id):
     scenario = Scenario.objects.get(pk=scenario_id, managing_authority=Membership(request.user).membership_auth)
     action = Action.objects.filter(scenario=scenario, name='root').latest('id')
@@ -143,6 +151,7 @@ def actors_add_popup(request, scenario_id):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def actors_list(request):
     actors = ActionM2MActor.objects.filter(
         action__scenario__managing_authority=Membership(request.user).membership_auth)
@@ -151,6 +160,7 @@ def actors_list(request):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def action_graph_add(request, scenario_id, action_id):
     db_error = ""
     scenario = Scenario.objects.get(pk=scenario_id, managing_authority=Membership(request.user).membership_auth)
@@ -175,6 +185,7 @@ def action_graph_add(request, scenario_id, action_id):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def insert_actors_to_action(request, scenario_id, action_id):
     scenario = Scenario.objects.get(pk=scenario_id, managing_authority=Membership(request.user).membership_auth)
     action = Action.objects.get(pk=action_id)
@@ -209,6 +220,7 @@ def insert_actors_to_action(request, scenario_id, action_id):
                               context_instance=RequestContext(request))
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def delete_actor_action(request, association_id):
     actionm2mactor = ActionM2MActor.objects.get(pk=association_id)
     scenario = actionm2mactor.action.scenario
@@ -225,6 +237,7 @@ def delete_actor_action(request, association_id):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def delete_action_from_graph(request, scenario_id, graph_id):
     scenario = Scenario.objects.get(pk=scenario_id, managing_authority=Membership(request.user).membership_auth)
     action_graph = ActionGraph.objects.get(pk=graph_id)
@@ -241,6 +254,7 @@ def delete_action_from_graph(request, scenario_id, graph_id):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def visualization(request, action_id):
     action = Action.objects.get(pk=action_id)
     form = VisualizationForm()
@@ -263,6 +277,7 @@ def visualization(request, action_id):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def json_action(request, id):
     cursor = connection.cursor()
     cursor.execute("SELECT id, name FROM action WHERE id IN (SELECT * FROM find_available_parents (%s))", [id, ])
