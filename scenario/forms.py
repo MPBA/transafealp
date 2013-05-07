@@ -3,7 +3,7 @@ __author__ = 'ernesto (arbitrio@fbk.eu)'
 
 from django import forms
 from autocomplete.utils import autocomplete_formfield
-from scenario.models import Scenario, ScenarioSubcategory, ScenarioCategory, Action, Actor
+from scenario.models import Scenario, ScenarioSubcategory, ScenarioCategory, Action, Actor, Visualization
 
 class ScenarioAddForm(forms.Form):
     subcategory = forms.ModelChoiceField(queryset=ScenarioSubcategory.objects.all().order_by('category__name'), widget=forms.Select(attrs={'required': 'True'}))
@@ -33,6 +33,7 @@ class ActorAddForm(forms.ModelForm):
     class Meta:
         model = Actor
 
+
 class ActionGraphAddForm(forms.Form):
     action = forms.ModelChoiceField(queryset=Action.objects.filter().order_by('name'), widget=forms.Select(attrs={'required': 'True'}))
     def __init__(self, actions_allowed, *args, **kwargs):
@@ -40,5 +41,15 @@ class ActionGraphAddForm(forms.Form):
         super(ActionGraphAddForm, self).__init__(*args, **kwargs)
         # now customise your field
         self.fields['action'].queryset = actions_allowed
+
+
+class VisualizationForm(forms.ModelForm):
+    description = forms.CharField(widget=forms.Textarea(attrs={'required': 'True', 'class': 'field span3', 'rows': '2', 'placeholder': 'Description'}))
+    #type = forms.CharField(widget=forms.TextInput(attrs={'required': 'True', 'class': 'field span3', 'placeholder': 'Type'}))
+
+    class Meta:
+        model = Visualization
+        exclude = ('action', 'type')
+
 
 

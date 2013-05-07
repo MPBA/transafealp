@@ -159,10 +159,10 @@ INSTALLED_APPS = (
     # admin apps
     'django.contrib.admin',
     'django.contrib.formtools',
+    #»»»»»»»»»»»»»»» utils  »»»»»»»»»»»»»»»»
+    'plrutils',
     #»»»»»»»»»»»»»»» transafealp apps »»»»»»»»»»»»»»»»
     'scenario',
-
-
 )
 
 # A sample logging configuration. The only tangible logging

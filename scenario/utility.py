@@ -21,7 +21,7 @@ class Membership(object):
     def membership_auth(self):
         try:
             ma = ManagingAuthority.objects.get(auth_user=User.objects.get(pk=self.user_id))
-        except ManagingAuthority.DoesNotExists:
+        except ManagingAuthority.DoesNotExist:
             ma = None
         return ma
 
@@ -54,7 +54,9 @@ class Actor_Action_Association(object):
                                                               exclude(action=self.action).\
                                                               exclude(actor__in=l).\
                                                               order_by('actor__name')
-        except ActionM2MActor.DoesNotExists:
+            print actors
+
+        except ActionM2MActor.DoesNotExist:
             actors = None
         return actors
 
