@@ -31,7 +31,7 @@ def scenario_list(request):
 def scenario_detail(request, scenario_id):
     cursor = connection.cursor()
     cursor.execute(
-        "SELECT name, subcategory_id, description , ST_AsGeoJSON(ST_Transform(ST_SetSRID(geom,4326),900913)) FROM scenario WHERE id=%s AND managing_authority_id=%s",
+        "SELECT name, subcategory_id, description , ST_AsGeoJSON(ST_Transform(ST_SetSRID(geom,900913),900913)) FROM scenario WHERE id=%s AND managing_authority_id=%s",
         [scenario_id, Membership(request.user).membership_auth.pk])
     row = cursor.fetchone()
 
