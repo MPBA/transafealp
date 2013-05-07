@@ -164,35 +164,66 @@
                     "sPaginationType": "bootstrap",
                     "oLanguage": {
                         "sLengthMenu": "_MENU_ records per page"
-                    }
+                    },
+                    "aoColumnDefs": [
+                        { 'bSortable': false, 'aTargets': [ 4 ] }
+                    ]
                 } );
             } );
+
+            jQuery(document).ready(function() {
+                $('.sublink').tooltip({'placement':'bottom'}); /*enable tooltip bootstrap to all navbar-link class tags*/
+            });
 
 
 	</script>
 {% endblock %}
 {% block content %}
+
+
+    {% if messages %}
+        <div class="alert alert-success">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+
+                {% for message in messages %}
+                    <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+
+        </div>
+    {% endif %}
     <table class="table table-striped table-bordered" id="scenarios" >
-    <caption>Scenarios list for {{ ma }}</caption>
+    <caption>Scenarios list for {{ request.session.ma }}</caption>
         <thead>
             <tr>
                 <th style="width: 3%">#</th>
-                <th style="width: 15%">Category</th>
-                <th style="width: 35%">Name</th>
-                <th style="width: 50%">Description</th>
-                <th style="width: 90%">Geometry</th>
+                <th style="width: 25%">Category</th>
+                <th style="width: 45%">Name</th>
+                <th style="width: 70%">Description</th>
+                <th style="width: 9%"></th>
 
             </tr>
         </thead>
         <tbody>
             {% for scenario in scenarios %}
                 <tr>
-                    <td>{{ scenario.pk }}</td>
-                    <td>{{ scenario.subcategory }}</td>
+                    <td><a href="{% url 'scenario.views.scenario_detail' scenario.id %}">{{ scenario.pk }}</a></td>
+                    <td><a class="sublink" data-toggle="tooltip" title="{{ scenario.subcategory }}">{{ scenario.subcategory|truncatechars:30 }}</a></td>
                     <td>{{ scenario.name|truncatechars:50 }}</td>
                     <td>{{ scenario.description|truncatechars:50 }}</td>
-                    <td>{{ scenario.geom }}</td>
-
+                    <td>
+                        <a href="{% url 'scenario.views.action_add' scenario.id %}" data-toggle="tooltip" title="Add Action" class="sublink">
+                            <img src="{% static 'img/actions.png' %}">
+                        </a>
+                        <a href="{% url 'scenario.views.actions_list' scenario.id %}" data-toggle="tooltip" title="Actions List" class="sublink">
+                            <img src="{% static 'img/tasks.png' %}">
+                        </a>
+                        <a href="{% url 'scenario.views.actors_add' scenario.id %}" data-toggle="tooltip" title="Add Actor" class="sublink">
+                            <img src="{% static 'img/users.png' %}">
+                        </a>
+                        <a href="{% url 'scenario.views.scenario_detail' scenario.id %}" data-toggle="tooltip" title="Scenario Detail" class="sublink">
+                            <img src="{% static 'img/lens.gif' %}">
+                        </a>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>

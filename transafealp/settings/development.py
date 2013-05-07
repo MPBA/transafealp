@@ -1,9 +1,11 @@
 __author__ = 'ernesto'
 from .locale import *
 
+'''
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
+'''
 
 LOGGING = {
     'version': 1,
