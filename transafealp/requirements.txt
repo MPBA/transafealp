@@ -12,3 +12,5 @@ django-debug-toolbar==0.9.4
 psycopg2==2.5
 #wsgiref
 wsgiref==0.1.2
+#plr-utils (print graph action status)
+git+http://github.com/MPBAUnofficial/plrutils.git@master#egg=plrutils
