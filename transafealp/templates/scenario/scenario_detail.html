@@ -8,6 +8,7 @@
 
 
     jQuery('#geom_scenario').ready(function() {
+        OpenLayers.ImgPath = "{% static 'openlayer/img/' %}";
         var map, layer, vector, json, extent;
 
         vector = new OpenLayers.Layer.Vector("scenario");
