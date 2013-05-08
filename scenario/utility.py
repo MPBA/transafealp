@@ -2,7 +2,8 @@
 __author__ = 'ernesto (arbitrio@fbk.eu)'
 from .models import ManagingAuthority
 from django.contrib.auth.models import User
-from scenario.models import ActionM2MActor
+from scenario.models import ActionM2MActor, Actor
+from django.db.models import Sum
 
 
 '''
@@ -49,13 +50,13 @@ class Actor_Action_Association(object):
 
     def actors_av_for_this_action(self, l):
         try:
-            actors = ActionM2MActor.objects.filter(action__scenario__managing_authority=Membership(self.user).
+            actors = ActionM2MActor.objects.values('actor__pk').annotate().\
+                                                              filter(action__scenario__managing_authority=Membership(self.user).
                                                               membership_auth).\
                                                               exclude(action=self.action).\
                                                               exclude(actor__in=l).\
                                                               order_by('actor__name')
-            print actors
-
+            actors = Actor.objects.filter(pk__in=[a['actor__pk'] for a in actors])
         except ActionM2MActor.DoesNotExist:
             actors = None
         return actors

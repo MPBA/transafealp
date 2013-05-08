@@ -1,6 +1,20 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block extrahead %}
+<script type="text/javascript" src="{% static 'js/jquery.fancybox-1.3.4.pack.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/jquery.fancybox-1.3.4.css'%}" type="text/css" media="screen" />
+    <script type="text/javascript">
+    $(document).ready(function() {
+	    $(".iframe").fancybox({
+               'width'         : '75%',
+               'height'        : '85%',
+               'autoScale'     : true,
+               'transitionIn'  : 'none',
+               'transitionOut' : 'none',
+               'type'          : 'iframe'
+        });
+    });
+    </script>
 <script type="text/javascript">
     $(function(ready){
         $('#id_action').change(function() {
@@ -19,6 +33,10 @@
             });
         });
     });
+
+
+
+
 </script>
 
 {% endblock %}
@@ -49,20 +67,25 @@
 
         </div>
     {% endif %}
+    <div class="span9">
+        <div class="span6">
+        <form method="POST">
+            {% csrf_token %}
+             <fieldset>
+                 <legend>Add a new graph association</legend>
+             </fieldset>
+            <label><strong>Action</strong></label>
+            {{ form.action }}
+             <label><strong>Parent</strong></label>
+             <select name="parent_select" id="id_parent" required="True"></select>
+             <div class="form-actions">
+                <input type="submit" value="Save" name="add" id="id_submit_add" class="btn btn-info">
+             </div>
+        </form>
+        </div>
 
-    <form method="POST">
-        {% csrf_token %}
-         <fieldset>
-             <legend>Add a new graph association</legend>
-        </fieldset>
-        <label><strong>Action</strong></label>
-        {{ form.action }}
-         <label><strong>Parent</strong></label>
-         <select name="parent_select" id="id_parent" required="True"></select>
-         <div class="form-actions">
-            <input type="submit" value="Save" name="add" id="id_submit_add" class="btn btn-info">
-         </div>
-    </form>
+        <div id="graph_jpg" style="margin-top: 0" class="span6"> {{ graph_url }}</div>
+    </div>
     <table class="table table-striped table-bordered">
     <thead>
         <tr><th>Parent</th><th>Action</th><th></th></tr>
@@ -78,7 +101,7 @@
         {% endfor %}
     </table>
     <div class="form-actions">
-        <a href="{% url 'scenario.views.insert_actors_to_action' scenario.id action_id %}"><button class="btn btn-primary pull-right">Next >></button></a>
+        <a href="{% url 'scenario.views.insert_actors_to_action' scenario.id %}"><button class="btn btn-primary pull-right">Next >></button></a>
     </div>
     {{ error }}
 {% endblock %}

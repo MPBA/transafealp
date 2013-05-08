@@ -7,13 +7,14 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from .models import Scenario, ScenarioSubcategory, ActionM2MActor, Action, Actor, ActionGraph, Visualization
-from .forms import ScenarioAddForm, ActionAddForm, ActorAddForm, ActionGraphAddForm, VisualizationForm
+from .forms import ScenarioAddForm, ActionAddForm, ActorAddForm, ActionGraphAddForm, VisualizationForm, SelectActionForm
 from utility import Membership, Actor_Action_Association
 from django.db import connection, transaction
 from django.contrib import messages
 from django.utils.encoding import smart_str
 from django.db import IntegrityError
 from django.contrib.auth.decorators import user_passes_test
+from django.utils.safestring import mark_safe
 import json
 
 
@@ -90,7 +91,7 @@ def action_add(request, scenario_id):
             obj.scenario = scenario
             try:
                 obj.save()
-                return redirect('scenario.views.action_graph_add', scenario.pk, obj.id)
+                return redirect('scenario.views.action_graph_add', scenario.pk)
             except Exception, e:
                 transaction.rollback()
                 db_error = e
@@ -161,12 +162,13 @@ def actors_list(request):
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
-def action_graph_add(request, scenario_id, action_id):
+def action_graph_add(request, scenario_id):
     db_error = ""
     scenario = Scenario.objects.get(pk=scenario_id, managing_authority=Membership(request.user).membership_auth)
-    actions_allowed = Action.objects.filter(scenario=scenario, pk=action_id)
+    actions_allowed = Action.objects.filter(scenario=scenario)
     form = ActionGraphAddForm(actions_allowed)
     graph = ActionGraph.objects.filter(action__scenario=scenario, parent__scenario=scenario)
+    graph_url = '<a href="http://localhost:8000/plr/execute/graph_action/'+str(scenario_id)+'/1000/1000" class="iframe"><img src="http://localhost:8000/plr/execute/graph_action/'+str(scenario_id)+'/400/400"></a>'
     if request.method == 'POST':
 
         if form.is_valid:
@@ -180,42 +182,49 @@ def action_graph_add(request, scenario_id, action_id):
                 transaction.rollback()
                 db_error = e
                 messages.add_message(request, messages.INFO, smart_str(db_error))
-    context = {'form': form, 'graph': graph, 'error': db_error, 'scenario': scenario, 'action_id': action_id}
+    context = {'form': form, 'graph': graph, 'error': db_error, 'scenario': scenario, 'graph_url': mark_safe(graph_url)}
     return render_to_response('scenario/actiongraph_add.html', context, context_instance=RequestContext(request))
 
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
-def insert_actors_to_action(request, scenario_id, action_id):
+def insert_actors_to_action(request, scenario_id):
     scenario = Scenario.objects.get(pk=scenario_id, managing_authority=Membership(request.user).membership_auth)
-    action = Action.objects.get(pk=action_id)
-
-    actors_already_assigned_to_this_action = Actor_Action_Association(request.user, scenario, action).actors_already_assigned_to_this_action()
-    #retreive the actor list from actor model for exclude from available actors the actor entry
-    l = [l.actor for l in actors_already_assigned_to_this_action]
-
-    actors_av_for_this_action = Actor_Action_Association(request.user, scenario, action).actors_av_for_this_action(l)
-
+    actions = Action.objects.filter(scenario=scenario)
+    form = SelectActionForm(actions)
     if request.method == 'POST':
-        #Save ActorM2MActin instance. We must assign one or more actors to the action selected
-        actor_to_save = request.POST.getlist('actor_id') #Retreive from post all the actor id selected by checkboxes
-        for actor in actor_to_save:
-            actorm2maction = ActionM2MActor(action=action, actor=Actor.objects.get(pk=int(actor)))
-            try:
-                messages.add_message(request, messages.INFO, 'Association ' + str(actorm2maction) + ' correctly saved!')
-                actorm2maction.save()
-                actors_already_assigned_to_this_action = Actor_Action_Association(request.user, scenario, action).actors_already_assigned_to_this_action()
-                #retreive the actor list from actor model for exclude from available actors the actor entry
-                l = [l.actor for l in actors_already_assigned_to_this_action]
-                actors_av_for_this_action = Actor_Action_Association(request.user, scenario, action).actors_av_for_this_action(l)
-            except Exception, e:
-                messages.add_message(request, messages.INFO, smart_str(e))
-                pass
+        form = SelectActionForm(actions, request.POST)
+        actors_already_assigned_to_this_action = Actor_Action_Association(request.user, scenario, int(request.POST['actions'])).actors_already_assigned_to_this_action()
+        #retreive the actor list from actor model for exclude from available actors the actor entry
+        l = [l.actor for l in actors_already_assigned_to_this_action]
+        actors_av_for_this_action = Actor_Action_Association(request.user, scenario, int(request.POST['actions'])).actors_av_for_this_action(l)
+        action = Action.objects.get(pk=int(request.POST['actions']))
+        actions = Action.objects.filter(scenario=scenario)
+        if 'add' in request.POST:
+            #Save ActorM2MAction instance. We must assign one or more actors to the action selected
+            actor_to_save = request.POST.getlist('actor_id') #Retreive from post all the actor id selected by checkboxes
+            for actor in actor_to_save:
+                actorm2maction = ActionM2MActor(action=action, actor=Actor.objects.get(pk=int(actor)))
+                try:
+                    messages.add_message(request, messages.INFO, 'Association ' + str(actorm2maction) + ' correctly saved!')
+                    actorm2maction.save()
+                    actors_already_assigned_to_this_action = Actor_Action_Association(request.user, scenario, action).actors_already_assigned_to_this_action()
+                    #retreive the actor list from actor model for exclude from available actors the actor entry
+                    l = [l.actor for l in actors_already_assigned_to_this_action]
+                    actors_av_for_this_action = Actor_Action_Association(request.user, scenario, action).actors_av_for_this_action(l)
+                except Exception, e:
+                    messages.add_message(request, messages.INFO, smart_str(e))
+                    pass
 
-    context = {'actors_aa': actors_already_assigned_to_this_action,
-               'actors_av': actors_av_for_this_action,
-               'action': action,
-               'scenario': scenario}
+        context = {'actors_aa': actors_already_assigned_to_this_action,
+                   'actors_av': actors_av_for_this_action,
+                   'action': action,
+                   'actions': actions,
+                   'scenario': scenario,
+                   'form': form}
+        return render_to_response('scenario/insert_actors_to_action.html', context,
+                              context_instance=RequestContext(request))
+    context = {'scenario': scenario, 'actions': actions, 'form': form}
     return render_to_response('scenario/insert_actors_to_action.html', context,
                               context_instance=RequestContext(request))
 
@@ -255,13 +264,16 @@ def delete_action_from_graph(request, scenario_id, graph_id):
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
-def visualization(request, action_id):
-    action = Action.objects.get(pk=action_id)
-    form = VisualizationForm()
-    visualizations = Visualization.objects.filter(action=action)
+def visualization(request, scenario_id):
+    scenario = Scenario.objects.get(pk=scenario_id, managing_authority=Membership(request.user).membership_auth)
+    actions = Action.objects.filter(scenario=scenario)
+    action_form = SelectActionForm(actions)
     if request.method == 'POST':
+        visualizations = Visualization.objects.filter(action=int(request.POST['actions']))
+        action_form = SelectActionForm(actions, request.POST)
         form = VisualizationForm(request.POST, request.FILES)
-        if form.is_valid:
+        action = Action.objects.get(pk=int(request.POST['actions']))
+        if ('save_vis' in request.POST) and form.is_valid:
             obj = form.save(commit=False)
             obj.action = action
             try:
@@ -272,8 +284,11 @@ def visualization(request, action_id):
                 db_error = e
                 messages.add_message(request, messages.INFO, smart_str(db_error))
         form = VisualizationForm()
-    context = {'action': action, 'form': form, 'visualizations': visualizations}
+        context = {'actions': actions, 'form': form, 'visualizations': visualizations, 'action_form': action_form, 'action': action}
+        return render_to_response('scenario/visualization.html', context, context_instance=RequestContext(request))
+    context = {'actions': actions, 'action_form': action_form}
     return render_to_response('scenario/visualization.html', context, context_instance=RequestContext(request))
+
 
 
 @login_required
