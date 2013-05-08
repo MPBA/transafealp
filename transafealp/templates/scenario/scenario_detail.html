@@ -8,6 +8,7 @@
 
 
     jQuery('#geom_scenario').ready(function() {
+        OpenLayers.ImgPath = "{% static 'openlayer/img/' %}";
         var map, layer, vector, json, extent;
 
         vector = new OpenLayers.Layer.Vector("scenario");
@@ -25,7 +26,6 @@
             maxExtent: extent,
             projection: 'EPSG:900913',
             controls: [
-                new OpenLayers.Control.PanZoom(),
                 new OpenLayers.Control.Attribution(),
                 new OpenLayers.Control.Scale(),
                 new OpenLayers.Control.ScaleLine()
