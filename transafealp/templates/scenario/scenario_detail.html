@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+    <script src="{% static 'openlayer/js/open-layer-custom.js' %}"></script>
+
+
+     <script type="text/javascript">
+
+
+    jQuery('#geom_scenario').ready(function() {
+        OpenLayers.ImgPath = "{% static 'openlayer/img/' %}";
+        var map, layer, vector, json, extent;
+
+        vector = new OpenLayers.Layer.Vector("scenario");
+        extent =  new OpenLayers.Bounds(596825.316768,5437464.443338,1800249.889923,6097880.36763);
+        json = new OpenLayers.Format.GeoJSON();
+
+        vector.addFeatures(
+            json.read('{% autoescape off %}{{ geometry }}{% endautoescape %}')
+        );
+        layer = new OpenLayers.Layer.OSM( "Simple OSM Map");
+
+        map = new OpenLayers.Map({
+            theme:"{% static 'openlayer/css/style.css' %}",
+            restrictedExtent: extent,
+            maxExtent: extent,
+            projection: 'EPSG:900913',
+            controls: [
+                new OpenLayers.Control.Attribution(),
+                new OpenLayers.Control.Scale(),
+                new OpenLayers.Control.ScaleLine()
+            ]
+        });
+
+        var boxes = new OpenLayers.Layer.Boxes("boxes");
+        var box = new OpenLayers.Marker.Box(extent);
+        boxes.addMarker(box);
+
+        map.addLayers([layer,vector,boxes]);
+
+        setTimeout(function(){
+            map.render('geom_scenario')
+            map.zoomToExtent(vector.getDataExtent());
+        },2000)
+
+        });
+    </script>
+{% endblock %}
+{% block content %}
+
+        <p class="text-info lead">{{ scenario.0 }} details [Owner: {{ request.session.ma|capfirst }}]</p>
+        <hr>
+        <table class="table table-bordered">
+            <tr>
+                <td width="10%"><strong>Name</strong></td>
+                <td>{{ scenario.0 }}</td>
+            </tr>
+            <tr>
+                <td><strong>Category</strong></td>
+                <td>
+                    <presmall>
+                        {{ category.category }}
+                        └── {{ category.name }}
+                    </presmall>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Description</strong></td>
+                <td style="text-align: justify">{{ scenario.2 }}</td>
+            </tr>
+            <tr>
+                <td><strong>Geometry</strong></td>
+                <td>
+                    <div id="geom_scenario" style=" height: 500px;"></div>
+                </td>
+            </tr>
+        </table>
+
+{% endblock %}
+
+

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+    <script src="{% static "autocomplete/js/jquery_autocomplete.js" %}"></script>
+    <script src="{% static "autocomplete/js/jquery-ui.min.js" %}"></script>
+    <link rel="stylesheet" href="{% static "autocomplete/css/jquery-ui.css" %}">
+    <script src="{% static 'openlayer/js/open-layer-custom.js' %}"></script>
+    <script type="text/javascript">
+        function get_polygon(){
+
+            if ($('#id_subcategory').val()=="") {
+                $('#sub_text').text('Category value is required');
+            } else { $('#sub_text').text(''); }
+
+            if ($('#id_name').val()=="") {
+                $('#name_text').text('Name value is required');
+            } else { $('#name_text').text(''); }
+
+            if ($('#id_description').val()=="") {
+                $('#desc_text').text('Descriprion value is required');
+            } else { $('#desc_text').text(''); }
+
+            var wkt = new OpenLayers.Format.WKT();
+            var str = wkt.write(vlayer.features[0]);
+
+            str = str.replace(/,/g, ', ');
+            $('#id_geometry').text(str);
+            $('#scenario_form').submit();
+        }
+
+        jQuery('#scenario_map').ready(function() {
+            OpenLayers.ImgPath = "{% static 'openlayer/img/' %}";
+            var map, layer, extent;
+
+            extent =  new OpenLayers.Bounds(596825.316768,5437464.443338,1800249.889923,6097880.36763);
+            layer = new OpenLayers.Layer.OSM( "Simple OSM Map");
+            vlayer = new OpenLayers.Layer.Vector( "Editable" );
+
+            map = new OpenLayers.Map({
+                theme:"{% static 'openlayer/css/style.css' %}",
+                restrictedExtent: extent,
+                maxExtent: extent,
+                projection: 'EPSG:900913',
+                controls: [
+                    new OpenLayers.Control.Attribution(),
+                    new OpenLayers.Control.Scale(),
+                    new OpenLayers.Control.ScaleLine(),
+                    new OpenLayers.Control.EditingToolbar(vlayer)
+                ]
+            });
+
+            var boxes = new OpenLayers.Layer.Boxes("boxes");
+            var box = new OpenLayers.Marker.Box(extent);
+            boxes.addMarker(box);
+
+            map.addLayers([layer, vlayer,boxes]);
+
+            setTimeout(function(){
+                map.render('scenario_map');
+                map.zoomToExtent(extent,true);
+            },2000)
+
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <form method="POST" id="scenario_form">
+    {% csrf_token %}
+        <fieldset>
+            <legend>Add a new Scenario</legend>
+
+            <label><strong>Category</strong></label>
+            {{ form.subcategory }}
+            <span class="help-inline" id="sub_text">Select the scenario's category</span>
+
+            <label><strong>Name</strong></label>
+            {{ form.name }}
+            <span class="help-inline" id="name_text">Enter the scenario's name</span>
+
+            <label><strong>Description</strong></label>
+            {{ form.description }} {{ form.description.error }}
+            <span class="help-inline" id="desc_text">Insert the scenario's description</span>
+
+            <label><strong>Geometry</strong></label>
+            <span class="help-block" id="geom_text">Draw a polygon on interested area</span>
+            {{ form.geometry }}
+            <div id="scenario_map" style="width: 100%; height: 500px; border:1px #252525 solid"></div>
+
+            <div class="form-actions">
+                <input type="button" class="btn btn-info" onclick="get_polygon()" value="Save">
+                <input type="button"
+                       value="Save and add action"
+                       name="save_and_add"
+                       class="btn btn-primary"
+                       onclick="$('#scenario_form').append('<input type=hidden id=yourData name=save_and_add value=save_and_add>'); get_polygon();" >
+            </div>
+        </fieldset>
+    </form>
+{% endblock %}

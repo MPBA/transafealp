@@ -67,7 +67,7 @@ In this file there are all the importing string command for js and css files.-->
             {% block logged %}
                 {% if user.is_authenticated %}
                     <p class="navbar-text pull-right">
-                        Logged in as <a href="#" class="navbar-link badge badge-info" data-toggle="tooltip" title="{{ user.email }}">{{user.username}}</a> |
+                        Logged in as <a href="#" class="navbar-link badge badge-info" data-toggle="tooltip" title="{{ user.email }} {{ request.session.ma }}">{{user.username}}</a> |
                         <a href="{% url "django.contrib.auth.views.logout" %}" class="navbar-link" data-toggle="tooltip" title="logout"><img src="{% static "img/logout.png" %}"></a>
                     </p>
                     <p class="navbar-text pull-middle">
@@ -80,7 +80,7 @@ In this file there are all the importing string command for js and css files.-->
             <!-- endblock auth section -->
             {% block menu %}
             <ul class="nav">
-              <li class="active" ><a href="#">Home</a></li>
+              <li class="active" ><a href="/">Home</a></li>
               <li><a href="#about">About</a></li>
               <li><a href="#contact">Contact</a></li>
             </ul>
@@ -102,21 +102,24 @@ In this file there are all the importing string command for js and css files.-->
             <div class="span2">
               <div class="well sidebar-nav">
                 <ul class="nav nav-list">
-
+                  {% if request.session.ma %}
                   <li class="nav-header">Scenario</li>
-                  <li><a href="#">Link</a></li>
-                  <li><a href="#">Link</a></li>
-                  <li><a href="#">Link</a></li>
-                  <li><a href="#">Link</a></li>
+                  <li><a href="{% url 'scenario.views.scenario_add' %}">Add Scenario</a></li>
+                  <li><a href="{% url 'scenario.views.scenario_list' %}">Scenarios List</a></li>
+                  <li class="divider"></li>
+                  <li class="nav-header">Actors</li>
+                  <li><a href="{% url 'scenario.views.actors_list' %}">Actors List</a></li>
+                  <li class="divider"></li>
+                  {% endif %}
 
-                  <li class="nav-header">JITIES</li>
-                  <li><a href="#">Link</a></li>
-                  <li><a href="#">Link</a></li>
-
+                  <li class="nav-header">Tools</li>
+                  <li><a href="#">Simulations</a></li>
+                  <li><a href="#">Emergencies</a></li>
+                  <li class="divider"></li>
                   <li class="nav-header">HowTo</li>
-                  <li><a href="#">Link</a></li>
-                  <li><a href="#">Link</a></li>
-                  <li><a href="#">Link</a></li>
+                  <li><a href="#">Guide</a></li>
+                  <li><a href="#">Links</a></li>
+                  <li><a href="#">Support</a></li>
                 </ul>
               </div><!--/.well -->
             </div><!--/span-->

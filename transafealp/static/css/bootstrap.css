@@ -1010,6 +1010,14 @@ pre.prettyprint {
   margin-bottom: 20px;
 }
 
+presmall {
+  margin-top: 600px;
+  text-align: left;
+  width: 150px;
+  font-size: 16px;
+  white-space: pre-line;
+}
+
 pre code {
   padding: 0;
   color: inherit;
@@ -2004,6 +2012,17 @@ table {
 .table {
   width: 100%;
   margin-bottom: 20px;
+}
+
+.table caption {
+    font-size: 14px;
+    font-weight: bold;
+    padding: 5px;
+    margin-bottom: 5px;
+    background-color: #e3e3e3;
+    -moz-border-radius: 15px;
+    border-radius: 15px;
+
 }
 
 .table th,
@@ -6150,6 +6169,10 @@ a.badge:focus {
     float: right;
     margin-right: 2em;
     margin-top:8px;
+}
+
+.pull-center{
+    text-align: center;
 }
 
 .pull-left {
