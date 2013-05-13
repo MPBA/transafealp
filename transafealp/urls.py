@@ -33,6 +33,9 @@ urlpatterns = patterns('',
 
         #################### SCENARIO URLS #########################
         (r'^scenario/',   include('scenario.urls')),
+        #################### JITES URLS #########################
+        (r'^jites/',   include('jites.urls')),
+
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += staticfiles_urlpatterns()

@@ -63,7 +63,6 @@ Ext.define('Ext.layout.Layout', {
                 config = layout;
                 type = layout.type || defaultType;
             }
-
             if (!(layoutClass = layoutsByType[type])) {
                 alias = 'layout.' + type;
                 className = ClassManager.getNameByAlias(alias);
