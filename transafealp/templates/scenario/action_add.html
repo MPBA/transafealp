@@ -79,7 +79,8 @@
                     <span class="help-inline">Must be a multiple of 15 {{ form.duration.errors }}</span>
 
                     <div class="form-actions">
-                    <input type="submit" class="btn btn-info" value="Next >>">
+                    <input type="submit" class="btn btn-info" value="Save">
+                    <a href="{% url 'scenario.views.action_graph_add' scenario.pk %}" class="btn btn-primary pull-right">Next>></a>
                     </div>
                 </fieldset>
             </form>

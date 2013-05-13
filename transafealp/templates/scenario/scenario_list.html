@@ -199,7 +199,7 @@
                 <th style="width: 25%">Category</th>
                 <th style="width: 45%">Name</th>
                 <th style="width: 70%">Description</th>
-                <th style="width: 9%"></th>
+                <th style="width: 20%"></th>
 
             </tr>
         </thead>
@@ -214,11 +214,17 @@
                         <a href="{% url 'scenario.views.action_add' scenario.id %}" data-toggle="tooltip" title="Add Action" class="sublink">
                             <img src="{% static 'img/actions.png' %}">
                         </a>
+                        <a href="{% url 'scenario.views.action_graph_add' scenario.id %}" data-toggle="tooltip" title="Action Graph" class="sublink">
+                            <img src="{% static 'img/tree.png' %}">
+                        </a>
+                        <a href="{% url 'scenario.views.insert_actors_to_action' scenario.id %}" data-toggle="tooltip" title="Add Actor" class="sublink">
+                            <img src="{% static 'img/users.png' %}">
+                        </a>
+                        <a href="{% url 'scenario.views.visualization' scenario.id %}" data-toggle="tooltip" title="Attachments" class="sublink">
+                            <img src="{% static 'img/attach.png' %}">
+                        </a>
                         <a href="{% url 'scenario.views.actions_list' scenario.id %}" data-toggle="tooltip" title="Actions List" class="sublink">
                             <img src="{% static 'img/tasks.png' %}">
-                        </a>
-                        <a href="{% url 'scenario.views.actors_add' scenario.id %}" data-toggle="tooltip" title="Add Actor" class="sublink">
-                            <img src="{% static 'img/users.png' %}">
                         </a>
                         <a href="{% url 'scenario.views.scenario_detail' scenario.id %}" data-toggle="tooltip" title="Scenario Detail" class="sublink">
                             <img src="{% static 'img/lens.gif' %}">

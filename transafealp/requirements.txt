@@ -14,3 +14,5 @@ psycopg2==2.5
 wsgiref==0.1.2
 #plr-utils (print graph action status)
 git+http://github.com/MPBAUnofficial/plrutils.git@master#egg=plrutils
+#Python imaging library
+PIL
