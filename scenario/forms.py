@@ -33,9 +33,19 @@ class ActorAddForm(forms.ModelForm):
     class Meta:
         model = Actor
 
+class SelectActionForm(forms.Form):
+    actions = forms.ModelChoiceField(queryset=Action.objects.all().order_by('name'), widget=forms.Select(attrs={'required': 'True'}))
+    def __init__(self, actions, *args, **kwargs):
+        # call the standard init first
+        super(SelectActionForm, self).__init__(*args, **kwargs)
+        # now customise your field
+        self.fields['actions'].queryset = actions
+
+
 
 class ActionGraphAddForm(forms.Form):
     action = forms.ModelChoiceField(queryset=Action.objects.filter().order_by('name'), widget=forms.Select(attrs={'required': 'True'}))
+
     def __init__(self, actions_allowed, *args, **kwargs):
         # call the standard init first
         super(ActionGraphAddForm, self).__init__(*args, **kwargs)
@@ -45,6 +55,7 @@ class ActionGraphAddForm(forms.Form):
 
 class VisualizationForm(forms.ModelForm):
     description = forms.CharField(widget=forms.Textarea(attrs={'required': 'True', 'class': 'field span3', 'rows': '2', 'placeholder': 'Description'}))
+    content = forms.Field(widget=forms.FileInput(attrs={'required': 'True'}), required=True)
     #type = forms.CharField(widget=forms.TextInput(attrs={'required': 'True', 'class': 'field span3', 'placeholder': 'Type'}))
 
     class Meta:

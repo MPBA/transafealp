@@ -174,7 +174,7 @@
             jQuery(document).ready(function() {
             $('.sublink').tooltip({'placement':'bottom'}); /*enable tooltip bootstrap to all navbar-link class tags*/
 
-        });
+            });
 
 
 	</script>
@@ -201,13 +201,11 @@
                     <td>{{ action.description }}</td>
                     <td>{{ action.duration }}</td>
                     <td>
-                        <a href="{% url 'scenario.views.action_graph_add' action.scenario.id action.pk %}" data-toggle="tooltip" title="Action Graph" class="sublink">
-                            <img src="{% static 'img/tree.png' %}">
-                        </a>
+
                         <a href="{% url 'scenario.views.insert_actors_to_action' action.scenario.id action.pk %}">
                             <img src="{% static 'img/users.png' %}">
                         </a>
-                        <a href="{% url 'scenario.views.visualization' action.pk %}">
+                        <a href="{% url 'scenario.views.visualization' action.scenario.id action.pk %}">
                             <img src="{% static 'img/attach.png' %}">
                         </a>
                     </td>

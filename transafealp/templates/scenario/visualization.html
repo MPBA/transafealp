@@ -15,7 +15,29 @@
                'type'          : 'iframe'
         });
     });
+
+    $(function(ready){
+
+      $('#id_actions').change(function() {
+        $('#actform').submit();
+      });
+    });
     </script>
+
+    {% if oneaction == 1 %}
+
+        <script type="text/javascript">
+
+        jQuery(document).ready(function() {
+            $('#id_actions option[value=""]').remove();
+            if ( {{ stop }} == 0 ) {
+                $('#actform').submit();
+            }
+
+            });
+        </script>
+    {% endif %}
+
 {% endblock %}
 {% block content %}
             {% if messages %}
@@ -26,46 +48,59 @@
                         {% endfor %}
                 </div>
             {% endif %}
-            <form method="POST" enctype="multipart/form-data">
+
+            <form id="actform" method="POST">
                 <fieldset>
-                    {% csrf_token %}
-                    <label><strong>Description</strong></label>
-                    {{ form.description }}
-                    <label><strong>File</strong></label>
-                    {{ form.content }}
+                    <legend>Select an action</legend>
                 </fieldset>
-                <div class="form-actions">
-                    <input type="submit" class="btn btn-info" value="Save">
-                </div>
+                {% csrf_token %}
+                <label><strong>Action</strong></label>
+                {{ action_form.actions }}
             </form>
-            <table class="table table-striped table-bordered" id="scenarios" >
-            <caption>Files attached to {{ action.name }} action</caption>
-                <thead>
-                    <tr>
-                        <th style="width: 3%">#</th>
-                        <th style="width: 36%">Description</th>
-                        <th style="width: 8%">Type</th>
-                        <th style="width: 50%">File</th>
-                        <th style="width: 20%"></th>
-                    </tr>
-                </thead>
-                <tbody>
 
-                    {% for file in visualizations %}
+            {% if request.POST %}
+                <form method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="actions" value="{{ action.pk }}">
+                    <fieldset>
+                        {% csrf_token %}
+                        <label><strong>Description</strong></label>
+                        {{ form.description }}
+                        <label><strong>File</strong></label>
+                        {{ form.content }}
+                    </fieldset>
+                    <div class="form-actions">
+                        <input type="submit" class="btn btn-info" value="Save" name="save_vis">
+                    </div>
+                </form>
+                <table class="table table-striped table-bordered" id="scenarios" >
+                <caption>Files attached to {{ action.name }} action</caption>
+                    <thead>
                         <tr>
-                            <td>{{ file.pk }}</td>
-                            <td>{{ file.description|capfirst|truncatechars:50 }}</td>
-                            <td>{{ file.content|splitstr:'.' }}</td>
-                            <td><a href="{{ file.content.url }}" type="application/octet-stream" class="iframe">{{ file.content }}</a></td>
-                            <td>
-                                <img src="{% static 'img/delete.png' %}">
-                            </td>
+                            <th style="width: 3%">#</th>
+                            <th style="width: 36%">Description</th>
+                            <th style="width: 8%">Type</th>
+                            <th style="width: 50%">File</th>
+                            <th style="width: 20%"></th>
                         </tr>
-                    {% endfor %}
+                    </thead>
+                    <tbody>
 
-                </tbody>
-            </table>
+                        {% for file in visualizations %}
+                            <tr>
+                                <td>{{ file.pk }}</td>
+                                <td>{{ file.description|capfirst|truncatechars:50 }}</td>
+                                <td>{{ file.content|splitstr:'.' }}</td>
+                                <td><a href="{{ file.content.url }}" type="application/octet-stream" class="iframe">{{ file.content }}</a></td>
+                                <td>
+                                    <img src="{% static 'img/delete.png' %}">
+                                </td>
+                            </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            {% endif %}
             <div class="form-actions">
-                <a href="#"><button class="btn btn-primary pull-right">Next >></button></a>
+                <a href="{% url 'scenario.views.scenario_list' %}"><button class="btn btn-primary pull-right">Next >></button></a>
             </div>
 {% endblock %}
