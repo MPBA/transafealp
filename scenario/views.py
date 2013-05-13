@@ -91,7 +91,7 @@ def action_add(request, scenario_id):
             obj.scenario = scenario
             try:
                 obj.save()
-                return redirect('scenario.views.action_graph_add', scenario.pk)
+                #return redirect('scenario.views.action_graph_add', scenario.pk)
             except Exception, e:
                 transaction.rollback()
                 db_error = e
@@ -188,9 +188,15 @@ def action_graph_add(request, scenario_id):
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
-def insert_actors_to_action(request, scenario_id):
+def insert_actors_to_action(request, scenario_id, action_id=None):
     scenario = Scenario.objects.get(pk=scenario_id, managing_authority=Membership(request.user).membership_auth)
-    actions = Action.objects.filter(scenario=scenario)
+    if action_id == None:
+        actions = Action.objects.filter(scenario=scenario)
+        oneaction = 0
+    else:
+        actions = Action.objects.filter(scenario=scenario, pk=action_id)
+        oneaction = 1
+
     form = SelectActionForm(actions)
     if request.method == 'POST':
         form = SelectActionForm(actions, request.POST)
@@ -221,10 +227,12 @@ def insert_actors_to_action(request, scenario_id):
                    'action': action,
                    'actions': actions,
                    'scenario': scenario,
-                   'form': form}
+                   'form': form,
+                   'oneaction': oneaction,
+                   'stop': 1}
         return render_to_response('scenario/insert_actors_to_action.html', context,
                               context_instance=RequestContext(request))
-    context = {'scenario': scenario, 'actions': actions, 'form': form}
+    context = {'scenario': scenario, 'actions': actions, 'form': form, 'oneaction': oneaction, 'stop': 0}
     return render_to_response('scenario/insert_actors_to_action.html', context,
                               context_instance=RequestContext(request))
 
@@ -264,9 +272,15 @@ def delete_action_from_graph(request, scenario_id, graph_id):
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
-def visualization(request, scenario_id):
+def visualization(request, scenario_id, action_id=None):
     scenario = Scenario.objects.get(pk=scenario_id, managing_authority=Membership(request.user).membership_auth)
-    actions = Action.objects.filter(scenario=scenario)
+    if action_id == None:
+        actions = Action.objects.filter(scenario=scenario)
+        oneaction = 0
+    else:
+        actions = Action.objects.filter(scenario=scenario, pk=action_id)
+        oneaction = 1
+
     action_form = SelectActionForm(actions)
     if request.method == 'POST':
         visualizations = Visualization.objects.filter(action=int(request.POST['actions']))
@@ -284,9 +298,15 @@ def visualization(request, scenario_id):
                 db_error = e
                 messages.add_message(request, messages.INFO, smart_str(db_error))
         form = VisualizationForm()
-        context = {'actions': actions, 'form': form, 'visualizations': visualizations, 'action_form': action_form, 'action': action}
+        context = {'actions': actions,
+                   'form': form,
+                   'visualizations': visualizations,
+                   'action_form': action_form,
+                   'action': action,
+                   'oneaction': oneaction,
+                   'stop': 1}
         return render_to_response('scenario/visualization.html', context, context_instance=RequestContext(request))
-    context = {'actions': actions, 'action_form': action_form}
+    context = {'actions': actions, 'action_form': action_form, 'oneaction': oneaction, 'stop': 0}
     return render_to_response('scenario/visualization.html', context, context_instance=RequestContext(request))
 
 

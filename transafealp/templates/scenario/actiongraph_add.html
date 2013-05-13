@@ -95,7 +95,9 @@
             <td>{{ action.parent.name }}</td>
             <td>{{ action.action.name }}</td>
             <td width="4%">
-                <a href="{% url 'scenario.views.delete_action_from_graph' scenario.id action.id %}"><img src="{% static 'img/delete.png' %}"></a>
+                <a href="{% url 'scenario.views.delete_action_from_graph' scenario.id action.id %}" onclick="return confirm('You are deleting {{ action }} association! Are you sure?')">
+                    <img src="{% static 'img/delete.png' %}">
+                </a>
             </td>
         </tr>
         {% endfor %}

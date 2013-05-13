@@ -202,12 +202,12 @@
                     <td>{{ action.duration }}</td>
                     <td>
 
-                        {% comment %}<a href="{% url 'scenario.views.insert_actors_to_action' action.scenario.id action.pk %}">
+                        <a href="{% url 'scenario.views.insert_actors_to_action' action.scenario.id action.pk %}">
                             <img src="{% static 'img/users.png' %}">
                         </a>
-                        <a href="{% url 'scenario.views.visualization' action.pk %}">
+                        <a href="{% url 'scenario.views.visualization' action.scenario.id action.pk %}">
                             <img src="{% static 'img/attach.png' %}">
-                        </a>{% endcomment %}
+                        </a>
                     </td>
                 </tr>
             {% endfor %}
