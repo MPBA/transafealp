@@ -25,6 +25,8 @@ authorities have a tool that can simplify the choices of action and information 
 * django-debug-toolbar==0.9.4
 * psycopg2==2.5
 * wsgiref==0.1.2
+* git+http://github.com/MPBAUnofficial/plrutils.git@master#egg=plrutils
+* PIL
 
 ```python
     pip install -r transafealp/requirements.txt
