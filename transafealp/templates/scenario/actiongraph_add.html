@@ -19,6 +19,8 @@
     $(function(ready){
         $('#id_action').change(function() {
         var idaction = $(this).find(':selected').val();
+        $("#id_parent").append("<option value='' selected>Loading ...</option>");
+
         $.ajax({
             type: 'GET',
             url: 'http://localhost:8000/scenario/json_action/'+idaction,
