@@ -51,7 +51,7 @@
 
             <form id="actform" method="POST">
                 <fieldset>
-                    <legend>Select an action</legend>
+                    <legend>(Step 5/5) - Attachment & Visualization management</legend>
                 </fieldset>
                 {% csrf_token %}
                 <label><strong>Action</strong></label>
@@ -101,6 +101,6 @@
                 </table>
             {% endif %}
             <div class="form-actions">
-                <a href="{% url 'scenario.views.scenario_list' %}"><button class="btn btn-primary pull-right">Next >></button></a>
+                <a href="{% url 'scenario.views.scenario_list' %}"><button class="btn btn-primary pull-right">End</button></a>
             </div>
 {% endblock %}
