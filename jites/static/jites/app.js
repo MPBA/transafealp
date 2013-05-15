@@ -26,7 +26,8 @@ Ext.application({
             },
             border: false,
             items: [{
-                xtype: 'topbar',
+                xtype: 'container',
+                renderTo: 'id_navbar',
                 height: 95
             },{
                 xtype: 'container',
