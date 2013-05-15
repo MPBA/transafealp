@@ -11,4 +11,3 @@ def emergency(request, displaymode):
     }
 
     return render_to_response('jites/emergency.html', context, context_instance=RequestContext(request))
-

@@ -1,31 +1,7 @@
-#bodyloading {
-    height: 100%;
-    width: 100%;
-    position:absolute;
-    top: 0;
-    z-index: 600001;
-    background-color: #FFFFFF;
-}
-
-#loading  {
-    height:auto;
-    left:45%;
-    padding:2px;
-    position:absolute;
-    top:40%;
-    z-index:600001;
-}
-
-#loading img {
-    margin-bottom:5px;
-}
-
-#loading .loading-indicator {
-    background:none repeat scroll 0 0 white;
-    color:#555555;
-    font:bold 13px tahoma,arial,helvetica;
-    height:auto;
-    margin:0;
-    padding:10px;
-    text-align:center;
+.jites-empty-area .x-mask {
+    background-color: #ffffff !important;
+    background-image: url("/static/jites/resources/images/empty_area_logo.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 1;
 }

@@ -8,10 +8,6 @@
 Ext.define('Jites.controller.JitesInterface', {
     extend: 'Ext.app.Controller',
 
-//    views: [
-//
-//    ],
-
     refs: [{
         ref: 'viewport',
         selector: 'viewport'

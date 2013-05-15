@@ -14,30 +14,35 @@ Ext.define('Jites.view.Interface',{
 
     layout: 'fit',
     defaults: {
-        bodyPadding: 10
+        bodyPadding: 10,
+        disabledCls: 'jites-empty-area'
     },
 
     flex: 1,
 
     initComponent: function() {
+        var me = this;
 
-        this.items = [
+        me.items = [
             {
                 title: 'Action graph',
                 id: 'actiongraph'
             },{
                 title: 'Action details',
+                disabled: true,
                 id: 'actiondetails'
             },{
                 title: 'Webgis area',
+                disabled: true,
                 id: 'webgis'
             },{
                 title: 'Event chronology ',
+                disabled: true,
                 id: 'chronology'
             }
         ]
 
-        this.callParent(arguments);
+        me.callParent(arguments);
     }
 });
 
