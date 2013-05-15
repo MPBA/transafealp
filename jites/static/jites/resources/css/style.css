@@ -5,3 +5,13 @@
     background-repeat: no-repeat;
     opacity: 1;
 }
+.x-tab-disabled a {
+    color: #808080 !important;
+}
+.x-tab-disabled a:hover {
+    text-decoration:  none;
+}
+.x-tab-default a {
+    color: #000000;
+
+}

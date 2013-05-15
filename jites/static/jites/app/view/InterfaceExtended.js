@@ -26,6 +26,7 @@ Ext.define('Jites.view.InterfaceExtended',{
             {
                 xtype: 'panel',
                 id: 'actiongraph',
+                disabled: true,
                 width: me.componentSize.wRow1,
                 height: me.componentSize.hRow1
             },{

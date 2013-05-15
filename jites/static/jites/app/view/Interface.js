@@ -26,6 +26,8 @@ Ext.define('Jites.view.Interface',{
         me.items = [
             {
                 title: 'Action graph',
+                disabled: true,
+                html: '<h1>test</h1>',
                 id: 'actiongraph'
             },{
                 title: 'Action details',
