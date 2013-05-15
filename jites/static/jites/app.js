@@ -10,8 +10,6 @@ Ext.application({
 
     appFolder: '/static/jites/app',
 
-    views: ['TopBar'],
-
     launch: function() {
         //Loading configuration via AJAX request
         //TODO to be implemented
