@@ -311,7 +311,8 @@ CREATE TABLE IF NOT EXISTS visualization (
 	action_id BIGINT NOT NULL REFERENCES action(id) ON UPDATE CASCADE ON DELETE CASCADE,
 	description TEXT,
 	type TEXT NOT NULL,
-	content TEXT NOT NULL
+	content TEXT NOT NULL,
+	url TEXT 
 );
 
 ------------------------------------------------------------------------------------------
