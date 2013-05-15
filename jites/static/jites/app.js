@@ -10,8 +10,6 @@ Ext.application({
 
     appFolder: '/static/jites/app',
 
-    views: ['TopBar'],
-
     launch: function() {
         //Loading configuration via AJAX request
         //TODO to be implemented
@@ -26,7 +24,8 @@ Ext.application({
             },
             border: false,
             items: [{
-                xtype: 'topbar',
+                xtype: 'container',
+                renderTo: 'id_navbar',
                 height: 95
             },{
                 xtype: 'container',

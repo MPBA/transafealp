@@ -19,16 +19,23 @@
     $(function(ready){
         $('#id_action').change(function() {
         var idaction = $(this).find(':selected').val();
+        $("#id_parent").append("<option value='' selected>Loading ...</option>");
+
         $.ajax({
             type: 'GET',
             url: 'http://localhost:8000/scenario/json_action/'+idaction,
             data: {'id': idaction},
-            success: function(html) {
-                if (html=="") {
+            success: function(json) {
+                //alert($.parseJSON(json));
+                $("#id_parent").empty();
+                if (json=="") {
                     $('#modal-content').modal('show');
                     $('#id_action').focus();
                 }
-                $('#id_parent').html("<option value=" + $.parseJSON(html)[0] +">" + $.parseJSON(html)[1] + "</option>" );
+                $.each(json, function(i) {
+                    $('#id_parent').append("<option value=" + json[i][0] +">" + json[i][1] + "</option>" );
+                });
+
                 }
             });
         });
@@ -72,7 +79,7 @@
         <form method="POST">
             {% csrf_token %}
              <fieldset>
-                 <legend>Add a new graph association</legend>
+                 <legend>(Step 3/5) - Add a new graph association</legend>
              </fieldset>
             <label><strong>Action</strong></label>
             {{ form.action }}
@@ -103,7 +110,7 @@
         {% endfor %}
     </table>
     <div class="form-actions">
-        <a href="{% url 'scenario.views.insert_actors_to_action' scenario.id %}"><button class="btn btn-primary pull-right">Next >></button></a>
+        <a href="{% url 'scenario.views.insert_actors_to_action' scenario.id %}"><button class="btn btn-primary pull-right">Actors association >></button></a>
     </div>
     {{ error }}
 {% endblock %}

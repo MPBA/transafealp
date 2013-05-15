@@ -8,10 +8,6 @@
 Ext.define('Jites.controller.JitesInterface', {
     extend: 'Ext.app.Controller',
 
-//    views: [
-//
-//    ],
-
     refs: [{
         ref: 'viewport',
         selector: 'viewport'
@@ -23,12 +19,6 @@ Ext.define('Jites.controller.JitesInterface', {
     init: function() {
 
         this.control({
-            'viewport > container': {
-                afterrender: this.hideLoading
-            },
-            'viewport > container[id=content]': {
-                resize: this.updateContentSize
-            },
             'viewport > container[id=content]': {
                 afterlayout:{
                     fn: this.renderInterface,
@@ -37,13 +27,6 @@ Ext.define('Jites.controller.JitesInterface', {
                 }
             }
         });
-
-    },
-
-    hideLoading: function(){
-        var loading;
-        loading = Ext.get("bodyloading");
-        loading.fadeOut();
     },
 
     renderInterface: function(){
@@ -77,8 +60,6 @@ Ext.define('Jites.controller.JitesInterface', {
             baseInterface
         )
 
-        //Add listeners to "resize" event
-//        content.on("resize",this.updateContentSize,this);
     },
     getComponentSize: function(content,mode){
         try {

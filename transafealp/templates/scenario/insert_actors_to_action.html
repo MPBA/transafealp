@@ -27,6 +27,12 @@
       $('#id_actions').change(function() {
         $('#actform').submit();
       });
+
+      var checkboxes = $("input[type='checkbox']");
+      var submitButt = $("#id_submit_add");
+      checkboxes.click(function() {
+        submitButt.attr("disabled", !checkboxes.is(":checked"));
+      });
     });
     </script>
 {% endblock %}
@@ -60,7 +66,7 @@
 
     <form id="actform" method="POST">
     <fieldset>
-        <legend>Select an action</legend>
+        <legend>(Step 4/5) - Actors association</legend>
     </fieldset>
         {% csrf_token %}
         <label><strong>Action</strong></label>
@@ -99,7 +105,7 @@
             </tbody>
         </table>
          <div class="form-actions pagination-centered">
-            <input type="submit" value="Add selected Actors" name="add" id="id_submit_add" class="btn btn-info">
+            <input type="submit" value="Add selected Actors" name="add" id="id_submit_add" class="btn btn-info" disabled>
                 <a href="{% url 'scenario.views.actors_add_popup' scenario.id %}" id="iframe">
                     <button value="Add a new Actor" class="btn btn-success pull-right">
                         <img src="{% static 'img/users.png' %}"> Add a new Actor +
@@ -143,6 +149,6 @@
         {% endif %}
 
     <div class="form-actions">
-        <a href="{% url 'scenario.views.visualization' scenario.id %}"><button class="btn btn-primary pull-right">Next >></button></a>
+        <a href="{% url 'scenario.views.visualization' scenario.id %}"><button class="btn btn-primary pull-right">Attachment & Visualization >></button></a>
     </div>
 {% endblock %}

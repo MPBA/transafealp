@@ -39,7 +39,6 @@ def scenario_detail(request, scenario_id):
     transaction.commit_unless_managed()
     category = ScenarioSubcategory.objects.get(pk=int(list(row)[1]))
     geometry = list(row)[3]
-    print geometry
     context = {'scenario': list(row), 'category': category, 'geometry': geometry}
     return render_to_response('scenario/scenario_detail.html', context, context_instance=RequestContext(request))
 
@@ -99,6 +98,23 @@ def action_add(request, scenario_id):
         form = ActionAddForm()
     context = {'form': form, 'scenario': scenario, 'last_10_actions': last_10_actions, 'error': db_error}
     return render_to_response('scenario/action_add.html', context, context_instance=RequestContext(request))
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def del_action(request, action_id):
+    action = Action.objects.get(pk=action_id)
+    scenario = action.scenario.pk
+    try:
+        action.delete()
+        messages.add_message(request, messages.INFO, 'Action' + smart_str(action) + 'correctly deleted!')
+        return redirect('scenario.views.actions_list', scenario)
+    except Exception, e:
+        messages.add_message(request, messages.INFO, smart_str(e))
+        return redirect('scenario.views.actions_list', scenario)
+        pass
+    pass
+
 
 
 @login_required
@@ -168,7 +184,7 @@ def action_graph_add(request, scenario_id):
     actions_allowed = Action.objects.filter(scenario=scenario)
     form = ActionGraphAddForm(actions_allowed)
     graph = ActionGraph.objects.filter(action__scenario=scenario, parent__scenario=scenario)
-    graph_url = '<a href="http://localhost:8000/plr/execute/graph_action/'+str(scenario_id)+'/1000/1000" class="iframe"><img src="http://localhost:8000/plr/execute/graph_action/'+str(scenario_id)+'/400/400"></a>'
+    graph_url = '<a href="plr/execute/graph_action/'+str(scenario_id)+'/1000/1000" class="iframe"><img src="http://localhost:8000/plr/execute/graph_action/'+str(scenario_id)+'/400/400"></a>'
     if request.method == 'POST':
 
         if form.is_valid:
@@ -316,10 +332,16 @@ def visualization(request, scenario_id, action_id=None):
 def json_action(request, id):
     cursor = connection.cursor()
     cursor.execute("SELECT id, name FROM action WHERE id IN (SELECT * FROM find_available_parents (%s))", [id, ])
-    rows = cursor.fetchone()
+    rows = cursor.fetchall()
     transaction.commit_unless_managed()
-    data = json.dumps(list(rows)) if rows else ''
-    return HttpResponse(json.dumps(data), content_type="application/json")
+    #data = json.dumps(dict(rows)) if rows else ''
+    rowarray_list = []
+    for row in rows:
+        t = (row[0], row[1])
+        rowarray_list.append(t)
+
+    j = json.dumps(rowarray_list)
+    return HttpResponse(j, content_type="application/json")
 
 
 

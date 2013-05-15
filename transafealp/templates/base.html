@@ -12,6 +12,7 @@ In this file there are all the importing string command for js and css files.-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="ernesto.arbirio@gmail.com">
+
     {% load staticfiles %}
     <!-- styles -->
     <link href="{% static "css/bootstrap.css" %}" rel="stylesheet">
@@ -58,7 +59,7 @@ In this file there are all the importing string command for js and css files.-->
     {% endblock %}
     {% block topnavbar %}
     <div class="navbar navbar-fixed-top" style="display: none;" id="id_navbar">
-      <div class="navbar-inner">
+      <div class="navbar-inner" style="height: 95px">
         <div class="container-fluid">
 
           <a class="brand" href="#"><img class="navbar-link" data-toggle="tooltip" title="TransafeAlp"  src="{% static "img/logo_toosmall.png" %}"></a>
@@ -141,7 +142,8 @@ In this file there are all the importing string command for js and css files.-->
 
         </div><!-- /container -->
 
-   {% block push %}<div id="push"></div>
+   {% block push %}
+       <div id="push"></div>
     </div>
     {% endblock %}
     {% block footer %}

@@ -1,22 +1,7 @@
-<!DOCTYPE html>
-<!-- ========================Page Description======================== -->
-<!-- This page is the base template for all the other extended template of all
-the views written in django views files.
-The *blocks* template tag identify all the template section that can be overwritten.
-In this file there are all the importing string command for js and css files.-->
-<!-- ========================end page description==================== -->
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>TransafeAlp JITES</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="droghetti@fbk.eu">
+{% extends "base.html" %}
+{% load staticfiles %}
 
-    {% load staticfiles %}
-    <!-- styles -->
-    <link href="{% static "css/bootstrap.css" %}" rel="stylesheet">
-{#    <link rel="stylesheet" type="text/css" href="{% static 'jites/extjs/resources/css/ext-all.css' %}">#}
+{% block extrahead %}
     <link rel="stylesheet" type="text/css" href="{% static 'jites/resources/css/extjs_all.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'jites/resources/css/style.css' %}">
 
@@ -28,20 +13,20 @@ In this file there are all the importing string command for js and css files.-->
         displaymode = '{{ displaymode }}';
         username = '{{ username }}'
     </script>
-
-    {% block extrahead %}
-    {% endblock %}
-</head>
-<body>
-{% block loading %}
-    <div id="bodyloading">
-        <div id="loading">
-            <div class="loading-indicator">
-                <img alt="Caricamento in corso" src="{% static 'jites/resources/images/load.gif'%}" />
-                <p>Loading framework...</p>
-            </div>
-        </div>
-    </div>
 {% endblock %}
-</body>
-</html>
+
+
+{% block sidebar %}
+{% endblock %}
+
+{% block content %}
+{% endblock %}
+
+{% block push %}
+{% endblock %}
+
+{% block menu %}
+{% endblock %}
+
+{% block footer %}
+{% endblock %}

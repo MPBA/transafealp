@@ -60,7 +60,7 @@
               <form method="POST" id="action_form">
                 {% csrf_token %}
                 <fieldset>
-                    <legend>Add a new Action for {{ scenario.name }}</legend>
+                    <legend>(Step 2/5) - Add a new Action for {{ scenario.name }}</legend>
 
                     <label><strong>Name</strong></label>
                     {{ form.name }}
@@ -80,7 +80,7 @@
 
                     <div class="form-actions">
                     <input type="submit" class="btn btn-info" value="Save">
-                    <a href="{% url 'scenario.views.action_graph_add' scenario.pk %}" class="btn btn-primary pull-right">Next>></a>
+                    <a href="{% url 'scenario.views.action_graph_add' scenario.pk %}" class="btn btn-primary pull-right">Go to action graph >></a>
                     </div>
                 </fieldset>
             </form>
