@@ -144,23 +144,24 @@ ADMIN_TOOLS_INDEX_DASHBOARD = 'transafealp.dashboard.CustomIndexDashboard'
 INSTALLED_APPS = (
     #»»»»»»»»»»»»»3rd part app»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»
     #'south',
-    'debug_toolbar',
+    #'debug_toolbar',
     #django admin tools apps
     'admin_tools.theming',
     'admin_tools.menu',
     'admin_tools.dashboard',
+    'plrutils',
     #-----------------------
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'django.contrib.flatpages',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # admin apps
     'django.contrib.admin',
     'django.contrib.formtools',
-    #»»»»»»»»»»»»»»» utils  »»»»»»»»»»»»»»»»
-    'plrutils',
+    'django.contrib.webdesign',
     #»»»»»»»»»»»»»»» transafealp apps »»»»»»»»»»»»»»»»
     'scenario',
 )
