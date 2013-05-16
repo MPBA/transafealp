@@ -38,7 +38,8 @@ Ext.application({
     },
 
     controllers: [
-        'JitesInterface'
+        'JitesInterface',
+        'EventLog'
     ]
 
 });
