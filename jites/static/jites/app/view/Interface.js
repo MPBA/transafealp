@@ -15,8 +15,12 @@ Ext.define('Jites.view.Interface',{
     layout: 'fit',
     defaults: {
         bodyPadding: 10,
-        disabledCls: 'jites-empty-area'
+        disabledCls: 'jites-empty-area',
+        hideMode: 'offsets'
     },
+
+    deferredRender: false,
+
 
     flex: 1,
 
@@ -25,22 +29,30 @@ Ext.define('Jites.view.Interface',{
 
         me.items = [
             {
+                xtype: 'container',
                 title: 'Action graph',
                 disabled: true,
                 html: '<h1>test</h1>',
                 id: 'actiongraph'
             },{
+                xtype: 'container',
                 title: 'Action details',
                 disabled: true,
                 id: 'actiondetails'
             },{
+                xtype: 'container',
                 title: 'Webgis area',
                 disabled: true,
                 id: 'webgis'
             },{
+                xtype: 'container',
                 title: 'Event chronology ',
                 disabled: true,
-                id: 'chronology'
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+                id: 'eventlog'
             }
         ]
 

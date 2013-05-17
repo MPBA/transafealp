@@ -27,6 +27,7 @@ Ext.define('Jites.controller.JitesInterface', {
                 }
             }
         });
+
     },
 
     renderInterface: function(){
