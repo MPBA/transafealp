@@ -41,3 +41,12 @@ def poll(request):
     })
     j = json.dumps(result)
     return HttpResponse(j, content_type="application/json")
+
+@login_required
+def annotation(request):
+    # TODO implemented by real request on scenario log table. This is a demo.
+    result = ({
+                  'success': 'true'
+              })
+    j = json.dumps(result)
+    return HttpResponse(j, content_type="application/json")
