@@ -10,9 +10,10 @@ Ext.application({
 
     appFolder: '/static/jites/app',
 
-    views: ['TopBar'],
-
     launch: function() {
+        //Require library
+        Ext.require('Ext.util.Cookies');
+
         //Loading configuration via AJAX request
         //TODO to be implemented
         Jites.DISPLAYMODE = displaymode;
@@ -40,7 +41,8 @@ Ext.application({
     },
 
     controllers: [
-        'JitesInterface'
+        'JitesInterface',
+        'EventLog'
     ]
 
 });

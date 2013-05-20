@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+                </div>
+                {% endfor %}
+            {% endif %}
+              <form method="POST" id="actor_form">
+             {% csrf_token %}
+                <fieldset>
+                    <legend>Edit {{ actor }}</legend>
+
+                    <label><strong>Name</strong></label>
+                    {{ form.name }}
+                    <span class="help-inline">{{ form.name.errors }}</span>
+
+                    <label><strong>Istitution</strong></label>
+                    {{ form.istitution }}
+                    <span class="help-inline">{{ form.istitution.errors }}</span>
+
+                    <label><strong>Contact Info</strong></label>
+                    {{ form.contact_info }}
+                    <span class="help-inline">{{ form.contact_info.errors }}</span>
+
+                    <label><strong>email</strong></label>
+                    {{ form.email }}
+                    <span class="help-inline">Separated by ";" {{ form.email.errors }}</span>
+
+                    <label><strong>Phone</strong></label>
+                    {{ form.phone }}
+                    <span class="help-inline">{{ form.phone.errors }}</span>
+
+                    <div class="form-actions">
+                    <input type="submit" class="btn btn-info" value="Save">
+                    </div>
+
+                </fieldset>
+            </form>
+
+{% endblock %}
+
+
