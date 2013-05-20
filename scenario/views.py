@@ -63,17 +63,32 @@ def scenario_add(request):
                 scenario_pk = int(
                     Scenario.objects.filter(managing_authority=Membership(request.user).membership_auth).latest(
                         'id').pk)
-                messages.add_message(request, messages.INFO,
+                messages.add_message(request, messages.SUCCESS,
                                      'Scenario correctly created! Now you can create an Action!')
                 return redirect('scenario.views.action_add', scenario_pk)
             else:
-                messages.add_message(request, messages.INFO, 'Scenario correctly created!')
+                messages.add_message(request, messages.SUCCESS, 'Scenario correctly created!')
                 return redirect('scenario.views.scenario_list')
         else:
             form = ScenarioAddForm(request.POST)
 
     context = {'form': form}
     return render_to_response('scenario/scenario_add.html', context, context_instance=RequestContext(request))
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def del_scenario(request, scenario_id):
+    scenario = Scenario.objects.get(pk=scenario_id)
+    try:
+        scenario.delete()
+        messages.add_message(request, messages.SUCCESS, 'Scenario ' + smart_str(scenario) + ' correctly deleted!')
+        return redirect('scenario.views.scenario_list')
+    except Exception, e:
+        messages.add_message(request, messages.ERROR, smart_str(e))
+        return redirect('scenario.views.scenario_list')
+        pass
+    pass
 
 
 @login_required
@@ -89,11 +104,13 @@ def action_add(request, scenario_id):
             obj = form.save(commit=False)
             obj.scenario = scenario
             try:
+                messages.add_message(request, messages.SUCCESS, 'Action correctly saved!')
                 obj.save()
                 #return redirect('scenario.views.action_graph_add', scenario.pk)
             except Exception, e:
                 transaction.rollback()
                 db_error = e
+                messages.add_message(request, messages.SUCCESS, smart_str(db_error))
 
         form = ActionAddForm()
     context = {'form': form, 'scenario': scenario, 'last_10_actions': last_10_actions, 'error': db_error}
@@ -107,10 +124,10 @@ def del_action(request, action_id):
     scenario = action.scenario.pk
     try:
         action.delete()
-        messages.add_message(request, messages.INFO, 'Action' + smart_str(action) + 'correctly deleted!')
+        messages.add_message(request, messages.SUCCESS, 'Action' + smart_str(action) + 'correctly deleted!')
         return redirect('scenario.views.actions_list', scenario)
     except Exception, e:
-        messages.add_message(request, messages.INFO, smart_str(e))
+        messages.add_message(request, messages.ERROR, smart_str(e))
         return redirect('scenario.views.actions_list', scenario)
         pass
     pass
@@ -121,7 +138,8 @@ def del_action(request, action_id):
 @user_passes_test(lambda u: u.is_superuser)
 def actions_list(request, scenario_id):
     scenario = Scenario.objects.get(pk=scenario_id, managing_authority=Membership(request.user).membership_auth)
-    actions = Action.objects.filter(scenario=scenario)
+    actions = Action.objects.filter(scenario=scenario).order_by('numcode')
+    print actions
     context = {'actions': actions, 'scenario': scenario}
     return render_to_response('scenario/action_list.html', context, context_instance=RequestContext(request))
 
@@ -140,7 +158,7 @@ def actors_add(request, scenario_id):
             actor = Actor.objects.get(pk=obj.id)
             actorm2maction = ActionM2MActor(action=action, actor=actor)
             actorm2maction.save()
-            messages.add_message(request, messages.INFO, 'Actor correctly saved!')
+            messages.add_message(request, messages.SUCCESS, 'Actor correctly saved!')
             return redirect('scenario.views.actors_list')
         form = ActorAddForm()
     context = {'form': form}
@@ -161,7 +179,7 @@ def actors_add_popup(request, scenario_id):
             actor = Actor.objects.get(pk=obj.id)
             actorm2maction = ActionM2MActor(action=action, actor=actor)
             actorm2maction.save()
-            messages.add_message(request, messages.INFO, 'Actor correctly saved!')
+            messages.add_message(request, messages.SUCCESS, 'Actor correctly saved!')
         form = ActorAddForm()
     context = {'form': form}
     return render_to_response('scenario/add_actor_popup.html', context, context_instance=RequestContext(request))
@@ -170,10 +188,47 @@ def actors_add_popup(request, scenario_id):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def actors_list(request):
-    actors = ActionM2MActor.objects.filter(
-        action__scenario__managing_authority=Membership(request.user).membership_auth)
+    #actors = ActionM2MActor.objects.filter(action__scenario__managing_authority=Membership(request.user).membership_auth)
+    actors = ActionM2MActor.objects.values('actor__pk').annotate().\
+                                                              filter(action__scenario__managing_authority=Membership(request.user).
+                                                              membership_auth).\
+                                                              order_by('actor__name')
+    actors = Actor.objects.filter(pk__in=[a['actor__pk'] for a in actors])
     context = {'actors': actors}
     return render_to_response('scenario/actors_list.html', context, context_instance=RequestContext(request))
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def actors_edit(request, actor_id):
+    actor = Actor.objects.get(id=actor_id)
+    form = ActorAddForm(instance=actor)
+    if request.method == 'POST':
+        form = ActorAddForm(request.POST, instance=actor)
+        if form.is_valid:
+            obj = form.save(commit=False)
+            obj.save()
+            messages.add_message(request, messages.SUCCESS, 'Actor correctly saved!')
+            return redirect('scenario.views.actors_list')
+        form = ActorAddForm(request.POST,  instance=actor)
+        messages.add_message(request, messages.ERROR, 'An error occurred! Please retry.')
+    context = {'form': form, 'actor': actor}
+    return render_to_response('scenario/actor_edit.html', context, context_instance=RequestContext(request))
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def del_actor(request, actor_id):
+    actor = Actor.objects.get(pk=actor_id)
+    try:
+        actor.delete()
+        messages.add_message(request, messages.SUCCESS, 'Actor correctly deleted!')
+        return redirect('scenario.views.actors_list')
+    except Exception, e:
+        messages.add_message(request, messages.ERROR, smart_str(e))
+        return redirect('scenario.views.actors_list')
+        pass
+    pass
 
 
 @login_required
@@ -184,7 +239,7 @@ def action_graph_add(request, scenario_id):
     actions_allowed = Action.objects.filter(scenario=scenario)
     form = ActionGraphAddForm(actions_allowed)
     graph = ActionGraph.objects.filter(action__scenario=scenario, parent__scenario=scenario)
-    graph_url = '<a href="plr/execute/graph_action/'+str(scenario_id)+'/1000/1000" class="iframe"><img src="http://localhost:8000/plr/execute/graph_action/'+str(scenario_id)+'/400/400"></a>'
+    graph_url = '<a href="plr/execute/graph_action/'+str(scenario_id)+'/1000/1000" class="iframe"><img src="plr/execute/graph_action/'+str(scenario_id)+'/400/400"></a>'
     if request.method == 'POST':
 
         if form.is_valid:
@@ -193,11 +248,11 @@ def action_graph_add(request, scenario_id):
             actiongraph = ActionGraph(action=Action.objects.get(pk=action), parent=Action.objects.get(pk=parent))
             try:
                 actiongraph.save()
-                messages.add_message(request, messages.INFO, 'Action Graph rules correctly saved')
+                messages.add_message(request, messages.SUCCESS, 'Action Graph rules correctly saved')
             except Exception, e:
                 transaction.rollback()
                 db_error = e
-                messages.add_message(request, messages.INFO, smart_str(db_error))
+                messages.add_message(request, messages.ERROR, smart_str(db_error))
     context = {'form': form, 'graph': graph, 'error': db_error, 'scenario': scenario, 'graph_url': mark_safe(graph_url)}
     return render_to_response('scenario/actiongraph_add.html', context, context_instance=RequestContext(request))
 
@@ -228,14 +283,14 @@ def insert_actors_to_action(request, scenario_id, action_id=None):
             for actor in actor_to_save:
                 actorm2maction = ActionM2MActor(action=action, actor=Actor.objects.get(pk=int(actor)))
                 try:
-                    messages.add_message(request, messages.INFO, 'Association ' + str(actorm2maction) + ' correctly saved!')
+                    messages.add_message(request, messages.SUCCESS, 'Association ' + str(actorm2maction) + ' correctly saved!')
                     actorm2maction.save()
                     actors_already_assigned_to_this_action = Actor_Action_Association(request.user, scenario, action).actors_already_assigned_to_this_action()
                     #retreive the actor list from actor model for exclude from available actors the actor entry
                     l = [l.actor for l in actors_already_assigned_to_this_action]
                     actors_av_for_this_action = Actor_Action_Association(request.user, scenario, action).actors_av_for_this_action(l)
                 except Exception, e:
-                    messages.add_message(request, messages.INFO, smart_str(e))
+                    messages.add_message(request, messages.ERROR, smart_str(e))
                     pass
 
         context = {'actors_aa': actors_already_assigned_to_this_action,
@@ -260,10 +315,10 @@ def delete_actor_action(request, association_id):
     action = actionm2mactor.action
     try:
         actionm2mactor.delete()
-        messages.add_message(request, messages.INFO, 'Association' + smart_str(actionm2mactor) + 'correctly deleted!')
+        messages.add_message(request, messages.SUCCESS, 'Association' + smart_str(actionm2mactor) + 'correctly deleted!')
         return redirect('scenario.views.insert_actors_to_action', scenario.id, action.id)
     except Exception, e:
-        messages.add_message(request, messages.INFO, smart_str(e))
+        messages.add_message(request, messages.ERROR, smart_str(e))
         return redirect('scenario.views.insert_actors_to_action', scenario.id, action.id)
         pass
     pass
@@ -277,12 +332,12 @@ def delete_action_from_graph(request, scenario_id, graph_id):
     if action_graph.action.scenario == scenario and action_graph.parent.scenario == scenario:
         try:
             action_to_delete = ActionGraph.objects.get(pk=graph_id).delete()
-            messages.add_message(request, messages.INFO, 'Action Graph rule correctly deleted')
+            messages.add_message(request, messages.SUCCESS, 'Action Graph rule correctly deleted')
             return redirect('scenario.views.action_graph_add', scenario_id)
         except Exception, e:
             transaction.rollback()
             db_error = e
-            messages.add_message(request, messages.INFO, smart_str(db_error))
+            messages.add_message(request, messages.ERROR, smart_str(db_error))
         return redirect('scenario.views.action_graph_add', scenario_id)
 
 
@@ -308,11 +363,11 @@ def visualization(request, scenario_id, action_id=None):
             obj.action = action
             try:
                 obj.save()
-                messages.add_message(request, messages.INFO, 'Attach correctly uploaded!')
+                messages.add_message(request, messages.SUCCESS, 'Attach correctly uploaded!')
             except Exception, e:
                 transaction.rollback()
                 db_error = e
-                messages.add_message(request, messages.INFO, smart_str(db_error))
+                messages.add_message(request, messages.ERROR, smart_str(db_error))
         form = VisualizationForm()
         context = {'actions': actions,
                    'form': form,
