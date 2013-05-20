@@ -1,0 +1,211 @@
+# This is an auto-generated Django model module.
+# You'll have to do the following manually to clean this up:
+#     * Rearrange models' order
+#     * Make sure each model has one field with primary_key=True
+# Feel free to rename the models, but don't rename db_table values or field names.
+#
+# Also note: You'll have to insert the output of 'django-admin.py sqlcustom [appname]'
+# into your database.
+from __future__ import unicode_literals
+
+from django.db import models
+
+#scenario app
+class Action(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    scenario = models.ForeignKey('Scenario')
+    name = models.TextField()
+    numcode = models.IntegerField()
+    description = models.TextField()
+    class Meta:
+        db_table = 'action'
+
+#scenario app
+class ActionGraph(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    action = models.ForeignKey(Action)
+    parent = models.ForeignKey(Action)
+    is_main_parent = models.BooleanField()
+    class Meta:
+        db_table = 'action_graph'
+
+
+#scenario app
+class ActionM2MActor(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    action = models.ForeignKey(Action)
+    actor = models.ForeignKey('Actor')
+    class Meta:
+        db_table = 'action_m2m_actor'
+
+#scenario app
+class Actor(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    name = models.TextField()
+    istitution = models.TextField()
+    contact_info = models.TextField()
+    email = models.TextField(unique=True)
+    phone = models.TextField()
+    class Meta:
+        db_table = 'actor'
+
+class Alpcheck2(models.Model):
+    gid = models.IntegerField(primary_key=True)
+    externalid = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    cod_node_a = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    cod_node_b = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    oneway = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    roadtype = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    stateroadn = models.CharField(max_length=50, blank=True)
+    streetname = models.CharField(max_length=50, blank=True)
+    alpcheckco = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    lanes = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    capacity = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    v0 = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    vc = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    lcf = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    aadt_lv = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    aadt_hv = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    aadt_tot = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    length = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    lv_ab = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    hv_ab = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    dgtv_ab = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    lv_ba = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    hv_ba = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    dgtv_ba = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
+    the_geom = models.TextField(blank=True) # This field type is a guess.
+    source = models.IntegerField(null=True, blank=True)
+    target = models.IntegerField(null=True, blank=True)
+    cost = models.FloatField(null=True, blank=True)
+    available = models.BooleanField()
+    id = models.IntegerField(null=True, blank=True)
+    time = models.FloatField(null=True, blank=True)
+    class Meta:
+        db_table = 'alpcheck2'
+
+#Event APP
+class Event(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    scenario = models.ForeignKey('Scenario')
+    status = models.TextField()
+    is_real = models.BooleanField()
+    time_start = models.DateTimeField(null=True, blank=True)
+    time_end = models.DateTimeField(null=True, blank=True)
+    geom = models.TextField() # This field type is a guess.
+    class Meta:
+        db_table = 'event'
+
+#Event APP
+class EventAction(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    event = models.ForeignKey(Event)
+    action = models.ForeignKey(Action)
+    status = models.TextField()
+    class Meta:
+        db_table = 'event_action'
+
+#Event APP
+class EventActionLog(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    event_action = models.ForeignKey(EventAction)
+    ts = models.DateTimeField()
+    status = models.TextField()
+    annotation = models.TextField(blank=True)
+    class Meta:
+        db_table = 'event_action_log'
+
+#Event APP
+class EventAnnotationLog(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    event = models.ForeignKey(Event)
+    ts = models.DateTimeField()
+    annotation = models.TextField()
+    class Meta:
+        db_table = 'event_annotation_log'
+
+#Event APP
+class EventStaticLog(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    event = models.ForeignKey(Event)
+    ts = models.DateTimeField()
+    action_type = models.TextField()
+    action_id = models.BigIntegerField(null=True, blank=True)
+    action_name = models.TextField(blank=True)
+    action_description = models.TextField(blank=True)
+    action_value = models.TextField()
+    annotation = models.TextField(blank=True)
+    class Meta:
+        db_table = 'event_static_log'
+
+
+
+
+class Interruptions(models.Model):
+    gid = models.IntegerField(primary_key=True)
+    id = models.IntegerField(null=True, blank=True)
+    geom = models.TextField(blank=True) # This field type is a guess.
+    class Meta:
+        db_table = 'interruptions'
+
+
+#scenario app
+class ManagingAuthority(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    auth_user = models.ForeignKey(AuthUser)
+    name = models.TextField(unique=True)
+    description = models.TextField()
+    address = models.TextField()
+    email = models.TextField()
+    phone = models.TextField()
+    class Meta:
+        db_table = 'managing_authority'
+
+#scenario app
+class Scenario(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    managing_authority = models.ForeignKey(ManagingAuthority)
+    subcategory = models.ForeignKey('ScenarioSubcategory', null=True, blank=True)
+    name = models.TextField(unique=True)
+    description = models.TextField()
+    geom = models.TextField(blank=True) # This field type is a guess.
+    class Meta:
+        db_table = 'scenario'
+
+#scenario app
+class ScenarioCategory(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    name = models.TextField(unique=True)
+    description = models.TextField()
+    class Meta:
+        db_table = 'scenario_category'
+
+#scenario app
+class ScenarioSubcategory(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    category = models.ForeignKey(ScenarioCategory, null=True, blank=True)
+    name = models.TextField(unique=True)
+    description = models.TextField()
+    class Meta:
+        db_table = 'scenario_subcategory'
+
+class SpatialRefSys(models.Model):
+    srid = models.IntegerField(primary_key=True)
+    auth_name = models.CharField(max_length=256, blank=True)
+    auth_srid = models.IntegerField(null=True, blank=True)
+    srtext = models.CharField(max_length=2048, blank=True)
+    proj4text = models.CharField(max_length=2048, blank=True)
+    class Meta:
+        db_table = 'spatial_ref_sys'
+
+
+#scenario app
+class Visualization(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    action = models.ForeignKey(Action)
+    description = models.TextField(blank=True)
+    type = models.TextField()
+    content = models.TextField()
+    class Meta:
+        db_table = 'visualization'
+
