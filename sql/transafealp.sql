@@ -8,18 +8,11 @@
 -- USERS
 ------------------------------------------------------------------------------------------
 
-/*--utente applicazione JITES
-CREATE TABLE IF NOT EXISTS django_user (
-	id BIGSERIAL PRIMARY KEY,
-	username TEXT UNIQUE NOT NULL,
-	passwd TEXT NOT NULL
-);*/
-
 --gestore della tratta di competenza
 DROP TABLE IF EXISTS managing_authority CASCADE;
 CREATE TABLE IF NOT EXISTS managing_authority (
 	id BIGSERIAL PRIMARY KEY,
-	auth_user_id BIGINT NOT NULL REFERENCES auth_user(id) ON UPDATE CASCADE ON DELETE CASCADE,
+	--auth_user_id BIGINT NOT NULL REFERENCES auth_user(id) ON UPDATE CASCADE ON DELETE CASCADE,
 	name TEXT UNIQUE NOT NULL,
 	description TEXT NOT NULL,
 	address TEXT NOT NULL,
@@ -83,7 +76,7 @@ CREATE TABLE interruptions --original name: polygons
 
 
 ------------------------------------------------------------------------------------------
--- SCENARIOS, (SUB)ACTIONS AND OBJECTS/SUBJECTS
+-- SCENARIOS AND CATEGORIES
 ------------------------------------------------------------------------------------------
 
 --categoria dello scenario
@@ -130,7 +123,7 @@ CREATE TRIGGER new_scenario AFTER INSERT ON scenario FOR EACH ROW EXECUTE PROCED
 /*insert into scenario values (default, 1, 1, 'scenario', 'descrizione', NULL);*/
 
 ------------------------------------------------------------------------------------------
--- ACTIONS AND OBJECTS/SUBJECTS
+-- ACTION GRAPH, ACTORS AND VISUALIZATIONS
 ------------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------------------
@@ -213,53 +206,6 @@ CREATE TABLE IF NOT EXISTS action_graph (
 	UNIQUE (action_id, parent_id)
 );
 
---trigger to disable graph updates on table. Delete and insert command should be used instead.
-DROP FUNCTION IF EXISTS update_action_graph() CASCADE;
-CREATE OR REPLACE FUNCTION update_action_graph() RETURNS TRIGGER AS
-$BODY$
-BEGIN
-	IF (OLD.action_id != NEW.action_id OR OLD.parent_id != NEW.parent_id OR OLD.id != NEW.id) THEN
-		RAISE EXCEPTION 'Action graph cannot be updated. Please delete and insert instead. No changes were made.';
-	END IF;
-
-	IF (OLD.is_main_parent = TRUE AND NEW.is_main_parent = FALSE
-		AND ((SELECT count(id) FROM action_graph WHERE action_id = NEW.action_id AND is_main_parent = TRUE)=1)
-	) THEN
-		NEW.is_main_parent = TRUE;
-		RAISE WARNING 'An action needs at least one main parent. Set a new main parent instead. No changes were made.';
-	END IF;
-
-	RETURN NEW;
-END
-$BODY$
-LANGUAGE plpgsql;
-COMMENT ON FUNCTION update_action_graph() IS '';
-DROP TRIGGER IF EXISTS update_action_graph ON action_graph CASCADE;
-CREATE TRIGGER update_action_graph BEFORE UPDATE ON action_graph
-	FOR EACH ROW EXECUTE PROCEDURE update_action_graph();
-
---updates on is_main_parent propriety are allowed (checked to be consistent)
-DROP FUNCTION IF EXISTS update_action_graph_after() CASCADE;
-CREATE OR REPLACE FUNCTION update_action_graph_after() RETURNS TRIGGER AS
-$BODY$
-BEGIN
-	IF (/*OLD.is_main_parent = FALSE AND */NEW.is_main_parent = TRUE) THEN
-		UPDATE action_graph SET is_main_parent = FALSE
-			WHERE action_id = NEW.action_id AND is_main_parent = TRUE AND parent_id != NEW.parent_id;
-	END IF;
-
-	RETURN NEW;
-END
-$BODY$
-LANGUAGE plpgsql;
-COMMENT ON FUNCTION update_action_graph_after() IS '';
-DROP TRIGGER IF EXISTS update_action_graph_after ON action_graph CASCADE;
-CREATE TRIGGER update_action_graph_after AFTER UPDATE ON action_graph
-	FOR EACH ROW EXECUTE PROCEDURE update_action_graph_after();
-
-insert into action_graph (parent_id,action_id) values (63,62);
-delete from action_graph where id = 87;
-
 -- private func --
 DROP FUNCTION IF EXISTS find_descendants (bigint) CASCADE;
 CREATE OR REPLACE FUNCTION find_descendants (action_id bigint)
@@ -268,7 +214,7 @@ $BODY$
 BEGIN
 	PERFORM id FROM action WHERE id = action_id;
 	IF NOT FOUND THEN
-		RAISE WARNING 'Action % not found.',action_id;
+		RAISE WARNING 'Action [%] not found.',action_id;
 		RETURN;
 	END IF;
 
@@ -292,7 +238,7 @@ $BODY$
 BEGIN
 	PERFORM id FROM action WHERE id = action_id;
 	IF NOT FOUND THEN
-		RAISE WARNING 'Action % not found.',action_id;
+		RAISE WARNING 'Action [%] not found.',action_id;
 		RETURN;
 	END IF;
 
@@ -346,13 +292,58 @@ $BODY$
 LANGUAGE sql;
 COMMENT ON FUNCTION find_root (bigint) IS 'TODO';
 
+--trigger on update to disable graph updates on table. Delete and insert command should be used instead.
+DROP FUNCTION IF EXISTS update_action_graph() CASCADE;
+CREATE OR REPLACE FUNCTION update_action_graph() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+	IF (OLD.action_id != NEW.action_id OR OLD.parent_id != NEW.parent_id OR OLD.id != NEW.id) THEN
+		RAISE EXCEPTION 'Action graph cannot be updated. Please delete and insert instead. No changes were made.';
+	END IF;
+
+	--cannot remove 
+	IF (OLD.is_main_parent = TRUE AND NEW.is_main_parent = FALSE
+		AND ((SELECT count(id) FROM action_graph WHERE action_id = NEW.action_id AND is_main_parent = TRUE)=1)
+	) THEN
+		NEW.is_main_parent = TRUE;
+		RAISE WARNING 'An action needs at least one main parent. Set a new main parent instead. No changes were made.';
+	END IF;
+
+	RETURN NEW;
+END
+$BODY$
+LANGUAGE plpgsql;
+COMMENT ON FUNCTION update_action_graph() IS '';
+DROP TRIGGER IF EXISTS update_action_graph ON action_graph CASCADE;
+CREATE TRIGGER update_action_graph BEFORE UPDATE ON action_graph
+	FOR EACH ROW EXECUTE PROCEDURE update_action_graph();
+
+--trigger after update: updates on is_main_parent propriety are allowed (checked to be consistent)
+DROP FUNCTION IF EXISTS update_action_graph_after() CASCADE;
+CREATE OR REPLACE FUNCTION update_action_graph_after() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+	IF (/*OLD.is_main_parent = FALSE AND */NEW.is_main_parent = TRUE) THEN
+		UPDATE action_graph SET is_main_parent = FALSE
+			WHERE action_id = NEW.action_id AND is_main_parent = TRUE AND parent_id != NEW.parent_id;
+	END IF;
+
+	RETURN NEW;
+END
+$BODY$
+LANGUAGE plpgsql;
+COMMENT ON FUNCTION update_action_graph_after() IS '';
+DROP TRIGGER IF EXISTS update_action_graph_after ON action_graph CASCADE;
+CREATE TRIGGER update_action_graph_after AFTER UPDATE ON action_graph
+	FOR EACH ROW EXECUTE PROCEDURE update_action_graph_after();
+
 --trigger on insert
 DROP FUNCTION IF EXISTS new_action_graph() CASCADE;
 CREATE OR REPLACE FUNCTION new_action_graph() RETURNS TRIGGER AS
 $BODY$
 BEGIN
 	IF (NEW.parent_id NOT IN (SELECT * FROM find_available_parents(NEW.action_id))) THEN
-		RAISE EXCEPTION 'Action % is not a valid parent for action %',NEW.parent_id,NEW.action_id;
+		RAISE EXCEPTION 'Action [%] is not a valid parent for action [%]',NEW.parent_id,NEW.action_id;
 	END IF;
 
 	RETURN NEW;
@@ -369,28 +360,28 @@ DROP FUNCTION IF EXISTS after_new_action_graph() CASCADE;
 CREATE OR REPLACE FUNCTION after_new_action_graph() RETURNS TRIGGER AS
 $BODY$
 DECLARE
-	par_id bigint;
+	an_id bigint;
 BEGIN
 	--remove redundant links
-	FOR par_id IN SELECT x.par FROM (
+	FOR an_id IN SELECT x.par FROM (
 		SELECT DISTINCT parent_id par,find_descendants(parent_id) des
 		FROM action_graph WHERE action_id = NEW.action_id
 	) x WHERE des = NEW.parent_id
 	LOOP
-		DELETE FROM action_graph WHERE action_id = NEW.action_id AND parent_id = par_id;
-		RAISE WARNING 'Redundant link between parent action % and % was removed',par_id,NEW.action_id;
+		DELETE FROM action_graph WHERE action_id = NEW.action_id AND parent_id = an_id;
+		RAISE WARNING 'Redundant link between [%]-->[%] removed',an_id,NEW.action_id;
 	END LOOP;
 
-	IF (NEW.is_main_parent) THEN --hey! this new link sould be main parent, let's trigger old main parents removal
+	FOR an_id IN SELECT action_id FROM action_graph WHERE parent_id = NEW.parent_id AND action_id IN (
+		SELECT * FROM find_descendants(NEW.action_id) 
+	) LOOP
+		DELETE FROM action_graph WHERE action_id = an_id AND parent_id = NEW.parent_id;
+		RAISE WARNING 'Redundant link between [%]-->[%] removed',NEW.parent_id,an_id;
+	END LOOP;
+
+	IF (NEW.is_main_parent) THEN --hey! this new link sould be main parent, let's trigger old main parent removal
 		UPDATE action_graph SET is_main_parent = TRUE WHERE id = NEW.id;
 	END IF;
-
-	--set new main parent if old one has been removed
-	/*PERFORM id FROM action_graph WHERE action_id = NEW.action_id AND is_main_parent = TRUE;
-	IF NOT FOUND THEN
-		UPDATE action_graph SET is_main_parent = TRUE
-			WHERE action_id = NEW.action_id AND parent_id = NEW.parent_id;
-	END IF;*/
 
 	RETURN NEW;
 END
@@ -463,7 +454,8 @@ CREATE TABLE IF NOT EXISTS visualization (
 	action_id BIGINT NOT NULL REFERENCES action(id) ON UPDATE CASCADE ON DELETE CASCADE,
 	description TEXT,
 	type TEXT NOT NULL,
-	content TEXT NOT NULL
+	resource TEXT NOT NULL,
+	options TEXT
 );
 
 ------------------------------------------------------------------------------------------
@@ -474,21 +466,44 @@ CREATE TABLE IF NOT EXISTS visualization (
 DROP TABLE IF EXISTS event CASCADE;
 CREATE TABLE IF NOT EXISTS event (
 	id BIGSERIAL PRIMARY KEY,
-	scenario_id BIGINT NOT NULL REFERENCES scenario(id) ON UPDATE CASCADE ON DELETE CASCADE,
+	scenario_id BIGINT REFERENCES scenario(id) ON UPDATE CASCADE ON DELETE SET NULL,
+	scenario_name TEXT NOT NULL,
+	scenario_description TEXT NOT NULL,
+	category_name TEXT NOT NULL,
+	category_description TEXT NOT NULL,
+	subcategory_name TEXT NOT NULL,
+	subcategory_description TEXT NOT NULL,
 	status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','closed')),
 	is_real BOOLEAN NOT NULL DEFAULT FALSE,
-	time_start TIMESTAMP,
+	time_start TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	time_end TIMESTAMP,
 	geom geometry NOT NULL CHECK (st_ndims(geom) = 2 AND st_srid(geom) = 3035 AND geometrytype(geom) = 'MULTIPOLYGON'::text)
 );
 
+-----------------------------------------------------------------------------------------------------------
+--
+--                                               (user)                                           (user)
+--                          +----------------------------------------------+                   +----------+
+--                          |                                              |                   |          |
+--                (auto)    |        (user)          (user)                V                   V          |
+--[NON EXECUTABLE]------>[EXECUTABLE]------>[RUNNING]------>[TERMINATED (success/failure/not needed)]-----+
+--         ^               |   ^                 ^                   |          |
+--         +---------------+   |                 +-------------------+          |
+--           (auto revert)     |                     (user revert)              |
+--                             |                                                |
+--                             +------------------------------------------------+
+--                                              (user revert)
+--
+-----------------------------------------------------------------------------------------------------------
 --Stato delle azioni di un evento
 DROP TABLE IF EXISTS event_action CASCADE;
 CREATE TABLE IF NOT EXISTS event_action (
 	id BIGSERIAL PRIMARY KEY,
 	event_id BIGINT NOT NULL REFERENCES event(id) ON UPDATE CASCADE ON DELETE CASCADE,
 	action_id BIGINT NOT NULL REFERENCES action(id) ON UPDATE CASCADE ON DELETE CASCADE,
-	status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','running','done','falied','unneeded'))
+	status TEXT NOT NULL DEFAULT 'pending'
+		CHECK (status IN ('executable','non executable','running',
+			'terminated (success)','terminated (not needed)','terminated (failed)'))
 );
 
 ------------------------------------------------------------------------------------------
@@ -500,8 +515,9 @@ DROP TABLE IF EXISTS event_action_log CASCADE;
 CREATE TABLE IF NOT EXISTS event_action_log (
 	id BIGSERIAL PRIMARY KEY,
 	event_action_id BIGINT NOT NULL REFERENCES event_action(id) ON UPDATE CASCADE ON DELETE CASCADE,
-	ts TIMESTAMP NOT NULL,
-	status TEXT NOT NULL CHECK (status IN ('pending','running','done','falied','unneeded')),
+	ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	status TEXT NOT NULL CHECK (status IN ('executable','non executable','running',
+			'terminated (success)','terminated (not needed)','terminated (failed)')),
 	annotation TEXT
 );
 
@@ -510,7 +526,7 @@ DROP TABLE IF EXISTS event_annotation_log CASCADE;
 CREATE TABLE IF NOT EXISTS event_annotation_log (
 	id BIGSERIAL PRIMARY KEY,
 	event_id BIGINT NOT NULL REFERENCES event(id) ON UPDATE CASCADE ON DELETE CASCADE,
-	ts TIMESTAMP NOT NULL,
+	ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	annotation TEXT NOT NULL
 );
 

@@ -15,33 +15,45 @@ Ext.define('Jites.view.InterfaceExtended',{
         columns: 2
     },
 
+    defaults: {
+        disabledCls: 'jites-empty-area'
+    },
+
     initComponent: function() {
         var me = this
 
         me.items = [
             {
-                xtype: 'panel',
+                xtype: 'container',
                 id: 'actiongraph',
+                disabled: true,
                 width: me.componentSize.wRow1,
                 height: me.componentSize.hRow1
             },{
-                xtype: 'panel',
+                xtype: 'container',
                 id: 'actiondetails',
+                disabled: true,
                 width: me.componentSize.wRow1,
                 height: me.componentSize.hRow1
             },{
-                xtype: 'panel',
+                xtype: 'container',
                 id: 'webgis',
+                disabled: true,
                 width: me.componentSize.wRow1,
                 height: me.componentSize.hRow2
             },{
-                xtype: 'panel',
-                id: 'chronology',
+                xtype: 'container',
+                id: 'eventlog',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+                disabled: true,
                 width: me.componentSize.wRow1,
                 height: me.componentSize.hRow2
             }
         ];
 
-        this.callParent(arguments);
+        me.callParent(arguments);
     }
 });
