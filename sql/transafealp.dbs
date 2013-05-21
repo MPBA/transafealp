@@ -487,6 +487,7 @@
 			<column name="status" type="text" length="2147483647" jt="12" mandatory="y" >
 				<defo>&#039;non executable&#039;::text</defo>
 			</column>
+			<column name="comment" type="text" length="2147483647" jt="12" />
 			<index name="ev_action_pkey" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
@@ -574,8 +575,6 @@
 		<table name="event" >
 			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
 			<column name="scenario_id" type="bigint" length="19" jt="-5" />
-			<column name="scenario_name" type="text" length="2147483647" jt="12" mandatory="y" />
-			<column name="scenario_description" type="text" length="2147483647" jt="12" mandatory="y" />
 			<column name="category_name" type="text" length="2147483647" jt="12" mandatory="y" />
 			<column name="category_description" type="text" length="2147483647" jt="12" mandatory="y" />
 			<column name="subcategory_name" type="text" length="2147483647" jt="12" mandatory="y" />
@@ -591,6 +590,8 @@
 			</column>
 			<column name="time_end" type="timestamp" length="29" decimal="6" jt="93" />
 			<column name="geom" type="geometry" length="2147483647" jt="1111" mandatory="y" />
+			<column name="event_name" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="event_description" type="text" length="2147483647" jt="12" mandatory="y" />
 			<index name="event_pkey" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
@@ -602,6 +603,45 @@
 			</constraint>
 			<fk name="event_scenario_id_fkey" to_schema="public" to_table="scenario" delete_action="SET_NULL" update_action="CASCADE" >
 				<fk_column name="scenario_id" pk="id" />
+			</fk>
+		</table>
+		<table name="ev_message" >
+			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
+			<column name="event_id" type="bigint" length="19" jt="-5" mandatory="y" />
+			<column name="ts" type="timestamptz" length="35" decimal="6" jt="93" mandatory="y" >
+				<defo>now()</defo>
+			</column>
+			<column name="username" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="content" type="text" length="2147483647" jt="12" mandatory="y" />
+			<index name="ev_message_pkey" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<index name="ev_message_ts_username_key" unique="UNIQUE" >
+				<column name="ts" />
+				<column name="username" />
+			</index>
+			<fk name="ev_message_event_id_fkey" to_schema="public" to_table="event" delete_action="CASCADE" update_action="CASCADE" >
+				<fk_column name="event_id" pk="id" />
+			</fk>
+		</table>
+		<table name="event_log" >
+			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
+			<column name="event_id" type="bigint" length="19" jt="-5" mandatory="y" />
+			<column name="ts" type="timestamptz" length="35" decimal="6" jt="93" mandatory="y" >
+				<defo>now()</defo>
+			</column>
+			<column name="table_name" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="action" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="row_id" type="bigint" length="19" jt="-5" mandatory="y" />
+			<column name="fields" type="hstore" length="2147483647" jt="1111" mandatory="y" />
+			<index name="event_log_pkey" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<constraint name="event_log_action_check" >
+				<string>action = ANY (ARRAY[&#039;I&#039;::text, &#039;U&#039;::text])</string>
+			</constraint>
+			<fk name="event_log_event_id_fkey" to_schema="public" to_table="event" delete_action="CASCADE" update_action="CASCADE" >
+				<fk_column name="event_id" pk="id" />
 			</fk>
 		</table>
 		<view name="geography_columns" >
@@ -684,6 +724,8 @@
 		<sequence name="event_id_seq" start="1" />
 		<sequence name="ev_action_graph_id_seq" start="1" />
 		<sequence name="ev_action_m2m_actor_id_seq" start="1" />
+		<sequence name="ev_message_id_seq" start="1" />
+		<sequence name="event_log_id_seq" start="1" />
 		<trigger name="after_new_action_graph" id="Trigger2058498" isSystem="false" >
 			<string><![CDATA[CREATE TRIGGER after_new_action_graph AFTER INSERT ON action_graph FOR EACH ROW EXECUTE PROCEDURE after_new_action_graph()]]></string>
 		</trigger>
@@ -711,6 +753,14 @@
 		<trigger name="delete_ev_action" id="Trigger8170648" isSystem="false" >
 			<string><![CDATA[CREATE TRIGGER delete_ev_action BEFORE DELETE ON ev_action FOR EACH ROW EXECUTE PROCEDURE delete_ev_action()]]></string>
 		</trigger>
+		<trigger name="ev_logger" id="Trigger1544934" isSystem="false" >
+			<string><![CDATA[CREATE TRIGGER ev_logger AFTER INSERT OR UPDATE ON event FOR EACH ROW EXECUTE PROCEDURE ev_logger()]]></string>
+		</trigger>
+		<trigger name="ev_logger_001" id="Trigger1544934" isSystem="false" />
+		<trigger name="ev_logger_002" id="Trigger1544934" isSystem="false" />
+		<trigger name="ev_logger_003" id="Trigger1544934" isSystem="false" />
+		<trigger name="ev_logger_004" id="Trigger1544934" isSystem="false" />
+		<trigger name="ev_logger_005" id="Trigger1544935" isSystem="false" />
 		<function name="_add_overview_constraint" id="Function2000181" isSystem="false" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION public._add_overview_constraint(ovschema name, ovtable name, ovcolumn name, refschema name, reftable name, refcolumn name, factor integer)
  RETURNS boolean
@@ -11637,6 +11687,438 @@ END
 $function$
 ]]></string>
 		</function>
+		<function name="akeys" id="Function8970481" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.akeys(hstore)
+ RETURNS text[]
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_akeys$function$
+]]></string>
+		</function>
+		<function name="avals" id="Function8970482" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.avals(hstore)
+ RETURNS text[]
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_avals$function$
+]]></string>
+		</function>
+		<function name="defined" id="Function8970484" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.defined(hstore, text)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_defined$function$
+]]></string>
+		</function>
+		<function name="delete" id="Function8970485" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.delete(hstore, text)
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_delete$function$
+CREATE OR REPLACE FUNCTION public.delete(hstore, text[])
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_delete_array$function$
+CREATE OR REPLACE FUNCTION public.delete(hstore, hstore)
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_delete_hstore$function$
+]]></string>
+		</function>
+		<function name="delete_001" id="Function8970487" isSystem="false" />
+		<function name="delete_002" id="Function8970490" isSystem="false" />
+		<function name="each" id="Function8970500" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.each(hs hstore, OUT key text, OUT value text)
+ RETURNS SETOF record
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_each$function$
+]]></string>
+		</function>
+		<function name="exist" id="Function8970502" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.exist(hstore, text)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_exists$function$
+]]></string>
+		</function>
+		<function name="exists_all" id="Function8970503" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.exists_all(hstore, text[])
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_exists_all$function$
+]]></string>
+		</function>
+		<function name="exists_any" id="Function8970504" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.exists_any(hstore, text[])
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_exists_any$function$
+]]></string>
+		</function>
+		<function name="fetchval" id="Function8970505" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.fetchval(hstore, text)
+ RETURNS text
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_fetchval$function$
+]]></string>
+		</function>
+		<function name="ghstore_compress" id="Function8970506" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.ghstore_compress(internal)
+ RETURNS internal
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$ghstore_compress$function$
+]]></string>
+		</function>
+		<function name="ghstore_consistent" id="Function8970507" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.ghstore_consistent(internal, internal, integer, oid, internal)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$ghstore_consistent$function$
+]]></string>
+		</function>
+		<function name="ghstore_decompress" id="Function8970508" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.ghstore_decompress(internal)
+ RETURNS internal
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$ghstore_decompress$function$
+]]></string>
+		</function>
+		<function name="ghstore_in" id="Function8970509" isSystem="false" />
+		<function name="ghstore_out" id="Function8970510" isSystem="false" />
+		<function name="ghstore_penalty" id="Function8970511" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.ghstore_penalty(internal, internal, internal)
+ RETURNS internal
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$ghstore_penalty$function$
+]]></string>
+		</function>
+		<function name="ghstore_picksplit" id="Function8970512" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.ghstore_picksplit(internal, internal)
+ RETURNS internal
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$ghstore_picksplit$function$
+]]></string>
+		</function>
+		<function name="ghstore_same" id="Function8970513" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.ghstore_same(internal, internal, internal)
+ RETURNS internal
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$ghstore_same$function$
+]]></string>
+		</function>
+		<function name="ghstore_union" id="Function8970514" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.ghstore_union(internal, internal)
+ RETURNS internal
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$ghstore_union$function$
+]]></string>
+		</function>
+		<function name="gin_consistent_hstore" id="Function8970515" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.gin_consistent_hstore(internal, smallint, internal, integer, internal, internal)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$gin_consistent_hstore$function$
+]]></string>
+		</function>
+		<function name="gin_extract_hstore" id="Function8970516" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.gin_extract_hstore(internal, internal)
+ RETURNS internal
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$gin_extract_hstore$function$
+]]></string>
+		</function>
+		<function name="gin_extract_hstore_query" id="Function8970516" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.gin_extract_hstore_query(internal, internal, smallint, internal, internal)
+ RETURNS internal
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$gin_extract_hstore_query$function$
+]]></string>
+		</function>
+		<function name="hs_concat" id="Function8970516" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hs_concat(hstore, hstore)
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_concat$function$
+]]></string>
+		</function>
+		<function name="hs_contained" id="Function8970517" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hs_contained(hstore, hstore)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_contained$function$
+]]></string>
+		</function>
+		<function name="hs_contains" id="Function8970518" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hs_contains(hstore, hstore)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_contains$function$
+]]></string>
+		</function>
+		<function name="hstore" id="Function8970518" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore(text[])
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_from_array$function$
+CREATE OR REPLACE FUNCTION public.hstore(record)
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE
+AS '$libdir/hstore', $function$hstore_from_record$function$
+CREATE OR REPLACE FUNCTION public.hstore(text, text)
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE
+AS '$libdir/hstore', $function$hstore_from_text$function$
+CREATE OR REPLACE FUNCTION public.hstore(text[], text[])
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE
+AS '$libdir/hstore', $function$hstore_from_arrays$function$
+]]></string>
+		</function>
+		<function name="hstore_001" id="Function8970518" isSystem="false" />
+		<function name="hstore_002" id="Function8970519" isSystem="false" />
+		<function name="hstore_003" id="Function8970519" isSystem="false" />
+		<function name="hstore_cmp" id="Function8970519" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_cmp(hstore, hstore)
+ RETURNS integer
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_cmp$function$
+]]></string>
+		</function>
+		<function name="hstore_eq" id="Function8970520" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_eq(hstore, hstore)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_eq$function$
+]]></string>
+		</function>
+		<function name="hstore_ge" id="Function8970520" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_ge(hstore, hstore)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_ge$function$
+]]></string>
+		</function>
+		<function name="hstore_gt" id="Function8970520" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_gt(hstore, hstore)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_gt$function$
+]]></string>
+		</function>
+		<function name="hstore_hash" id="Function8970521" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_hash(hstore)
+ RETURNS integer
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_hash$function$
+]]></string>
+		</function>
+		<function name="hstore_in" id="Function8970521" isSystem="false" />
+		<function name="hstore_le" id="Function8970521" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_le(hstore, hstore)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_le$function$
+]]></string>
+		</function>
+		<function name="hstore_lt" id="Function8970522" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_lt(hstore, hstore)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_lt$function$
+]]></string>
+		</function>
+		<function name="hstore_ne" id="Function8970522" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_ne(hstore, hstore)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_ne$function$
+]]></string>
+		</function>
+		<function name="hstore_out" id="Function8970522" isSystem="false" />
+		<function name="hstore_recv" id="Function8970523" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_recv(internal)
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_recv$function$
+]]></string>
+		</function>
+		<function name="hstore_send" id="Function8970523" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_send(hstore)
+ RETURNS bytea
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_send$function$
+]]></string>
+		</function>
+		<function name="hstore_to_array" id="Function8970523" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_to_array(hstore)
+ RETURNS text[]
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_to_array$function$
+]]></string>
+		</function>
+		<function name="hstore_to_matrix" id="Function8970524" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_to_matrix(hstore)
+ RETURNS text[]
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_to_matrix$function$
+]]></string>
+		</function>
+		<function name="hstore_version_diag" id="Function8970524" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_version_diag(hstore)
+ RETURNS integer
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_version_diag$function$
+]]></string>
+		</function>
+		<function name="isdefined" id="Function8970524" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.isdefined(hstore, text)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_defined$function$
+]]></string>
+		</function>
+		<function name="isexists" id="Function8970525" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.isexists(hstore, text)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_exists$function$
+]]></string>
+		</function>
+		<function name="populate_record" id="Function8970525" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.populate_record(anyelement, hstore)
+ RETURNS anyelement
+ LANGUAGE c
+ IMMUTABLE
+AS '$libdir/hstore', $function$hstore_populate_record$function$
+]]></string>
+		</function>
+		<function name="skeys" id="Function8970525" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.skeys(hstore)
+ RETURNS SETOF text
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_skeys$function$
+]]></string>
+		</function>
+		<function name="slice" id="Function8970526" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.slice(hstore, text[])
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_slice_to_hstore$function$
+]]></string>
+		</function>
+		<function name="slice_array" id="Function8970526" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.slice_array(hstore, text[])
+ RETURNS text[]
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_slice_to_array$function$
+]]></string>
+		</function>
+		<function name="svals" id="Function8970526" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.svals(hstore)
+ RETURNS SETOF text
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_svals$function$
+]]></string>
+		</function>
+		<function name="tconvert" id="Function8970527" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.tconvert(text, text)
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE
+AS '$libdir/hstore', $function$hstore_from_text$function$
+]]></string>
+		</function>
+		<function name="ev_logger" id="Function1544934" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.ev_logger()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    audit_row event_log;
+BEGIN
+	IF (TG_WHEN <> 'AFTER') THEN
+		RAISE EXCEPTION 'ev_logger() may only run as an AFTER trigger';
+	END IF;
+	IF NOT (TG_OP = 'UPDATE' OR TG_OP = 'INSERT') THEN
+		RAISE EXCEPTION 'ev_logger() may only be used on UPDATE and INSERT operations';
+	END IF;
+	IF (TG_TABLE_NAME = 'event') THEN
+		audit_row = ROW(
+			nextval('event_log_id_seq'), -- event_log id
+			NEW.id, -- event_id
+			statement_timestamp(),
+			TG_TABLE_NAME::text, -- table_name
+			substring(TG_OP,1,1), -- action
+			NEW.id, -- row_id (same as event_id)
+			hstore('') --fields
+		);
+	ELSE
+		audit_row = ROW(
+			nextval('event_log_id_seq'), -- event_log id
+			NEW.event_id, -- event_id
+			statement_timestamp(),
+			TG_TABLE_NAME::text, -- table_name
+			substring(TG_OP,1,1), -- action
+			NEW.id, -- row_id
+			hstore('') --fields
+		);
+	END IF;
+	IF (TG_OP = 'UPDATE') THEN
+		audit_row.fields = (hstore(NEW.*) - hstore(OLD.*));
+	ELSIF (TG_OP = 'INSERT') THEN
+		audit_row.fields = hstore(NEW.*);
+	END IF;
+	INSERT INTO event_log VALUES (audit_row.*);
+	RETURN NULL;
+END;
+$function$
+]]></string>
+		</function>
 	</schema>
 	<connector name="PostgreSQL" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-9.1-902.jdbc3.jar" host="geopg" port="5432" instance="transafe_dev" user="transafe_dev" passwd="dHJhbkBzYWZlLmFscA==" schema_mapping="" />
 	<layout id="Layout2000347" name="public" show_relation_columns="y" >
@@ -11669,10 +12151,12 @@ $function$
 		<entity schema="public" name="ev_action" color="ffff99" x="1875" y="360" />
 		<entity schema="public" name="ev_action_m2m_actor" color="ffff99" x="1680" y="465" />
 		<entity schema="public" name="ev_action_graph" color="ffff99" x="1680" y="330" />
-		<entity schema="public" name="event" color="ffff99" x="1770" y="60" />
 		<entity schema="public" name="ev_actor" color="ffff99" x="1695" y="630" />
 		<entity schema="public" name="ev_visualization" color="ffff99" x="1875" y="585" />
 		<entity schema="public" name="visualization" color="c4fdb1" x="1500" y="600" />
+		<entity schema="public" name="event" color="ffff99" x="1770" y="60" />
+		<entity schema="public" name="ev_message" color="ffff99" x="2025" y="255" />
+		<entity schema="public" name="event_log" color="ffff99" x="2025" y="60" />
 		<group name="Users" color="fea4a4" >
 			<entity schema="public" name="managing_authority" />
 		</group>
@@ -11715,6 +12199,8 @@ $function$
 			<entity schema="public" name="ev_action_graph" />
 			<entity schema="public" name="ev_actor" />
 			<entity schema="public" name="event" />
+			<entity schema="public" name="ev_message" />
+			<entity schema="public" name="event_log" />
 		</group>
 	</layout>
 </project>
