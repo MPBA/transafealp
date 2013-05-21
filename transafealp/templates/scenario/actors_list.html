@@ -212,6 +212,7 @@
                         <a href="{% url 'scenario.views.actors_edit' actor.pk %}" data-toggle="tooltip" title="Edit Actor" class="sublink">
                             <img src="{% static 'img/edit.png' %}">
                         </a>
+                        <span style="margin-left:12px;"></span>
                         <a href="{% url 'scenario.views.del_actor' actor.pk %}"
                            onclick="return confirm('You are deleting {{ actor }}! Are you sure?')">
                             <img src="{% static 'img/delete.png' %}">

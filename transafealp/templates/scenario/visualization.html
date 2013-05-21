@@ -21,7 +21,29 @@
       $('#id_actions').change(function() {
         $('#actform').submit();
       });
+
+      var option = $("input[type='radio']");
+      var submitButt = $("#id_submit_add");
+      submitButt.prop('disabled', true);
+      option.click(function() {
+      if( option.filter(':checked').length == 0){
+          submitButt.prop('disabled', true);
+        // None checked
+      } else {
+      // If you need to use the result you can do so without
+      // another (costly) jQuery selector call:
+          submitButt.prop('disabled', false);
+      }
+      });
     });
+
+     $(function() {
+                $("[name=toggler]").click(function(){
+                    $('.toHide').hide();
+                    $("#blk-"+$(this).val()).show('slow');
+                    $("#id_resource"+$(this).val()).prop('required', true);
+                });
+            });
     </script>
 
     {% if oneaction == 1 %}
@@ -33,8 +55,7 @@
             if ( {{ stop }} == 0 ) {
                 $('#actform').submit();
             }
-
-            });
+        });
         </script>
     {% endif %}
 
@@ -65,11 +86,29 @@
                         {% csrf_token %}
                         <label><strong>Description</strong></label>
                         {{ form.description }}
-                        <label><strong>File</strong></label>
-                        {{ form.content }}
+
+                        <p>
+                        <label class="checkbox inline"><input id="rdb1" type="radio" name="toggler" value="1" /> Local File </label>
+                        <label class="checkbox inline"><input id="rdb2" type="radio" name="toggler" value="2" /> Remote File </label>
+                        <label class="checkbox inline"><input id="rdb3" type="radio" name="toggler" value="3" /> WMS Resource </label>
+                        </p>
+
+                        <div id="blk-1" class="toHide" style="display:none">
+                            <label><strong>Local File</strong></label>
+                            <input id="id_resource1" name="resource" type="file" />
+                        </div>
+                        <div id="blk-2" class="toHide" style="display:none">
+                            <label><strong>Remote File</strong></label>
+                            <input id="id_resource2" name="resource2" type="text" />
+                        </div>
+                        <div id="blk-3" class="toHide" style="display:none">
+                            <label><strong>WMS Resource</strong></label>
+                            <input id="id_resource3" name="resource3" type="text" />
+                        </div>
+
                     </fieldset>
                     <div class="form-actions">
-                        <input type="submit" class="btn btn-info" value="Save" name="save_vis">
+                        <input type="submit" class="btn btn-info" value="Save" name="save_vis" id="id_submit_add">
                     </div>
                 </form>
                 <table class="table table-striped table-bordered" id="scenarios" >
@@ -79,7 +118,7 @@
                             <th style="width: 3%">#</th>
                             <th style="width: 36%">Description</th>
                             <th style="width: 8%">Type</th>
-                            <th style="width: 50%">File</th>
+                            <th style="width: 50%">Resource</th>
                             <th style="width: 20%"></th>
                         </tr>
                     </thead>
@@ -89,8 +128,19 @@
                             <tr>
                                 <td>{{ file.pk }}</td>
                                 <td>{{ file.description|capfirst|truncatechars:50 }}</td>
-                                <td>{{ file.content|splitstr:'.' }}</td>
-                                <td><a href="{{ file.content.url }}" type="application/octet-stream" class="iframe">{{ file.content }}</a></td>
+                                <td>{{ file.type }}</td>
+                                <td>
+                                    {% if file.options == 'local' %}
+                                    <a href="{{ MEDIA_URL }}visualization/{{ file.resource }}" type="application/octet-stream" class="iframe">
+                                        {{ file.resource }}
+                                    </a>
+                                    {% else %}
+                                    <a href="{{ file.resource }}" type="application/octet-stream" class="iframe">
+                                        {{ file.resource }}
+                                    </a>
+                                    {% endif %}
+
+                                </td>
                                 <td>
                                     <img src="{% static 'img/delete.png' %}">
                                 </td>

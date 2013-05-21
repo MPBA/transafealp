@@ -16,6 +16,20 @@ from django.db import IntegrityError
 from django.contrib.auth.decorators import user_passes_test
 from django.utils.safestring import mark_safe
 import json
+import tempfile
+import shutil
+from django.conf import settings
+import os
+
+
+FILE_UPLOAD_DIR = os.path.join(settings.MEDIA_ROOT, 'visualization')
+
+
+def handle_uploaded_file(source):
+    fd, filepath = tempfile.mkstemp(suffix=source.name, dir=FILE_UPLOAD_DIR)
+    with open(filepath, 'wb') as dest:
+        shutil.copyfileobj(source, dest)
+    return str(filepath).split('/')[-1]
 
 
 @login_required
@@ -115,6 +129,32 @@ def action_add(request, scenario_id):
         form = ActionAddForm()
     context = {'form': form, 'scenario': scenario, 'last_10_actions': last_10_actions, 'error': db_error}
     return render_to_response('scenario/action_add.html', context, context_instance=RequestContext(request))
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def action_edit(request, action_id):
+    db_error = ""
+    action = Action.objects.get(pk=action_id)
+    scenario = Scenario.objects.get(pk=action.scenario.pk)
+    form = ActionAddForm(instance=action)
+    if request.method == 'POST':
+        form = ActionAddForm(request.POST, instance=action)
+        if form.is_valid:
+            obj = form.save(commit=False)
+            obj.scenario = scenario
+            try:
+                obj.save()
+                messages.add_message(request, messages.SUCCESS, 'Action correctly saved!')
+                return redirect('scenario.views.actions_list', scenario.pk)
+            except Exception, e:
+                transaction.rollback()
+                db_error = e
+                messages.add_message(request, messages.SUCCESS, smart_str(db_error))
+
+        form = ActionAddForm(request.POST)
+    context = {'form': form, 'error': db_error, 'action': action}
+    return render_to_response('scenario/action_edit.html', context, context_instance=RequestContext(request))
 
 
 @login_required
@@ -344,6 +384,7 @@ def delete_action_from_graph(request, scenario_id, graph_id):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def visualization(request, scenario_id, action_id=None):
+    resource = ''
     scenario = Scenario.objects.get(pk=scenario_id, managing_authority=Membership(request.user).membership_auth)
     if action_id == None:
         actions = Action.objects.filter(scenario=scenario)
@@ -359,15 +400,30 @@ def visualization(request, scenario_id, action_id=None):
         form = VisualizationForm(request.POST, request.FILES)
         action = Action.objects.get(pk=int(request.POST['actions']))
         if ('save_vis' in request.POST) and form.is_valid:
-            obj = form.save(commit=False)
-            obj.action = action
+            #obj = form.save(commit=False)
+            #obj.action = action
+            if request.POST['toggler'] == '1':
+                resource = handle_uploaded_file(request.FILES['resource'])
+                #upload file
+                type = 'file'
+                options = 'local'
+            elif request.POST['toggler'] == '2':
+                resource = request.POST['resource2']
+                type = 'file'
+                options = 'remote'
+            elif request.POST['toggler'] == '3':
+                resource = request.POST['resource3']
+                type = 'wms'
+                options = 'wms layer'
             try:
-                obj.save()
+                visualization = Visualization(action=action, description=str(request.POST['description']), type=type, resource=resource, options=options)
+                visualization.save()
                 messages.add_message(request, messages.SUCCESS, 'Attach correctly uploaded!')
             except Exception, e:
                 transaction.rollback()
                 db_error = e
                 messages.add_message(request, messages.ERROR, smart_str(db_error))
+
         form = VisualizationForm()
         context = {'actions': actions,
                    'form': form,
