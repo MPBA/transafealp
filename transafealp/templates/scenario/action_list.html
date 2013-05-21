@@ -217,7 +217,7 @@
                 <th style="width: 20%">Num code</th>
                 <th style="width: 90%">Description</th>
                 <th style="width: 20%">Duration</th>
-                <th style="width: 5%"></th>
+                <th style="width: 10%"></th>
             </tr>
         </thead>
         <tbody>
@@ -230,13 +230,16 @@
                     <td>{{ action.duration }}</td>
                     <td>
 
-                        <a href="{% url 'scenario.views.insert_actors_to_action' action.scenario.id action.pk %}">
+                        <a href="{% url 'scenario.views.insert_actors_to_action' action.scenario.id action.pk %}" data-toggle="tooltip" title="Add Actors" class="sublink">
                             <img src="{% static 'img/users.png' %}">
                         </a>
-                        <a href="{% url 'scenario.views.visualization' action.scenario.id action.pk %}">
+                        <a href="{% url 'scenario.views.visualization' action.scenario.id action.pk %}" data-toggle="tooltip" title="Visualization" class="sublink">
                             <img src="{% static 'img/attach.png' %}">
                         </a>
-                        <a href="{% url 'scenario.views.del_action' action.pk %}"
+                        <a href="{% url 'scenario.views.action_edit' action.pk %}" data-toggle="tooltip" title="Edit Action" class="sublink">
+                            <img src="{% static 'img/edit.png' %}">
+                        </a>
+                        <a href="{% url 'scenario.views.del_action' action.pk %}" data-toggle="tooltip" title="Delete Action" class="sublink"
                            onclick="return confirm('You are deleting {{ action }}! Are you sure?')">
                             <img src="{% static 'img/delete.png' %}">
                         </a>

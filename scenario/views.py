@@ -133,6 +133,32 @@ def action_add(request, scenario_id):
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
+def action_edit(request, action_id):
+    db_error = ""
+    action = Action.objects.get(pk=action_id)
+    scenario = Scenario.objects.get(pk=action.scenario.pk)
+    form = ActionAddForm(instance=action)
+    if request.method == 'POST':
+        form = ActionAddForm(request.POST, instance=action)
+        if form.is_valid:
+            obj = form.save(commit=False)
+            obj.scenario = scenario
+            try:
+                obj.save()
+                messages.add_message(request, messages.SUCCESS, 'Action correctly saved!')
+                return redirect('scenario.views.actions_list', scenario.pk)
+            except Exception, e:
+                transaction.rollback()
+                db_error = e
+                messages.add_message(request, messages.SUCCESS, smart_str(db_error))
+
+        form = ActionAddForm(request.POST)
+    context = {'form': form, 'error': db_error, 'action': action}
+    return render_to_response('scenario/action_edit.html', context, context_instance=RequestContext(request))
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def del_action(request, action_id):
     action = Action.objects.get(pk=action_id)
     scenario = action.scenario.pk
