@@ -53,9 +53,9 @@ class ActionGraphAddForm(forms.Form):
         self.fields['action'].queryset = actions_allowed
 
 
-class VisualizationForm(forms.ModelForm):
+class VisualizationForm(forms.Form):
     description = forms.CharField(widget=forms.Textarea(attrs={'required': 'True', 'class': 'field span3', 'rows': '2', 'placeholder': 'Description'}))
-    content = forms.Field(widget=forms.FileInput(attrs={'required': 'True'}), required=True)
+    #resource = forms.Field(widget=forms.FileInput(attrs={'required': 'True'}), required=True)
     #type = forms.CharField(widget=forms.TextInput(attrs={'required': 'True', 'class': 'field span3', 'placeholder': 'Type'}))
 
     class Meta:
