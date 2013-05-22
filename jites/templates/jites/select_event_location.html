@@ -45,7 +45,7 @@
                 this.markers.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(lonlat.lon,lonlat.lat),icon));
 
                 $('#submitevent').removeClass('disabled');
-                $('#submitevent').attr('href','#confirmevent');
+                $('#submitevent').attr('href','#confirm');
 
             }
 
@@ -98,6 +98,10 @@
                 map.render('geom_scenario')
                 map.zoomToExtent(vector.getDataExtent());
             },2000)
+
+            $("#confirmevent").click(function() {
+                alert("Handler for .click() called.");
+            });
         });
     </script>
 {% endblock %}
@@ -125,7 +129,7 @@
     <p>
         <a href="#" id="submitevent" role="button" class="btn btn-large btn-block btn-primary disabled" data-toggle="modal">Submit new event</a>
     </p>
-    <div id="confirmevent" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div id="confirm" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             <h3 id="myModalLabel">Attention!</h3>
@@ -137,7 +141,7 @@
         </div>
         <div class="modal-footer">
             <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-            <button class="btn btn-primary">Confirm</button>
+            <button id="confirmevent" class="btn btn-primary">Confirm</button>
         </div>
     </div>
 {% endblock %}
