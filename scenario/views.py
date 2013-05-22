@@ -439,7 +439,7 @@ def json_action(request, id):
 
 
 @login_required
-def start_event(request, type):
+def search_event(request, type):
     if type == 'emergency':
         managing_authority = Membership(request.user).membership_list
         ma_scenarios = Scenario.objects.filter(managing_authority=managing_authority)
@@ -457,7 +457,7 @@ def start_event(request, type):
         except Scenario.DoesNotExist:
             scenarios = None
         context = {'ma': managing_authority, 'category': category, 'form': form, 'type': type, 'scenarios': scenarios}
-        return render_to_response('scenario/start_event.html', context, context_instance=RequestContext(request))
+        return render_to_response('scenario/search_event.html', context, context_instance=RequestContext(request))
     else:
         context = {'ma': managing_authority, 'category': category, 'form': form, 'type': type}
-        return render_to_response('scenario/start_event.html', context, context_instance=RequestContext(request))
+        return render_to_response('scenario/search_event.html', context, context_instance=RequestContext(request))

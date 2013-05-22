@@ -6,8 +6,8 @@
         <h3>Welcome in TransafeAlp</h3>
         <p class="text-justify">{% lorem 2 p random %}</p>
         <p>
-            <a href="{% url 'scenario.views.start_event' 'emergency' %}" class="btn btn-large btn-danger">Start Emergency</a>
-            <a href="{% url 'scenario.views.start_event' 'simulation' %}" class="btn btn-warning btn-large">Start Simulation</a>
+            <a href="{% url 'scenario.views.search_event' 'emergency' %}" class="btn btn-large btn-danger">Start Emergency</a>
+            <a href="{% url 'scenario.views.search_event' 'simulation' %}" class="btn btn-warning btn-large">Start Simulation</a>
         </p>
     </div>
 {% endblock %}

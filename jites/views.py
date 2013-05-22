@@ -9,7 +9,6 @@ import json
 from scenario.models import Scenario, ScenarioSubcategory
 from scenario.utility import Membership
 
-
 @login_required
 def emergency(request, displaymode):
     context = {
@@ -70,10 +69,11 @@ def select_event_location(request,scenario_id,type):
     return render_to_response('jites/select_event_location.html', context, context_instance=RequestContext(request))
 
 @login_required
-def start_live_event(request):
-    # TODO implemented by real request on scenario log table. This is a demo.
-    result = ({
-                  'success': 'true'
-              })
-    j = json.dumps(result)
-    return HttpResponse(j, content_type="application/json")
+def start_event(request, scenario_id, type):
+    scenario = Scenario.objects.get(pk=scenario_id)
+    if type == 'visualization':
+        #do something
+        pass
+    elif type == 'emergency':
+        #do something
+        pass
