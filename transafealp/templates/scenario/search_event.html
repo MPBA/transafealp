@@ -214,8 +214,8 @@
                     <td><span class="label label-info">{{ scenario.name|truncatechars:50 }}</span></td>
                     <td>{{ scenario.description|truncatechars:50 }}</td>
                     <td>
-                       <a href="{% url 'jites.views.start_event' 'simulation' %}"><img src="{% static 'img/simulation.png' %}"></a>
-                       <a href="{% url 'jites.views.start_event' 'emergency' %}"><img src="{% static 'img/emergency.png' %}"></a>
+                       <a href="{% url 'jites.views.start_event' scenario.pk 'simulation' %}"><img src="{% static 'img/simulation.png' %}"></a>
+                       <a href="{% url 'jites.views.start_event' scenario.pk 'emergency' %}"><img src="{% static 'img/emergency.png' %}"></a>
 
                     </td>
                 </tr>
