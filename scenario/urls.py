@@ -22,5 +22,4 @@ urlpatterns = patterns('scenario.views',
                        (r'^visualization/(?P<scenario_id>\d+)/$', 'visualization'),
                        (r'^visualization/(?P<scenario_id>\d+)/(?P<action_id>.*)/$', 'visualization'),
                        (r'^json_action/(?P<id>\d+)/$', 'json_action'),
-
                        )
