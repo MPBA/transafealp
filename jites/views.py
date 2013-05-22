@@ -1,10 +1,14 @@
 # Create your views here.
 from datetime import datetime
+from django.db import transaction, connection
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 import json
+from scenario.models import Scenario, ScenarioSubcategory
+from scenario.utility import Membership
+
 
 @login_required
 def emergency(request, displaymode):
@@ -44,6 +48,29 @@ def poll(request):
 
 @login_required
 def annotation(request):
+    # TODO implemented by real request on scenario log table. This is a demo.
+    result = ({
+                  'success': 'true'
+              })
+    j = json.dumps(result)
+    return HttpResponse(j, content_type="application/json")
+
+@login_required
+def select_event_location(request,scenario_id,type):
+    cursor = connection.cursor()
+    cursor.execute(
+        "SELECT name, subcategory_id, description , ST_AsGeoJSON(ST_Transform(ST_SetSRID(geom,900913),900913)) FROM scenario WHERE id=%s AND managing_authority_id=%s",
+        [scenario_id, Membership(request.user).membership_auth.pk])
+    row = cursor.fetchone()
+
+    transaction.commit_unless_managed()
+    category = ScenarioSubcategory.objects.get(pk=int(list(row)[1]))
+    geometry = list(row)[3]
+    context = {'scenario': list(row), 'category': category, 'geometry': geometry, 'type': type}
+    return render_to_response('jites/select_event_location.html', context, context_instance=RequestContext(request))
+
+@login_required
+def start_live_event(request):
     # TODO implemented by real request on scenario log table. This is a demo.
     result = ({
                   'success': 'true'
