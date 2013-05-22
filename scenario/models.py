@@ -137,7 +137,8 @@ class Visualization(models.Model):
     action = models.ForeignKey(Action)
     description = models.TextField(blank=True)
     type = models.TextField()
-    content = models.FileField(upload_to='visualization')
+    resource = models.TextField()
+    options = models.TextField(blank=True, null=True)
 
     class Meta:
         db_table = 'visualization'
@@ -146,4 +147,3 @@ class Visualization(models.Model):
 
     def __unicode__(self):
         return u'%s %s %s' % (self.action, self.description, self.type)
-
