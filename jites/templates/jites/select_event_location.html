@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+    <script src="{% static 'openlayer/js/open-layer-custom.js' %}"></script>
+
+    <script type="text/javascript">
+        OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
+
+            defaultHandlerOptions: {
+                'single': true,
+                'double': false,
+                'pixelTolerance': 0,
+                'stopSingle': false,
+                'stopDouble': false
+            },
+
+            initialize: function(options) {
+                this.handlerOptions = OpenLayers.Util.extend(
+                        {}, this.defaultHandlerOptions
+                );
+                OpenLayers.Control.prototype.initialize.apply(
+                        this, arguments
+                );
+                this.handler = new OpenLayers.Handler.Click(
+                        this, {
+                            'click': this.trigger
+                        }, this.handlerOptions
+                );
+            },
+
+            trigger: function(e) {
+                var lonlat = this.map.getLonLatFromPixel(e.xy);
+
+                var size = new OpenLayers.Size(21,25);
+                var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+                var icon = new OpenLayers.Icon('http://www.openlayers.org/dev/img/marker.png', size, offset);
+
+                //check previous markers on map
+                this.markers.markers.every(
+                    function(el){
+                        this.markers.removeMarker(el);
+                    }, this
+                );
+
+                this.markers.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(lonlat.lon,lonlat.lat),icon));
+
+                $('#submitevent').removeClass('disabled');
+                $('#submitevent').attr('href','#confirm');
+
+            }
+
+        });
+
+        jQuery('#geom_scenario').ready(function() {
+            OpenLayers.ImgPath = "{% static 'openlayer/img/' %}";
+            var map, layer, vector, json, extent, click, markers;
+
+            vector = new OpenLayers.Layer.Vector("scenario");
+            extent =  new OpenLayers.Bounds(596825.316768,5437464.443338,1800249.889923,6097880.36763);
+            json = new OpenLayers.Format.GeoJSON();
+
+            vector.addFeatures(
+                    json.read('{% autoescape off %}{{ geometry }}{% endautoescape %}')
+            );
+            layer = new OpenLayers.Layer.OSM( "Simple OSM Map");
+
+            map = new OpenLayers.Map({
+                theme:"{% static 'openlayer/css/style.css' %}",
+                restrictedExtent: extent,
+                maxExtent: extent,
+                projection: 'EPSG:900913',
+                controls: [
+                    new OpenLayers.Control.Navigation(),
+                    new OpenLayers.Control.Button({
+                        displayClass: "MyButton", trigger: function(){console.log(this)}
+                    }),
+                    new OpenLayers.Control.Attribution(),
+                    new OpenLayers.Control.Scale(),
+                    new OpenLayers.Control.ScaleLine()
+                ]
+            });
+
+            map.addLayers([layer,vector]);
+
+            //Add markers layer to map
+            markers = new OpenLayers.Layer.Markers( "Markers" );
+            map.addLayer(markers);
+
+            //Enable click event on map
+            click = new OpenLayers.Control.Click({
+                markers: markers,
+                map: map
+            });
+            map.addControl(click);
+            click.activate();
+
+            setTimeout(function(){
+                map.render('geom_scenario')
+                map.zoomToExtent(vector.getDataExtent());
+            },2000)
+
+            $("#confirmevent").click(function() {
+                alert("Handler for .click() called.");
+            });
+        });
+    </script>
+{% endblock %}
+{% block content %}
+
+    <p class="text-info lead">Select event location for [{{ scenario.0 }}]</p>
+    <hr>
+    <p>Click on map to select the exactly location of event, then click on "Submit new event" button</p>
+    <table class="table table-bordered">
+        <tr>
+            <td width="10%"><strong>Name</strong></td>
+            <td>{{ scenario.0 }}</td>
+        </tr>
+        <tr>
+            <td width="10%"><strong>Type</strong></td>
+            <td><span class="label label-info">{{ type }}</span></td>
+        </tr>
+        <tr>
+            <td><strong>Location</strong></td>
+            <td>
+                <div id="geom_scenario" style=" height: 500px;"></div>
+            </td>
+        </tr>
+    </table>
+    <p>
+        <a href="#" id="submitevent" role="button" class="btn btn-large btn-block btn-primary disabled" data-toggle="modal">Submit new event</a>
+    </p>
+    <div id="confirm" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel">Attention!</h3>
+        </div>
+        <div class="modal-body">
+            <blockquote>
+                <p>This operation is irreversible. Confirm event?</p>
+            </blockquote>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button id="confirmevent" class="btn btn-primary">Confirm</button>
+        </div>
+    </div>
+{% endblock %}

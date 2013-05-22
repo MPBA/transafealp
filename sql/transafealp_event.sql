@@ -7,7 +7,7 @@
 DROP TABLE IF EXISTS event CASCADE;
 CREATE TABLE IF NOT EXISTS event (
 	id BIGSERIAL PRIMARY KEY,
-	scenario_id BIGINT REFERENCES scenario(id) ON UPDATE CASCADE ON DELETE SET NULL,
+	managing_authority_id BIGINT REFERENCES managing_authority(id) ON UPDATE CASCADE ON DELETE SET NULL,
 	event_name TEXT NOT NULL,
 	event_description TEXT NOT NULL,
 	category_name TEXT NOT NULL,
@@ -18,9 +18,11 @@ CREATE TABLE IF NOT EXISTS event (
 	is_real BOOLEAN NOT NULL DEFAULT FALSE,
 	time_start TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	time_end TIMESTAMP,
-	geom geometry NOT NULL CHECK (st_ndims(geom) = 2 AND st_srid(geom) = 3035 AND geometrytype(geom) = 'MULTIPOLYGON'::text)
+	event_geom Geometry(Point,3035) NOT NULL,
+	scenario_geom Geometry(Multipolygon,3035) NOT NULL
 );
 --SELECT 'SRID=3035;MULTIPOLYGON(((0 0,0 1,1 1,1 0,0 0)))'::geometry;
+
 -----------------------------------------------------------------------------------------------------------
 --
 --                                               (user)                                           (user)
@@ -35,6 +37,7 @@ CREATE TABLE IF NOT EXISTS event (
 --                             +------------------------------------------------+
 --                                              (user revert)
 --
+-----------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 -- ACTION GRAPH, ACTORS AND VISUALIZATIONS
 ------------------------------------------------------------------------------------------
@@ -42,7 +45,7 @@ CREATE TABLE IF NOT EXISTS event (
 --live event actions
 DROP TABLE IF EXISTS ev_action CASCADE;
 CREATE TABLE IF NOT EXISTS ev_action (
-	id BIGINT PRIMARY KEY DEFAULT nextval('action_id_seq'),
+	id BIGSERIAL PRIMARY KEY,
 	event_id BIGINT NOT NULL REFERENCES event(id) ON UPDATE CASCADE ON DELETE CASCADE,
 	name TEXT NOT NULL,
 	numcode INTEGER NOT NULL DEFAULT 0,
@@ -52,7 +55,7 @@ CREATE TABLE IF NOT EXISTS ev_action (
 		CHECK (status IN ('executable','non executable','running',
 			'terminated (success)','terminated (not needed)','terminated (failed)')),
 	comment TEXT, 
-	UNIQUE(event_id,name)
+	UNIQUE (event_id, name)
 );
 
 --trigger on delete: disable deleting actions for running events
@@ -80,16 +83,16 @@ CREATE TABLE IF NOT EXISTS ev_action_graph (
 	id BIGSERIAL PRIMARY KEY,
 	action_id BIGINT NOT NULL REFERENCES ev_action(id) ON UPDATE CASCADE ON DELETE CASCADE,
 	parent_id BIGINT NOT NULL REFERENCES ev_action(id) ON UPDATE CASCADE ON DELETE CASCADE,
-	is_main_parent BOOLEAN NOT NULL DEFAULT TRUE,
-	UNIQUE (action_id, parent_id)
+	is_main_parent BOOLEAN NOT NULL DEFAULT TRUE
 );
+
 
 ------------------------------------------------------------------------------------------
 
 --attori delle azioni
 DROP TABLE IF EXISTS ev_actor CASCADE;
 CREATE TABLE IF NOT EXISTS ev_actor (
-	id BIGINT PRIMARY KEY DEFAULT nextval('actor_id_seq'),
+	id BIGSERIAL PRIMARY KEY,
 	name TEXT NOT NULL,
 	istitution TEXT NOT NULL,
 	contact_info TEXT NOT NULL,
@@ -102,14 +105,13 @@ DROP TABLE IF EXISTS ev_action_m2m_actor CASCADE;
 CREATE TABLE IF NOT EXISTS ev_action_m2m_actor (
 	id BIGSERIAL PRIMARY KEY,
 	action_id BIGINT NOT NULL REFERENCES ev_action(id) ON UPDATE CASCADE ON DELETE CASCADE,
-	actor_id BIGINT NOT NULL REFERENCES ev_actor(id) ON UPDATE CASCADE ON DELETE CASCADE,
-	UNIQUE (action_id, actor_id)
+	actor_id BIGINT NOT NULL REFERENCES ev_actor(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 --visualizzazioni che il JITES deve mostrare quando una azione viene selezionata
 DROP TABLE IF EXISTS ev_visualization CASCADE;
 CREATE TABLE IF NOT EXISTS ev_visualization (
-	id BIGINT PRIMARY KEY DEFAULT nextval('visualization_id_seq'),
+	id BIGSERIAL PRIMARY KEY,
 	action_id BIGINT NOT NULL REFERENCES ev_action(id) ON UPDATE CASCADE ON DELETE CASCADE,
 	description TEXT,
 	type TEXT NOT NULL,
@@ -124,11 +126,11 @@ CREATE TABLE IF NOT EXISTS ev_message (
 	ts TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	username TEXT NOT NULL,
 	content TEXT NOT NULL,
-	UNIQUE(ts,username)
+	UNIQUE (event_id,ts,username)
 );
 
 ------------------------------------------------------------------------------------------
--- EVENT LOG (REFERENCED)
+-- EVENT LOG
 ------------------------------------------------------------------------------------------
 DROP TABLE IF EXISTS event_log CASCADE;
 CREATE TABLE IF NOT EXISTS event_log (
@@ -195,6 +197,8 @@ DROP TRIGGER IF EXISTS ev_logger ON ev_message CASCADE;
 CREATE TRIGGER ev_logger AFTER INSERT OR UPDATE ON ev_message FOR EACH ROW EXECUTE PROCEDURE ev_logger();
 DROP TRIGGER IF EXISTS ev_logger ON ev_action CASCADE;
 CREATE TRIGGER ev_logger AFTER INSERT OR UPDATE ON ev_action FOR EACH ROW EXECUTE PROCEDURE ev_logger();
+
+
 
 /*
 --Diario referenziato di svolgimento delle azioni compiute in un evento

@@ -53,16 +53,13 @@ CREATE TABLE alpcheck2
 	lv_ba numeric,
 	hv_ba numeric,
 	dgtv_ba numeric,
-	the_geom geometry,
+	the_geom Geometry(Linestring,3035) NOT NULL,
 	source integer,
 	target integer,
 	cost double precision,
 	available boolean NOT NULL DEFAULT true,
 	id integer,
-	"time" double precision,
-	CONSTRAINT enforce_dims_the_geom CHECK (st_ndims(the_geom) = 2),
-	CONSTRAINT enforce_geotype_the_geom CHECK (geometrytype(the_geom) = 'LINESTRING'::text OR the_geom IS NULL),
-	CONSTRAINT enforce_srid_the_geom CHECK (st_srid(the_geom) = 4326)
+	"time" double precision
 );
 
 --alpcheck2 interruptions for rerouting
@@ -71,7 +68,7 @@ CREATE TABLE interruptions --original name: polygons
 (
 	gid SERIAL PRIMARY KEY,
 	id integer,
-	geom geometry
+	geom Geometry(Polygon,3035) NOT NULL
 );
 
 
@@ -104,7 +101,7 @@ CREATE TABLE IF NOT EXISTS scenario (
 	subcategory_id BIGINT REFERENCES scenario_subcategory(id) ON UPDATE CASCADE ON DELETE CASCADE,
 	name TEXT UNIQUE NOT NULL,
 	description TEXT NOT NULL,
-	geom geometry
+	geom Geometry(Multipolygon,3035) NOT NULL
 );
 
 DROP FUNCTION IF EXISTS new_scenario() CASCADE;
@@ -457,103 +454,3 @@ CREATE TABLE IF NOT EXISTS visualization (
 	resource TEXT NOT NULL,
 	options TEXT
 );
-
-------------------------------------------------------------------------------------------
--- EVENT (LIVE STATUS)
-------------------------------------------------------------------------------------------
-
---Scenario di Evento/emergenza aperto dal gestore della tratta
-DROP TABLE IF EXISTS event CASCADE;
-CREATE TABLE IF NOT EXISTS event (
-	id BIGSERIAL PRIMARY KEY,
-	scenario_id BIGINT REFERENCES scenario(id) ON UPDATE CASCADE ON DELETE SET NULL,
-	scenario_name TEXT NOT NULL,
-	scenario_description TEXT NOT NULL,
-	category_name TEXT NOT NULL,
-	category_description TEXT NOT NULL,
-	subcategory_name TEXT NOT NULL,
-	subcategory_description TEXT NOT NULL,
-	status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','closed')),
-	is_real BOOLEAN NOT NULL DEFAULT FALSE,
-	time_start TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	time_end TIMESTAMP,
-	geom geometry NOT NULL CHECK (st_ndims(geom) = 2 AND st_srid(geom) = 3035 AND geometrytype(geom) = 'MULTIPOLYGON'::text)
-);
-
------------------------------------------------------------------------------------------------------------
---
---                                               (user)                                           (user)
---                          +----------------------------------------------+                   +----------+
---                          |                                              |                   |          |
---                (auto)    |        (user)          (user)                V                   V          |
---[NON EXECUTABLE]------>[EXECUTABLE]------>[RUNNING]------>[TERMINATED (success/failure/not needed)]-----+
---         ^               |   ^                 ^                   |          |
---         +---------------+   |                 +-------------------+          |
---           (auto revert)     |                     (user revert)              |
---                             |                                                |
---                             +------------------------------------------------+
---                                              (user revert)
---
------------------------------------------------------------------------------------------------------------
---Stato delle azioni di un evento
-DROP TABLE IF EXISTS event_action CASCADE;
-CREATE TABLE IF NOT EXISTS event_action (
-	id BIGSERIAL PRIMARY KEY,
-	event_id BIGINT NOT NULL REFERENCES event(id) ON UPDATE CASCADE ON DELETE CASCADE,
-	action_id BIGINT NOT NULL REFERENCES action(id) ON UPDATE CASCADE ON DELETE CASCADE,
-	status TEXT NOT NULL DEFAULT 'pending'
-		CHECK (status IN ('executable','non executable','running',
-			'terminated (success)','terminated (not needed)','terminated (failed)'))
-);
-
-------------------------------------------------------------------------------------------
--- EVENT LOG (REFERENCED)
-------------------------------------------------------------------------------------------
-
---Diario referenziato di svolgimento delle azioni compiute in un evento
-DROP TABLE IF EXISTS event_action_log CASCADE;
-CREATE TABLE IF NOT EXISTS event_action_log (
-	id BIGSERIAL PRIMARY KEY,
-	event_action_id BIGINT NOT NULL REFERENCES event_action(id) ON UPDATE CASCADE ON DELETE CASCADE,
-	ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	status TEXT NOT NULL CHECK (status IN ('executable','non executable','running',
-			'terminated (success)','terminated (not needed)','terminated (failed)')),
-	annotation TEXT
-);
-
---Diario referenziato delle annotazioni di un evento
-DROP TABLE IF EXISTS event_annotation_log CASCADE;
-CREATE TABLE IF NOT EXISTS event_annotation_log (
-	id BIGSERIAL PRIMARY KEY,
-	event_id BIGINT NOT NULL REFERENCES event(id) ON UPDATE CASCADE ON DELETE CASCADE,
-	ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	annotation TEXT NOT NULL
-);
-
-
-------------------------------------------------------------------------------------------
--- EVENT LOG (STATIC)
-------------------------------------------------------------------------------------------
-
---Diario statico di un evento (archivio)
-DROP TABLE IF EXISTS event_static_log CASCADE;
-CREATE TABLE IF NOT EXISTS event_static_log (
-	id BIGSERIAL PRIMARY KEY,
-	event_id BIGINT NOT NULL REFERENCES event(id) ON UPDATE CASCADE ON DELETE CASCADE,
-	ts TIMESTAMP NOT NULL,
-	action_type TEXT NOT NULL CHECK (action_type IN ('action','annotation')),
-	action_id BIGINT,
-	action_name TEXT,
-	action_description TEXT,
-	action_value TEXT NOT NULL,
-	annotation TEXT
-);
-
-DROP FUNCTION IF EXISTS get_actions (bigint) CASCADE;
-CREATE OR REPLACE FUNCTION get_actions (action_id bigint) RETURNS SETOF action
-AS
-$BODY$
-	SELECT * FROM action WHERE ;
-$BODY$
-LANGUAGE sql;
-COMMENT ON FUNCTION get_actions (bigint) IS 'TODO';

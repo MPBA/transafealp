@@ -55,6 +55,7 @@ class Scenario(models.Model):
 class ScenarioCategory(models.Model):
     name = models.TextField(unique=True)
     description = models.TextField()
+
     class Meta:
         db_table = 'scenario_category'
         verbose_name = 'Scenario Category'
@@ -69,6 +70,7 @@ class ScenarioSubcategory(models.Model):
     category = models.ForeignKey(ScenarioCategory, null=True, blank=True, verbose_name='Parent')
     name = models.TextField(unique=True)
     description = models.TextField()
+
     class Meta:
         db_table = 'scenario_subcategory'
         verbose_name = 'Scenario SubCategory'
