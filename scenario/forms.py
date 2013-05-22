@@ -3,7 +3,7 @@ __author__ = 'ernesto (arbitrio@fbk.eu)'
 
 from django import forms
 from autocomplete.utils import autocomplete_formfield
-from scenario.models import Scenario, ScenarioSubcategory, ScenarioCategory, Action, Actor, Visualization
+from scenario.models import Scenario, ScenarioSubcategory, ScenarioCategory, Action, Actor, Visualization, ManagingAuthority
 
 class ScenarioAddForm(forms.Form):
     subcategory = forms.ModelChoiceField(queryset=ScenarioSubcategory.objects.all().order_by('category__name'), widget=forms.Select(attrs={'required': 'True'}))
@@ -42,7 +42,6 @@ class SelectActionForm(forms.Form):
         self.fields['actions'].queryset = actions
 
 
-
 class ActionGraphAddForm(forms.Form):
     action = forms.ModelChoiceField(queryset=Action.objects.filter().order_by('name'), widget=forms.Select(attrs={'required': 'True'}))
 
@@ -55,12 +54,22 @@ class ActionGraphAddForm(forms.Form):
 
 class VisualizationForm(forms.Form):
     description = forms.CharField(widget=forms.Textarea(attrs={'required': 'True', 'class': 'field span3', 'rows': '2', 'placeholder': 'Description'}))
-    #resource = forms.Field(widget=forms.FileInput(attrs={'required': 'True'}), required=True)
-    #type = forms.CharField(widget=forms.TextInput(attrs={'required': 'True', 'class': 'field span3', 'placeholder': 'Type'}))
 
     class Meta:
         model = Visualization
         exclude = ('action', 'type')
 
 
+class StartActionForm(forms.Form):
+    managing_authority = forms.ModelChoiceField(queryset=ManagingAuthority.objects.all(), widget=forms.Select(attrs={'required': 'True'}))
+    category = forms.ModelChoiceField(queryset=ScenarioSubcategory.objects.all().order_by('name'), widget=forms.Select(attrs={'required': 'True'}))
 
+    def __init__(self, category, managing_authority, *args, **kwargs):
+        #print managing_authority
+        # call the standard init first
+        super(StartActionForm, self).__init__(*args, **kwargs)
+        self.fields['category'].empty_label = None
+        self.fields['managing_authority'].empty_label = None
+        # now customize the field
+        self.fields['category'].queryset = category
+        self.fields['managing_authority'].queryset = managing_authority

@@ -8,6 +8,7 @@ from autocomplete.views import autocomplete
 from django.conf.urls.static import static
 from django.conf import settings
 from plrutils import urls
+from .views import MainView
 
 admin.autodiscover()
 
@@ -23,7 +24,7 @@ urlpatterns = patterns('',
         (r'plr/', include(urls.urlpatterns)),
 
         #################### MAIN VIEWS URLS AND AUTH URLS #########################
-        (r'^$', 'transafealp.views.main_view'),
+        (r'^$', MainView.as_view()),
         (r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'registration/login.html'}),
         (r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'next_page': '/accounts/login'}),
 
