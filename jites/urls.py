@@ -5,4 +5,5 @@ urlpatterns = patterns("jites.views",
    (r'emergency/(?P<displaymode>\w+)/$', 'emergency', ),
    (r'emergency/log/annotation$', 'annotation', ),
    (r'poll/$', 'poll', ),
+   (r'event/(?P<id_scenario>\d+)/(?P<type>\w+)$','start_event')
 )
