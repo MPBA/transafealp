@@ -3,8 +3,10 @@ __author__ = 'ernesto (arbitrio@fbk.eu)'
 from .models import ManagingAuthority
 from django.contrib.auth.models import User
 from scenario.models import ActionM2MActor, Actor
-from django.db.models import Sum
-
+import tempfile
+import shutil
+from django.conf import settings
+import os
 
 '''
 This class allow to define the Managing Auth property or function. Passing the user you can retrieve information about
@@ -22,6 +24,14 @@ class Membership(object):
     def membership_auth(self):
         try:
             ma = ManagingAuthority.objects.get(auth_user=User.objects.get(pk=self.user_id))
+        except ManagingAuthority.DoesNotExist:
+            ma = None
+        return ma
+
+    @property
+    def membership_list(self):
+        try:
+            ma = ManagingAuthority.objects.filter(auth_user=User.objects.get(pk=self.user_id))
         except ManagingAuthority.DoesNotExist:
             ma = None
         return ma
@@ -60,6 +70,16 @@ class Actor_Action_Association(object):
         except ActionM2MActor.DoesNotExist:
             actors = None
         return actors
+
+
+FILE_UPLOAD_DIR = os.path.join(settings.MEDIA_ROOT, 'visualization')
+
+
+def handle_uploaded_file(source):
+    fd, filepath = tempfile.mkstemp(suffix=source.name, dir=FILE_UPLOAD_DIR)
+    with open(filepath, 'wb') as dest:
+        shutil.copyfileobj(source, dest)
+    return str(filepath).split('/')[-1]
 
 
 
