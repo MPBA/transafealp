@@ -87,99 +87,6 @@
 				<string>st_ndims(the_geom) = 2</string>
 			</constraint>
 		</table>
-		<table name="event" >
-			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
-			<column name="scenario_id" type="bigint" length="19" jt="-5" mandatory="y" />
-			<column name="status" type="text" length="2147483647" jt="12" mandatory="y" >
-				<defo>&#039;open&#039;::text</defo>
-			</column>
-			<column name="time_start" type="timestamp" length="29" decimal="6" jt="93" />
-			<column name="time_end" type="timestamp" length="29" decimal="6" jt="93" />
-			<column name="geom" type="geometry" length="2147483647" jt="1111" mandatory="y" />
-			<column name="is_real" type="bool" length="1" jt="-7" mandatory="y" >
-				<defo>false</defo>
-			</column>
-			<index name="event_pkey" unique="PRIMARY_KEY" >
-				<column name="id" />
-			</index>
-			<constraint name="event_geom_check" >
-				<string>((st_ndims(geom) = 2) AND (st_srid(geom) = 3035)) AND (geometrytype(geom) = &#039;MULTIPOLYGON&#039;::text)</string>
-			</constraint>
-			<constraint name="event_status_check" >
-				<string>status = ANY (ARRAY[&#039;open&#039;::text, &#039;closed&#039;::text])</string>
-			</constraint>
-			<fk name="event_scenario_id_fkey" to_schema="public" to_table="scenario" delete_action="CASCADE" update_action="CASCADE" >
-				<fk_column name="scenario_id" pk="id" />
-			</fk>
-		</table>
-		<table name="event_action" >
-			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
-			<column name="event_id" type="bigint" length="19" jt="-5" mandatory="y" />
-			<column name="action_id" type="bigint" length="19" jt="-5" mandatory="y" />
-			<column name="status" type="text" length="2147483647" jt="12" mandatory="y" >
-				<defo>&#039;pending&#039;::text</defo>
-			</column>
-			<index name="event_action_pkey" unique="PRIMARY_KEY" >
-				<column name="id" />
-			</index>
-			<constraint name="event_action_status_check" >
-				<string>status = ANY (ARRAY[&#039;pending&#039;::text, &#039;running&#039;::text, &#039;done&#039;::text, &#039;falied&#039;::text, &#039;unneeded&#039;::text])</string>
-			</constraint>
-			<fk name="event_action_action_id_fkey" to_schema="public" to_table="action" delete_action="CASCADE" update_action="CASCADE" >
-				<fk_column name="action_id" pk="id" />
-			</fk>
-			<fk name="event_action_event_id_fkey" to_schema="public" to_table="event" delete_action="CASCADE" update_action="CASCADE" >
-				<fk_column name="event_id" pk="id" />
-			</fk>
-		</table>
-		<table name="event_action_log" >
-			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
-			<column name="event_action_id" type="bigint" length="19" jt="-5" mandatory="y" />
-			<column name="ts" type="timestamp" length="29" decimal="6" jt="93" mandatory="y" />
-			<column name="status" type="text" length="2147483647" jt="12" mandatory="y" />
-			<column name="annotation" type="text" length="2147483647" jt="12" />
-			<index name="event_action_log_pkey" unique="PRIMARY_KEY" >
-				<column name="id" />
-			</index>
-			<constraint name="event_action_log_status_check" >
-				<string>status = ANY (ARRAY[&#039;pending&#039;::text, &#039;running&#039;::text, &#039;done&#039;::text, &#039;falied&#039;::text, &#039;unneeded&#039;::text])</string>
-			</constraint>
-			<fk name="event_action_log_event_action_id_fkey" to_schema="public" to_table="event_action" delete_action="CASCADE" update_action="CASCADE" >
-				<fk_column name="event_action_id" pk="id" />
-			</fk>
-		</table>
-		<table name="event_annotation_log" >
-			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
-			<column name="event_id" type="bigint" length="19" jt="-5" mandatory="y" />
-			<column name="ts" type="timestamp" length="29" decimal="6" jt="93" mandatory="y" />
-			<column name="annotation" type="text" length="2147483647" jt="12" mandatory="y" />
-			<index name="event_annotation_log_pkey" unique="PRIMARY_KEY" >
-				<column name="id" />
-			</index>
-			<fk name="event_annotation_log_event_id_fkey" to_schema="public" to_table="event" delete_action="CASCADE" update_action="CASCADE" >
-				<fk_column name="event_id" pk="id" />
-			</fk>
-		</table>
-		<table name="event_static_log" >
-			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
-			<column name="event_id" type="bigint" length="19" jt="-5" mandatory="y" />
-			<column name="ts" type="timestamp" length="29" decimal="6" jt="93" mandatory="y" />
-			<column name="action_type" type="text" length="2147483647" jt="12" mandatory="y" />
-			<column name="action_id" type="bigint" length="19" jt="-5" />
-			<column name="action_name" type="text" length="2147483647" jt="12" />
-			<column name="action_description" type="text" length="2147483647" jt="12" />
-			<column name="action_value" type="text" length="2147483647" jt="12" mandatory="y" />
-			<column name="annotation" type="text" length="2147483647" jt="12" />
-			<index name="event_static_log_pkey" unique="PRIMARY_KEY" >
-				<column name="id" />
-			</index>
-			<constraint name="event_static_log_action_type_check" >
-				<string>action_type = ANY (ARRAY[&#039;action&#039;::text, &#039;annotation&#039;::text])</string>
-			</constraint>
-			<fk name="event_static_log_event_id_fkey" to_schema="public" to_table="event" delete_action="CASCADE" update_action="CASCADE" >
-				<fk_column name="event_id" pk="id" />
-			</fk>
-		</table>
 		<table name="managing_authority" >
 			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
 			<column name="name" type="text" length="2147483647" jt="12" mandatory="y" />
@@ -236,8 +143,8 @@
 			<column name="action_id" type="bigint" length="19" jt="-5" mandatory="y" />
 			<column name="description" type="text" length="2147483647" jt="12" />
 			<column name="type" type="text" length="2147483647" jt="12" mandatory="y" />
-			<column name="content" type="text" length="2147483647" jt="12" mandatory="y" />
-			<column name="url" type="text" length="2147483647" jt="12" />
+			<column name="resource" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="options" type="text" length="2147483647" jt="12" />
 			<index name="visualization_pkey" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
@@ -566,6 +473,177 @@
 				<fk_column name="database_id" pk="id" />
 			</fk>
 		</table>
+		<table name="ev_action" >
+			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
+			<column name="event_id" type="bigint" length="19" jt="-5" mandatory="y" />
+			<column name="name" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="numcode" type="integer" length="10" jt="4" mandatory="y" >
+				<defo>0</defo>
+			</column>
+			<column name="description" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="duration" type="integer" length="10" jt="4" mandatory="y" >
+				<defo>15</defo>
+			</column>
+			<column name="status" type="text" length="2147483647" jt="12" mandatory="y" >
+				<defo>&#039;non executable&#039;::text</defo>
+			</column>
+			<column name="comment" type="text" length="2147483647" jt="12" />
+			<index name="ev_action_pkey" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<index name="ev_action_event_id_name_key" unique="UNIQUE" >
+				<column name="event_id" />
+				<column name="name" />
+			</index>
+			<constraint name="ev_action_status_check" >
+				<string>status = ANY (ARRAY[&#039;executable&#039;::text, &#039;non executable&#039;::text, &#039;running&#039;::text, &#039;terminated (success)&#039;::text, &#039;terminated (not needed)&#039;::text, &#039;terminated (failed)&#039;::text])</string>
+			</constraint>
+			<constraint name="ev_action_duration_check" >
+				<string>(duration &gt;= 0) AND ((duration % 15) = 0)</string>
+			</constraint>
+			<fk name="ev_action_event_id_fkey" to_schema="public" to_table="event" delete_action="CASCADE" update_action="CASCADE" >
+				<fk_column name="event_id" pk="id" />
+			</fk>
+		</table>
+		<table name="ev_action_graph" >
+			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
+			<column name="action_id" type="bigint" length="19" jt="-5" mandatory="y" />
+			<column name="parent_id" type="bigint" length="19" jt="-5" mandatory="y" />
+			<column name="is_main_parent" type="bool" length="1" jt="-7" mandatory="y" >
+				<defo>true</defo>
+			</column>
+			<index name="ev_action_graph_pkey" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<index name="ev_action_graph_action_id_parent_id_key" unique="UNIQUE" >
+				<column name="action_id" />
+				<column name="parent_id" />
+			</index>
+			<fk name="ev_action_graph_action_id_fkey" to_schema="public" to_table="ev_action" delete_action="CASCADE" update_action="CASCADE" >
+				<fk_column name="action_id" pk="id" />
+			</fk>
+			<fk name="ev_action_graph_parent_id_fkey" to_schema="public" to_table="ev_action" delete_action="CASCADE" update_action="CASCADE" >
+				<fk_column name="parent_id" pk="id" />
+			</fk>
+		</table>
+		<table name="ev_action_m2m_actor" >
+			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
+			<column name="action_id" type="bigint" length="19" jt="-5" mandatory="y" />
+			<column name="actor_id" type="bigint" length="19" jt="-5" mandatory="y" />
+			<index name="ev_action_m2m_actor_pkey" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<index name="ev_action_m2m_actor_action_id_actor_id_key" unique="UNIQUE" >
+				<column name="action_id" />
+				<column name="actor_id" />
+			</index>
+			<fk name="ev_action_m2m_actor_action_id_fkey" to_schema="public" to_table="ev_action" delete_action="CASCADE" update_action="CASCADE" >
+				<fk_column name="action_id" pk="id" />
+			</fk>
+			<fk name="ev_action_m2m_actor_actor_id_fkey" to_schema="public" to_table="ev_actor" delete_action="CASCADE" update_action="CASCADE" >
+				<fk_column name="actor_id" pk="id" />
+			</fk>
+		</table>
+		<table name="ev_actor" >
+			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
+			<column name="name" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="istitution" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="contact_info" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="email" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="phone" type="text" length="2147483647" jt="12" mandatory="y" />
+			<index name="ev_actor_pkey" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<index name="ev_actor_email_key" unique="UNIQUE" >
+				<column name="email" />
+			</index>
+		</table>
+		<table name="ev_visualization" >
+			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
+			<column name="action_id" type="bigint" length="19" jt="-5" mandatory="y" />
+			<column name="description" type="text" length="2147483647" jt="12" />
+			<column name="type" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="resource" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="options" type="text" length="2147483647" jt="12" />
+			<index name="ev_visualization_pkey" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="ev_visualization_action_id_fkey" to_schema="public" to_table="ev_action" delete_action="CASCADE" update_action="CASCADE" >
+				<fk_column name="action_id" pk="id" />
+			</fk>
+		</table>
+		<table name="event" >
+			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
+			<column name="scenario_id" type="bigint" length="19" jt="-5" />
+			<column name="category_name" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="category_description" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="subcategory_name" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="subcategory_description" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="status" type="text" length="2147483647" jt="12" mandatory="y" >
+				<defo>&#039;open&#039;::text</defo>
+			</column>
+			<column name="is_real" type="bool" length="1" jt="-7" mandatory="y" >
+				<defo>false</defo>
+			</column>
+			<column name="time_start" type="timestamp" length="29" decimal="6" jt="93" mandatory="y" >
+				<defo>now()</defo>
+			</column>
+			<column name="time_end" type="timestamp" length="29" decimal="6" jt="93" />
+			<column name="geom" type="geometry" length="2147483647" jt="1111" mandatory="y" />
+			<column name="event_name" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="event_description" type="text" length="2147483647" jt="12" mandatory="y" />
+			<index name="event_pkey" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<constraint name="event_geom_check" >
+				<string>((st_ndims(geom) = 2) AND (st_srid(geom) = 3035)) AND (geometrytype(geom) = &#039;MULTIPOLYGON&#039;::text)</string>
+			</constraint>
+			<constraint name="event_status_check" >
+				<string>status = ANY (ARRAY[&#039;open&#039;::text, &#039;closed&#039;::text])</string>
+			</constraint>
+			<fk name="event_scenario_id_fkey" to_schema="public" to_table="scenario" delete_action="SET_NULL" update_action="CASCADE" >
+				<fk_column name="scenario_id" pk="id" />
+			</fk>
+		</table>
+		<table name="ev_message" >
+			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
+			<column name="event_id" type="bigint" length="19" jt="-5" mandatory="y" />
+			<column name="ts" type="timestamptz" length="35" decimal="6" jt="93" mandatory="y" >
+				<defo>now()</defo>
+			</column>
+			<column name="username" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="content" type="text" length="2147483647" jt="12" mandatory="y" />
+			<index name="ev_message_pkey" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<index name="ev_message_ts_username_key" unique="UNIQUE" >
+				<column name="ts" />
+				<column name="username" />
+			</index>
+			<fk name="ev_message_event_id_fkey" to_schema="public" to_table="event" delete_action="CASCADE" update_action="CASCADE" >
+				<fk_column name="event_id" pk="id" />
+			</fk>
+		</table>
+		<table name="event_log" >
+			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
+			<column name="event_id" type="bigint" length="19" jt="-5" mandatory="y" />
+			<column name="ts" type="timestamptz" length="35" decimal="6" jt="93" mandatory="y" >
+				<defo>now()</defo>
+			</column>
+			<column name="table_name" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="action" type="text" length="2147483647" jt="12" mandatory="y" />
+			<column name="row_id" type="bigint" length="19" jt="-5" mandatory="y" />
+			<column name="fields" type="hstore" length="2147483647" jt="1111" mandatory="y" />
+			<index name="event_log_pkey" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<constraint name="event_log_action_check" >
+				<string>action = ANY (ARRAY[&#039;I&#039;::text, &#039;U&#039;::text])</string>
+			</constraint>
+			<fk name="event_log_event_id_fkey" to_schema="public" to_table="event" delete_action="CASCADE" update_action="CASCADE" >
+				<fk_column name="event_id" pk="id" />
+			</fk>
+		</table>
 		<view name="geography_columns" >
 			<view_script><![CDATA[SELECT current_database() AS f_table_catalog, n.nspname AS f_table_schema, c.relname AS f_table_name, a.attname AS f_geography_column, postgis_typmod_dims(a.atttypmod) AS coord_dimension, postgis_typmod_srid(a.atttypmod) AS srid, postgis_typmod_type(a.atttypmod) AS type FROM pg_class c, pg_attribute a, pg_type t, pg_namespace n WHERE (((((((t.typname = 'geography'::name) AND (a.attisdropped = false)) AND (a.atttypid = t.oid)) AND (a.attrelid = c.oid)) AND (c.relnamespace = n.oid)) AND (NOT pg_is_other_temp_schema(c.relnamespace))) AND has_table_privilege(c.oid, 'SELECT'::text));]]></view_script>
 			<column name="f_table_catalog" type="name" />
@@ -622,11 +700,6 @@
 		<sequence name="actor_id_seq" start="1" />
 		<sequence name="action_id_seq" start="1" />
 		<sequence name="visualization_id_seq" start="1" />
-		<sequence name="event_id_seq" start="1" />
-		<sequence name="event_action_id_seq" start="1" />
-		<sequence name="event_action_log_id_seq" start="1" />
-		<sequence name="event_annotation_log_id_seq" start="1" />
-		<sequence name="event_static_log_id_seq" start="1" />
 		<sequence name="alpcheck2_gid_seq" start="1" />
 		<sequence name="interruptions_gid_seq" start="1" />
 		<sequence name="action_m2m_actor_id_seq" start="1" />
@@ -648,6 +721,11 @@
 		<sequence name="auth_user_groups_id_seq" start="1" />
 		<sequence name="auth_user_user_permissions_id_seq" start="1" />
 		<sequence name="auth_user_id_seq" start="1" />
+		<sequence name="event_id_seq" start="1" />
+		<sequence name="ev_action_graph_id_seq" start="1" />
+		<sequence name="ev_action_m2m_actor_id_seq" start="1" />
+		<sequence name="ev_message_id_seq" start="1" />
+		<sequence name="event_log_id_seq" start="1" />
 		<trigger name="after_new_action_graph" id="Trigger2058498" isSystem="false" >
 			<string><![CDATA[CREATE TRIGGER after_new_action_graph AFTER INSERT ON action_graph FOR EACH ROW EXECUTE PROCEDURE after_new_action_graph()]]></string>
 		</trigger>
@@ -672,6 +750,17 @@
 		<trigger name="new_action_check" id="Trigger2058500" isSystem="false" >
 			<string><![CDATA[CREATE TRIGGER new_action_check AFTER INSERT ON action FOR EACH ROW EXECUTE PROCEDURE new_action()]]></string>
 		</trigger>
+		<trigger name="delete_ev_action" id="Trigger8170648" isSystem="false" >
+			<string><![CDATA[CREATE TRIGGER delete_ev_action BEFORE DELETE ON ev_action FOR EACH ROW EXECUTE PROCEDURE delete_ev_action()]]></string>
+		</trigger>
+		<trigger name="ev_logger" id="Trigger1544934" isSystem="false" >
+			<string><![CDATA[CREATE TRIGGER ev_logger AFTER INSERT OR UPDATE ON event FOR EACH ROW EXECUTE PROCEDURE ev_logger()]]></string>
+		</trigger>
+		<trigger name="ev_logger_001" id="Trigger1544934" isSystem="false" />
+		<trigger name="ev_logger_002" id="Trigger1544934" isSystem="false" />
+		<trigger name="ev_logger_003" id="Trigger1544934" isSystem="false" />
+		<trigger name="ev_logger_004" id="Trigger1544934" isSystem="false" />
+		<trigger name="ev_logger_005" id="Trigger1544935" isSystem="false" />
 		<function name="_add_overview_constraint" id="Function2000181" isSystem="false" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION public._add_overview_constraint(ovschema name, ovtable name, ovcolumn name, refschema name, reftable name, refcolumn name, factor integer)
  RETURNS boolean
@@ -11193,26 +11282,26 @@ $function$
  LANGUAGE plpgsql
 AS $function$
 DECLARE
-	par_id bigint;
+	an_id bigint;
 BEGIN
 	--remove redundant links
-	FOR par_id IN SELECT x.par FROM (
+	FOR an_id IN SELECT x.par FROM (
 		SELECT DISTINCT parent_id par,find_descendants(parent_id) des
 		FROM action_graph WHERE action_id = NEW.action_id
 	) x WHERE des = NEW.parent_id
 	LOOP
-		DELETE FROM action_graph WHERE action_id = NEW.action_id AND parent_id = par_id;
-		RAISE WARNING 'Redundant link between parent action % and % was removed',par_id,NEW.action_id;
+		DELETE FROM action_graph WHERE action_id = NEW.action_id AND parent_id = an_id;
+		RAISE WARNING 'Redundant link between [%]-->[%] removed',an_id,NEW.action_id;
 	END LOOP;
-	IF (NEW.is_main_parent) THEN --hey! this new link sould be main parent, let's trigger old main parents removal
+	FOR an_id IN SELECT action_id FROM action_graph WHERE parent_id = NEW.parent_id AND action_id IN (
+		SELECT * FROM find_descendants(NEW.action_id) 
+	) LOOP
+		DELETE FROM action_graph WHERE action_id = an_id AND parent_id = NEW.parent_id;
+		RAISE WARNING 'Redundant link between [%]-->[%] removed',NEW.parent_id,an_id;
+	END LOOP;
+	IF (NEW.is_main_parent) THEN --hey! this new link sould be main parent, let's trigger old main parent removal
 		UPDATE action_graph SET is_main_parent = TRUE WHERE id = NEW.id;
 	END IF;
-	--set new main parent if old one has been removed
-	/*PERFORM id FROM action_graph WHERE action_id = NEW.action_id AND is_main_parent = TRUE;
-	IF NOT FOUND THEN
-		UPDATE action_graph SET is_main_parent = TRUE
-			WHERE action_id = NEW.action_id AND parent_id = NEW.parent_id;
-	END IF;*/
 	RETURN NEW;
 END
 $function$
@@ -11250,7 +11339,7 @@ AS $function$
 BEGIN
 	PERFORM id FROM action WHERE id = action_id;
 	IF NOT FOUND THEN
-		RAISE WARNING 'Action % not found.',action_id;
+		RAISE WARNING 'Action [%] not found.',action_id;
 		RETURN;
 	END IF;
 	RETURN QUERY WITH RECURSIVE ancestors(elem) AS (
@@ -11299,7 +11388,7 @@ AS $function$
 BEGIN
 	PERFORM id FROM action WHERE id = action_id;
 	IF NOT FOUND THEN
-		RAISE WARNING 'Action % not found.',action_id;
+		RAISE WARNING 'Action [%] not found.',action_id;
 		RETURN;
 	END IF;
 	RETURN QUERY WITH RECURSIVE childtree(elem) AS (
@@ -11405,7 +11494,7 @@ $function$
 AS $function$
 BEGIN
 	IF (NEW.parent_id NOT IN (SELECT * FROM find_available_parents(NEW.action_id))) THEN
-		RAISE EXCEPTION 'Action % is not a valid parent for action %',NEW.parent_id,NEW.action_id;
+		RAISE EXCEPTION 'Action [%] is not a valid parent for action [%]',NEW.parent_id,NEW.action_id;
 	END IF;
 	RETURN NEW;
 END
@@ -11557,6 +11646,7 @@ BEGIN
 	IF (OLD.action_id != NEW.action_id OR OLD.parent_id != NEW.parent_id OR OLD.id != NEW.id) THEN
 		RAISE EXCEPTION 'Action graph cannot be updated. Please delete and insert instead. No changes were made.';
 	END IF;
+	--cannot remove 
 	IF (OLD.is_main_parent = TRUE AND NEW.is_main_parent = FALSE
 		AND ((SELECT count(id) FROM action_graph WHERE action_id = NEW.action_id AND is_main_parent = TRUE)=1)
 	) THEN
@@ -11583,24 +11673,464 @@ END
 $function$
 ]]></string>
 		</function>
+		<function name="delete_ev_action" id="Function8170647" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.delete_ev_action()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+	PERFORM id FROM event WHERE id = OLD.event_id AND status = 'open';
+	IF FOUND THEN
+		RAISE EXCEPTION 'Cannot delete actions of a running event (event id: %)',OLD.event_id;
+	END IF;
+END
+$function$
+]]></string>
+		</function>
+		<function name="akeys" id="Function8970481" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.akeys(hstore)
+ RETURNS text[]
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_akeys$function$
+]]></string>
+		</function>
+		<function name="avals" id="Function8970482" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.avals(hstore)
+ RETURNS text[]
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_avals$function$
+]]></string>
+		</function>
+		<function name="defined" id="Function8970484" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.defined(hstore, text)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_defined$function$
+]]></string>
+		</function>
+		<function name="delete" id="Function8970485" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.delete(hstore, text)
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_delete$function$
+CREATE OR REPLACE FUNCTION public.delete(hstore, text[])
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_delete_array$function$
+CREATE OR REPLACE FUNCTION public.delete(hstore, hstore)
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_delete_hstore$function$
+]]></string>
+		</function>
+		<function name="delete_001" id="Function8970487" isSystem="false" />
+		<function name="delete_002" id="Function8970490" isSystem="false" />
+		<function name="each" id="Function8970500" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.each(hs hstore, OUT key text, OUT value text)
+ RETURNS SETOF record
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_each$function$
+]]></string>
+		</function>
+		<function name="exist" id="Function8970502" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.exist(hstore, text)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_exists$function$
+]]></string>
+		</function>
+		<function name="exists_all" id="Function8970503" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.exists_all(hstore, text[])
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_exists_all$function$
+]]></string>
+		</function>
+		<function name="exists_any" id="Function8970504" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.exists_any(hstore, text[])
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_exists_any$function$
+]]></string>
+		</function>
+		<function name="fetchval" id="Function8970505" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.fetchval(hstore, text)
+ RETURNS text
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_fetchval$function$
+]]></string>
+		</function>
+		<function name="ghstore_compress" id="Function8970506" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.ghstore_compress(internal)
+ RETURNS internal
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$ghstore_compress$function$
+]]></string>
+		</function>
+		<function name="ghstore_consistent" id="Function8970507" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.ghstore_consistent(internal, internal, integer, oid, internal)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$ghstore_consistent$function$
+]]></string>
+		</function>
+		<function name="ghstore_decompress" id="Function8970508" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.ghstore_decompress(internal)
+ RETURNS internal
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$ghstore_decompress$function$
+]]></string>
+		</function>
+		<function name="ghstore_in" id="Function8970509" isSystem="false" />
+		<function name="ghstore_out" id="Function8970510" isSystem="false" />
+		<function name="ghstore_penalty" id="Function8970511" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.ghstore_penalty(internal, internal, internal)
+ RETURNS internal
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$ghstore_penalty$function$
+]]></string>
+		</function>
+		<function name="ghstore_picksplit" id="Function8970512" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.ghstore_picksplit(internal, internal)
+ RETURNS internal
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$ghstore_picksplit$function$
+]]></string>
+		</function>
+		<function name="ghstore_same" id="Function8970513" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.ghstore_same(internal, internal, internal)
+ RETURNS internal
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$ghstore_same$function$
+]]></string>
+		</function>
+		<function name="ghstore_union" id="Function8970514" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.ghstore_union(internal, internal)
+ RETURNS internal
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$ghstore_union$function$
+]]></string>
+		</function>
+		<function name="gin_consistent_hstore" id="Function8970515" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.gin_consistent_hstore(internal, smallint, internal, integer, internal, internal)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$gin_consistent_hstore$function$
+]]></string>
+		</function>
+		<function name="gin_extract_hstore" id="Function8970516" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.gin_extract_hstore(internal, internal)
+ RETURNS internal
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$gin_extract_hstore$function$
+]]></string>
+		</function>
+		<function name="gin_extract_hstore_query" id="Function8970516" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.gin_extract_hstore_query(internal, internal, smallint, internal, internal)
+ RETURNS internal
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$gin_extract_hstore_query$function$
+]]></string>
+		</function>
+		<function name="hs_concat" id="Function8970516" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hs_concat(hstore, hstore)
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_concat$function$
+]]></string>
+		</function>
+		<function name="hs_contained" id="Function8970517" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hs_contained(hstore, hstore)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_contained$function$
+]]></string>
+		</function>
+		<function name="hs_contains" id="Function8970518" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hs_contains(hstore, hstore)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_contains$function$
+]]></string>
+		</function>
+		<function name="hstore" id="Function8970518" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore(text[])
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_from_array$function$
+CREATE OR REPLACE FUNCTION public.hstore(record)
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE
+AS '$libdir/hstore', $function$hstore_from_record$function$
+CREATE OR REPLACE FUNCTION public.hstore(text, text)
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE
+AS '$libdir/hstore', $function$hstore_from_text$function$
+CREATE OR REPLACE FUNCTION public.hstore(text[], text[])
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE
+AS '$libdir/hstore', $function$hstore_from_arrays$function$
+]]></string>
+		</function>
+		<function name="hstore_001" id="Function8970518" isSystem="false" />
+		<function name="hstore_002" id="Function8970519" isSystem="false" />
+		<function name="hstore_003" id="Function8970519" isSystem="false" />
+		<function name="hstore_cmp" id="Function8970519" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_cmp(hstore, hstore)
+ RETURNS integer
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_cmp$function$
+]]></string>
+		</function>
+		<function name="hstore_eq" id="Function8970520" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_eq(hstore, hstore)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_eq$function$
+]]></string>
+		</function>
+		<function name="hstore_ge" id="Function8970520" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_ge(hstore, hstore)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_ge$function$
+]]></string>
+		</function>
+		<function name="hstore_gt" id="Function8970520" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_gt(hstore, hstore)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_gt$function$
+]]></string>
+		</function>
+		<function name="hstore_hash" id="Function8970521" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_hash(hstore)
+ RETURNS integer
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_hash$function$
+]]></string>
+		</function>
+		<function name="hstore_in" id="Function8970521" isSystem="false" />
+		<function name="hstore_le" id="Function8970521" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_le(hstore, hstore)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_le$function$
+]]></string>
+		</function>
+		<function name="hstore_lt" id="Function8970522" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_lt(hstore, hstore)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_lt$function$
+]]></string>
+		</function>
+		<function name="hstore_ne" id="Function8970522" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_ne(hstore, hstore)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_ne$function$
+]]></string>
+		</function>
+		<function name="hstore_out" id="Function8970522" isSystem="false" />
+		<function name="hstore_recv" id="Function8970523" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_recv(internal)
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_recv$function$
+]]></string>
+		</function>
+		<function name="hstore_send" id="Function8970523" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_send(hstore)
+ RETURNS bytea
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_send$function$
+]]></string>
+		</function>
+		<function name="hstore_to_array" id="Function8970523" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_to_array(hstore)
+ RETURNS text[]
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_to_array$function$
+]]></string>
+		</function>
+		<function name="hstore_to_matrix" id="Function8970524" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_to_matrix(hstore)
+ RETURNS text[]
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_to_matrix$function$
+]]></string>
+		</function>
+		<function name="hstore_version_diag" id="Function8970524" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.hstore_version_diag(hstore)
+ RETURNS integer
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_version_diag$function$
+]]></string>
+		</function>
+		<function name="isdefined" id="Function8970524" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.isdefined(hstore, text)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_defined$function$
+]]></string>
+		</function>
+		<function name="isexists" id="Function8970525" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.isexists(hstore, text)
+ RETURNS boolean
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_exists$function$
+]]></string>
+		</function>
+		<function name="populate_record" id="Function8970525" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.populate_record(anyelement, hstore)
+ RETURNS anyelement
+ LANGUAGE c
+ IMMUTABLE
+AS '$libdir/hstore', $function$hstore_populate_record$function$
+]]></string>
+		</function>
+		<function name="skeys" id="Function8970525" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.skeys(hstore)
+ RETURNS SETOF text
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_skeys$function$
+]]></string>
+		</function>
+		<function name="slice" id="Function8970526" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.slice(hstore, text[])
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_slice_to_hstore$function$
+]]></string>
+		</function>
+		<function name="slice_array" id="Function8970526" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.slice_array(hstore, text[])
+ RETURNS text[]
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_slice_to_array$function$
+]]></string>
+		</function>
+		<function name="svals" id="Function8970526" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.svals(hstore)
+ RETURNS SETOF text
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/hstore', $function$hstore_svals$function$
+]]></string>
+		</function>
+		<function name="tconvert" id="Function8970527" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.tconvert(text, text)
+ RETURNS hstore
+ LANGUAGE c
+ IMMUTABLE
+AS '$libdir/hstore', $function$hstore_from_text$function$
+]]></string>
+		</function>
+		<function name="ev_logger" id="Function1544934" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.ev_logger()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    audit_row event_log;
+BEGIN
+	IF (TG_WHEN <> 'AFTER') THEN
+		RAISE EXCEPTION 'ev_logger() may only run as an AFTER trigger';
+	END IF;
+	IF NOT (TG_OP = 'UPDATE' OR TG_OP = 'INSERT') THEN
+		RAISE EXCEPTION 'ev_logger() may only be used on UPDATE and INSERT operations';
+	END IF;
+	IF (TG_TABLE_NAME = 'event') THEN
+		audit_row = ROW(
+			nextval('event_log_id_seq'), -- event_log id
+			NEW.id, -- event_id
+			statement_timestamp(),
+			TG_TABLE_NAME::text, -- table_name
+			substring(TG_OP,1,1), -- action
+			NEW.id, -- row_id (same as event_id)
+			hstore('') --fields
+		);
+	ELSE
+		audit_row = ROW(
+			nextval('event_log_id_seq'), -- event_log id
+			NEW.event_id, -- event_id
+			statement_timestamp(),
+			TG_TABLE_NAME::text, -- table_name
+			substring(TG_OP,1,1), -- action
+			NEW.id, -- row_id
+			hstore('') --fields
+		);
+	END IF;
+	IF (TG_OP = 'UPDATE') THEN
+		audit_row.fields = (hstore(NEW.*) - hstore(OLD.*));
+	ELSIF (TG_OP = 'INSERT') THEN
+		audit_row.fields = hstore(NEW.*);
+	END IF;
+	INSERT INTO event_log VALUES (audit_row.*);
+	RETURN NULL;
+END;
+$function$
+]]></string>
+		</function>
 	</schema>
 	<connector name="PostgreSQL" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-9.1-902.jdbc3.jar" host="geopg" port="5432" instance="transafe_dev" user="transafe_dev" passwd="dHJhbkBzYWZlLmFscA==" schema_mapping="" />
 	<layout id="Layout2000347" name="public" show_relation_columns="y" >
 		<entity schema="public" name="managing_authority" color="fea4a4" x="1035" y="75" />
-		<entity schema="public" name="visualization" color="c4fdb1" x="1500" y="585" />
 		<entity schema="public" name="action" color="c4fdb1" x="1485" y="405" />
-		<entity schema="public" name="event_annotation_log" color="fae6b3" x="1875" y="345" />
-		<entity schema="public" name="event_static_log" color="fae6b3" x="1860" y="135" />
 		<entity schema="public" name="alpcheck2" color="9de5fd" x="1095" y="285" />
-		<entity schema="public" name="event" color="fae6b3" x="1665" y="255" />
 		<entity schema="public" name="action_m2m_actor" color="c4fdb1" x="1305" y="480" />
 		<entity schema="public" name="scenario_subcategory" color="c4fdb1" x="1260" y="60" />
 		<entity schema="public" name="scenario_category" color="c4fdb1" x="1500" y="75" />
 		<entity schema="public" name="actor" color="c4fdb1" x="1275" y="630" />
 		<entity schema="public" name="scenario" color="c4fdb1" x="1350" y="195" />
 		<entity schema="public" name="action_graph" color="c4fdb1" x="1290" y="345" />
-		<entity schema="public" name="event_action" color="fae6b3" x="1680" y="465" />
-		<entity schema="public" name="event_action_log" color="fae6b3" x="1875" y="480" />
 		<entity schema="public" name="admin_tools_menu_bookmark" color="ffcc66" x="540" y="165" />
 		<entity schema="public" name="auth_user_groups" color="ffcc66" x="420" y="480" />
 		<entity schema="public" name="auth_group" color="ffcc66" x="420" y="645" />
@@ -11618,10 +12148,15 @@ $function$
 		<entity schema="public" name="auth_user" color="ffcc66" x="345" y="120" />
 		<entity schema="public" name="django_flatpage" color="ffcc66" x="150" y="135" />
 		<entity schema="public" name="plrutils_graphfunction" color="ffcc66" x="750" y="165" />
-		<group name="Live Event" color="fae6b3" >
-			<entity schema="public" name="event_action" />
-			<entity schema="public" name="event" />
-		</group>
+		<entity schema="public" name="ev_action" color="ffff99" x="1875" y="360" />
+		<entity schema="public" name="ev_action_m2m_actor" color="ffff99" x="1680" y="465" />
+		<entity schema="public" name="ev_action_graph" color="ffff99" x="1680" y="330" />
+		<entity schema="public" name="ev_actor" color="ffff99" x="1695" y="630" />
+		<entity schema="public" name="ev_visualization" color="ffff99" x="1875" y="585" />
+		<entity schema="public" name="visualization" color="c4fdb1" x="1500" y="600" />
+		<entity schema="public" name="event" color="ffff99" x="1770" y="60" />
+		<entity schema="public" name="ev_message" color="ffff99" x="2025" y="255" />
+		<entity schema="public" name="event_log" color="ffff99" x="2025" y="60" />
 		<group name="Users" color="fea4a4" >
 			<entity schema="public" name="managing_authority" />
 		</group>
@@ -11634,11 +12169,6 @@ $function$
 			<entity schema="public" name="action_graph" />
 			<entity schema="public" name="scenario_subcategory" />
 			<entity schema="public" name="scenario_category" />
-		</group>
-		<group name="Logging" color="fde574" >
-			<entity schema="public" name="event_static_log" />
-			<entity schema="public" name="event_annotation_log" />
-			<entity schema="public" name="event_action_log" />
 		</group>
 		<group name="Map and Routing" color="9de5fd" >
 			<entity schema="public" name="alpcheck2" />
@@ -11661,6 +12191,16 @@ $function$
 			<entity schema="public" name="django_admin_log" />
 			<entity schema="public" name="django_content_type" />
 			<entity schema="public" name="auth_user" />
+		</group>
+		<group name="Live Event" color="ffff99" >
+			<entity schema="public" name="ev_action" />
+			<entity schema="public" name="ev_visualization" />
+			<entity schema="public" name="ev_action_m2m_actor" />
+			<entity schema="public" name="ev_action_graph" />
+			<entity schema="public" name="ev_actor" />
+			<entity schema="public" name="event" />
+			<entity schema="public" name="ev_message" />
+			<entity schema="public" name="event_log" />
 		</group>
 	</layout>
 </project>

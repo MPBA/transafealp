@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+    <script type="text/javascript">
+            $(document).ready(function() {
+                $('#id_duration').blur(function(){
+                    if ($(this).val() % 15 === 0) {
+                    }
+                    else {
+                        $('#modal-content').modal('show');
+                        $(this).val("");
+                    }
+                });
+            });
+
+            $(function(ready){
+                $("#id_numcode").keyup(function(){
+
+                        var value = $(this).val().replace(/[^0-9]/g, "");
+                        $(this).val(value)
+                });
+            });
+    </script>
+{% endblock %}
+
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+        </div>
+        {% endfor %}
+    {% endif %}
+    <!-- this class is a popup modal of bootstrap framework.  -->
+       <div class="modal hide fade" id="modal-content">
+          <div class="modal-header">
+
+             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+               <h3>Duration Value Error</h3>
+                </div>
+                <!-- modal body text -->
+                <div class="modal-body">
+                    <p>The value must be a multiple of 15</p>
+                </div>
+          <div class="modal-footer">
+                 <a href="#" class="btn" data-dismiss="modal">Close</a>
+          </div>
+        </div>
+    <!-- end of bootstrap modal div -->
+
+    {% if messages %}
+        <div class="alert alert-success">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+
+                {% for message in messages %}
+                    <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+
+        </div>
+    {% endif %}
+
+              <form method="POST" id="action_form">
+                {% csrf_token %}
+                <fieldset>
+                    <legend>Edit Action {{ action }}</legend>
+
+                    <label><strong>Name</strong></label>
+                    {{ form.name }}
+                    <span class="help-inline">{{ form.name.errors }}</span>
+
+                    <label><strong>Numcode</strong></label>
+                    {{ form.numcode }}
+                    <span class="help-inline">{{ form.numcode.errors }}</span>
+
+                    <label><strong>Description</strong></label>
+                    {{ form.description }}
+                    <span class="help-inline">{{ form.descriprion.errors }}</span>
+
+                    <label><strong>Duration (in minutes)</strong></label>
+                    {{ form.duration }}
+                    <span class="help-inline">Must be a multiple of 15 {{ form.duration.errors }}</span>
+
+                    <div class="form-actions">
+                        <input type="submit" class="btn btn-info" value="Save">
+                    </div>
+                </fieldset>
+            </form>
+
+{% endblock %}
