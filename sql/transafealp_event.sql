@@ -8,8 +8,8 @@ DROP TABLE IF EXISTS event CASCADE;
 CREATE TABLE IF NOT EXISTS event (
 	id BIGSERIAL PRIMARY KEY,
 	scenario_id BIGINT REFERENCES scenario(id) ON UPDATE CASCADE ON DELETE SET NULL,
-	scenario_name TEXT NOT NULL,
-	scenario_description TEXT NOT NULL,
+	event_name TEXT NOT NULL,
+	event_description TEXT NOT NULL,
 	category_name TEXT NOT NULL,
 	category_description TEXT NOT NULL,
 	subcategory_name TEXT NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS event (
 	time_end TIMESTAMP,
 	geom geometry NOT NULL CHECK (st_ndims(geom) = 2 AND st_srid(geom) = 3035 AND geometrytype(geom) = 'MULTIPOLYGON'::text)
 );
-SELECT 'SRID=3035;MULTIPOLYGON(((0 0,0 1,1 1,1 0,0 0)))'::geometry;
+--SELECT 'SRID=3035;MULTIPOLYGON(((0 0,0 1,1 1,1 0,0 0)))'::geometry;
 -----------------------------------------------------------------------------------------------------------
 --
 --                                               (user)                                           (user)
@@ -117,25 +117,85 @@ CREATE TABLE IF NOT EXISTS ev_visualization (
 	options TEXT
 );
 
-select * from audit.audit_table(
-	'public.ev_action', --table name
-	TRUE, --audit row change
-	TRUE, --audit query text
-	ARRAY['id','event_id','numcode'] --ignored columns
+DROP TABLE IF EXISTS ev_message CASCADE;
+CREATE TABLE IF NOT EXISTS ev_message (
+	id BIGSERIAL PRIMARY KEY,
+	event_id BIGINT NOT NULL REFERENCES event(id) ON UPDATE CASCADE ON DELETE CASCADE,
+	ts TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	username TEXT NOT NULL,
+	content TEXT NOT NULL,
+	UNIQUE(ts,username)
 );
 
-select * from audit.audit_table(
-	'public.event', --table name
-	TRUE, --audit row change
-	TRUE, --audit query text
-	ARRAY['id','scenario_id'] --ignored columns
-);
-
-
-select * from 
 ------------------------------------------------------------------------------------------
 -- EVENT LOG (REFERENCED)
 ------------------------------------------------------------------------------------------
+DROP TABLE IF EXISTS event_log CASCADE;
+CREATE TABLE IF NOT EXISTS event_log (
+	id BIGSERIAL PRIMARY KEY,
+	event_id BIGINT NOT NULL REFERENCES event(id) ON UPDATE CASCADE ON DELETE CASCADE,
+	ts TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	table_name TEXT NOT NULL,
+	action TEXT NOT NULL CHECK (action IN ('I','U')),
+	row_id BIGINT NOT NULL,
+	fields hstore NOT NULL
+);
+
+CREATE OR REPLACE FUNCTION ev_logger() RETURNS TRIGGER AS
+$BODY$
+DECLARE
+    audit_row event_log;
+BEGIN
+	IF (TG_WHEN <> 'AFTER') THEN
+		RAISE EXCEPTION 'ev_logger() may only run as an AFTER trigger';
+	END IF;
+
+	IF NOT (TG_OP = 'UPDATE' OR TG_OP = 'INSERT') THEN
+		RAISE EXCEPTION 'ev_logger() may only be used on UPDATE and INSERT operations';
+	END IF;
+
+	IF (TG_TABLE_NAME = 'event') THEN
+		audit_row = ROW(
+			nextval('event_log_id_seq'), -- event_log id
+			NEW.id, -- event_id
+			statement_timestamp(),
+			TG_TABLE_NAME::text, -- table_name
+			substring(TG_OP,1,1), -- action
+			NEW.id, -- row_id (same as event_id)
+			hstore('') --fields
+		);
+	ELSE
+		audit_row = ROW(
+			nextval('event_log_id_seq'), -- event_log id
+			NEW.event_id, -- event_id
+			statement_timestamp(),
+			TG_TABLE_NAME::text, -- table_name
+			substring(TG_OP,1,1), -- action
+			NEW.id, -- row_id
+			hstore('') --fields
+		);
+	END IF;
+
+	IF (TG_OP = 'UPDATE') THEN
+		audit_row.fields = (hstore(NEW.*) - hstore(OLD.*));
+	ELSIF (TG_OP = 'INSERT') THEN
+		audit_row.fields = hstore(NEW.*);
+	END IF;
+
+	INSERT INTO event_log VALUES (audit_row.*);
+	RETURN NULL;
+END;
+$BODY$
+LANGUAGE plpgsql;
+
+--adding log tigger to tables
+DROP TRIGGER IF EXISTS ev_logger ON event CASCADE;
+CREATE TRIGGER ev_logger AFTER INSERT OR UPDATE ON event FOR EACH ROW EXECUTE PROCEDURE ev_logger();
+DROP TRIGGER IF EXISTS ev_logger ON ev_message CASCADE;
+CREATE TRIGGER ev_logger AFTER INSERT OR UPDATE ON ev_message FOR EACH ROW EXECUTE PROCEDURE ev_logger();
+DROP TRIGGER IF EXISTS ev_logger ON ev_action CASCADE;
+CREATE TRIGGER ev_logger AFTER INSERT OR UPDATE ON ev_action FOR EACH ROW EXECUTE PROCEDURE ev_logger();
+
 /*
 --Diario referenziato di svolgimento delle azioni compiute in un evento
 DROP TABLE IF EXISTS event_action_log CASCADE;

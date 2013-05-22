@@ -12,10 +12,10 @@
 
 CREATE EXTENSION IF NOT EXISTS hstore;
 
-CREATE SCHEMA audit;
-REVOKE ALL ON SCHEMA audit FROM public;
+--CREATE SCHEMA audit;
+--REVOKE ALL ON SCHEMA audit FROM public;
 
-COMMENT ON SCHEMA audit IS 'Out-of-table audit/history logging tables and trigger functions';
+--COMMENT ON SCHEMA audit IS 'Out-of-table audit/history logging tables and trigger functions';
 
 --
 -- Audited data. Lots of information is available, it's just a matter of how much

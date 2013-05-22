@@ -26,6 +26,10 @@ Ext.define('Jites.view.InterfaceExtended',{
             {
                 xtype: 'container',
                 id: 'actiongraph',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
                 disabled: true,
                 width: me.componentSize.wRow1,
                 height: me.componentSize.hRow1

@@ -42,7 +42,8 @@ Ext.application({
 
     controllers: [
         'JitesInterface',
-        'EventLog'
+        'EventLog',
+        'ActionGraph'
     ]
 
 });
