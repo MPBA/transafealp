@@ -5,6 +5,7 @@ from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 import json
+from scenario.models import Scenario
 
 @login_required
 def emergency(request, displaymode):
@@ -50,3 +51,13 @@ def annotation(request):
               })
     j = json.dumps(result)
     return HttpResponse(j, content_type="application/json")
+
+@login_required
+def start_event(request, scenario_id, type):
+    scenario = Scenario.objects.get(pk=scenario_id)
+    if type == 'visualization':
+        #do something
+        pass
+    elif type == 'emergency':
+        #do something
+        pass
