@@ -32,7 +32,10 @@ Ext.define('Jites.view.Interface',{
                 xtype: 'container',
                 title: 'Action graph',
                 disabled: true,
-                html: '<h1>test</h1>',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
                 id: 'actiongraph'
             },{
                 xtype: 'container',
