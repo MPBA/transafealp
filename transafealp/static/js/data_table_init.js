@@ -1,15 +1,11 @@
-{% extends "base.html" %}
-{% load staticfiles %}
-{% block extrahead %}
-
-    <link href="{% static "css/dt_bootstrap.css" %}" rel="stylesheet">
-    <style>
-        table { table-layout: fixed; }
-        table th, table td { overflow: hidden; }
-    </style>
-    <script src={% static 'js/datatables.js' %}></script>
-    <script type="text/javascript" charset="utf-8">
-            /* Set the defaults for DataTables initialisation */
+/**
+ * Created with PyCharm.
+ * User: ernesto
+ * Date: 23/05/13
+ * Time: 16:22
+ * To change this template use File | Settings | File Templates.
+ */
+        /* Set the defaults for DataTables initialisation */
             $.extend( true, $.fn.dataTable.defaults, {
                 "sDom": "<'row-fluid'<'span6'l><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
                 "sPaginationType": "bootstrap",
@@ -156,75 +152,3 @@
                     }
                 } );
             }
-
-
-            /* Table initialisation */
-            $(document).ready(function() {
-                $('#scenarios').dataTable( {
-                    "sDom": "<'row'<'span6'l><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
-                    "sPaginationType": "bootstrap",
-                    "oLanguage": {
-                        "sLengthMenu": "_MENU_ records per page"
-                    },
-                    "aoColumnDefs": [
-                        { 'bSortable': false, 'aTargets': [ 4 ] },
-                    ]
-
-                } );
-            } );
-
-            jQuery(document).ready(function() {
-                $('.sublink').tooltip({'placement':'bottom'}); /*enable tooltip bootstrap to all navbar-link class tags*/
-            });
-
-
-	</script>
-{% endblock %}
-{% block content %}
-
-    <form method="POST" id="scform">
-        {% csrf_token %}
-        <legend>Start your {{ type }}</legend>
-        <label><strong>Managing Authority</strong></label>
-        {{ form.managing_authority }}
-        <label><strong>Category</strong></label>
-        {{ form.category }}
-        <div class="form-actions">
-            <input type="submit" value="Search Scenarios" class="btn btn-info">
-        </div>
-     </form>
-    {% if scenarios %}
-    <table class="table table-striped table-bordered" id="scenarios" >
-    <caption>Scenarios list</caption>
-        <thead>
-            <tr>
-                <th style="width: 3%">#</th>
-                <th style="width: 25%">Category</th>
-                <th style="width: 35%">Name</th>
-                <th style="width: 70%">Description</th>
-                <th style="width: 7%"></th>
-
-            </tr>
-        </thead>
-        <tbody>
-            {% for scenario in scenarios %}
-                <tr>
-                    <td>{{ scenario.pk }}</td>
-                    <td><a class="sublink" data-toggle="tooltip" title="{{ scenario.subcategory }}">{{ scenario.subcategory|truncatechars:30 }}</a></td>
-                    <td><span class="label label-info">{{ scenario.name|truncatechars:50 }}</span></td>
-                    <td>{{ scenario.description|truncatechars:50 }}</td>
-                    <td>
-                       <a href="{% url 'jites.views.select_event_location' scenario.pk 'simulation' %}" data-toggle="tooltip" title="Simulation" class="sublink">
-                           <img src="{% static 'img/simulation.png' %}">
-                       </a>
-                       <a href="{% url 'jites.views.select_event_location' scenario.pk 'emergency' %}" data-toggle="tooltip" title="Emergency" class="sublink">
-                           <img src="{% static 'img/emergency.png' %}">
-                       </a>
-
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% endif %}
-{% endblock %}

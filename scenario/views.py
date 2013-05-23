@@ -39,7 +39,24 @@ def scenario_detail(request, scenario_id):
     transaction.commit_unless_managed()
     category = ScenarioSubcategory.objects.get(pk=int(list(row)[1]))
     geometry = list(row)[3]
-    context = {'scenario': list(row), 'category': category, 'geometry': geometry}
+    actions = Action.objects.filter(scenario__id=scenario_id)
+    graph_img = '/plr/execute/graph_action/'+str(scenario_id)+'/800/600'
+    actors = ActionM2MActor.objects.values('actor__pk').annotate().filter(action__scenario__id=scenario_id).\
+                                                              filter(action__scenario__managing_authority=Membership(request.user).
+                                                              membership_auth).\
+                                                              order_by('actor__name')
+    actors = Actor.objects.filter(pk__in=[a['actor__pk'] for a in actors])
+    visualizations = Visualization.objects.filter(action__scenario__id=scenario_id)
+    print actors
+    context = {
+               'scenario': list(row),
+               'category': category,
+               'geometry': geometry,
+               'actions': actions,
+               'graph': graph_img,
+               'actors': actors,
+               'visualizations': visualizations,
+              }
     return render_to_response('scenario/scenario_detail.html', context, context_instance=RequestContext(request))
 
 
@@ -212,7 +229,6 @@ def actors_add_popup(request, scenario_id):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def actors_list(request):
-    #actors = ActionM2MActor.objects.filter(action__scenario__managing_authority=Membership(request.user).membership_auth)
     actors = ActionM2MActor.objects.values('actor__pk').annotate().\
                                                               filter(action__scenario__managing_authority=Membership(request.user).
                                                               membership_auth).\
