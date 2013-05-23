@@ -15,11 +15,11 @@ authorities have a tool that can simplify the choices of action and information 
 
 **version alpha** [2013-05-07] Basic scenario intervention support  
 
-*v0.0.1* [2013-05-13] Bug fixes. Scenario creation improvements
+**v0.0.1** [2013-05-13] Bug fixes. Scenario creation improvements
 
-*v0.0.2* [2013-05-13] Bug fixes
+**v0.0.2** [2013-05-13] Bug fixes
 
-*v0.5.0* [2013-05-22] [stable] Integration search scenaro whit start emergency / simulation
+**v0.5.0** [2013-05-22] [stable] Integration search scenaro whit start emergency / simulation
 
 Download area https://github.com/MPBAUnofficial/transafealp/tags
 
