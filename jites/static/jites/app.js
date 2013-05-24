@@ -14,6 +14,9 @@ Ext.application({
         //Require library
         Ext.require('Ext.util.Cookies');
 
+        //Set other path
+        Ext.Loader.setPath('GeoExt', '/static//jites/GeoExt');
+
         //Loading configuration via AJAX request
         //TODO to be implemented
         Jites.DISPLAYMODE = displaymode;
@@ -43,7 +46,8 @@ Ext.application({
     controllers: [
         'JitesInterface',
         'EventLog',
-        'ActionGraph'
+        'ActionGraph',
+        'Webgis'
     ]
 
 });

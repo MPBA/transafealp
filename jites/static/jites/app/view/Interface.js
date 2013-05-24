@@ -46,6 +46,7 @@ Ext.define('Jites.view.Interface',{
                 xtype: 'container',
                 title: 'Webgis area',
                 disabled: true,
+                layout: 'fit',
                 id: 'webgis'
             },{
                 xtype: 'container',
