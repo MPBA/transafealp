@@ -1,13 +1,138 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 {% load webdesign %}
+{% block extrahead %}
+<script src="{% static 'charts/js/highcharts.js' %}"></script>
+<script src="{% static 'charts/js/themes/grid.js' %}"></script>
+<script type="text/javascript">
 
+    $(function () {
+        var chart;
+
+        $(document).ready(function () {
+
+            // Build the chart
+            $('#container').highcharts({
+            chart: {
+                type: 'column',
+                margin: [ 50, 50, 100, 80]
+            },
+            title: {
+                text: 'System Usage %'
+            },
+            xAxis: {
+                categories: [
+                    'CPU',
+                    'RAM',
+                    'Disk'
+                ],
+                labels: {
+                    rotation: -45,
+                    align: 'right',
+                    style: {
+                        fontSize: '13px',
+                        fontFamily: 'Verdana, sans-serif'
+                    }
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'System Load (%)'
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            tooltip: {
+                formatter: function() {
+                    return '<b>'+ this.x +'</b><br/>'+
+                        'System Usage: '+ Highcharts.numberFormat(this.y, 2) +
+                        ' %';
+                }
+            },
+            series: [{
+                name: 'Population',
+                data: [
+                       {y: {{ cpu }}, color: '#1B91E0'},
+                       {y: {{ ram }}, color: '#DE6800'},
+                       {y: {{ disk }}, color: '#4BA600'}
+                ],
+                dataLabels: {
+                    enabled: true,
+                    rotation: -90,
+                    color: '#FFFFFF',
+                    align: 'right',
+                    x: 4,
+                    y: 10,
+                    style: {
+                        fontSize: '13px',
+                        fontFamily: 'Verdana, sans-serif'
+                    }
+                }
+            }]
+        });
+
+            $('#container2').highcharts({
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: 'Users an Sessions Stats'
+            },
+            xAxis: {
+                categories: ['# Logged Sessions', '# Total Users']
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Users stats'
+                }
+            },
+            legend: {
+                backgroundColor: '#FFFFFF',
+                reversed: true
+            },
+            plotOptions: {
+                series: {
+                    stacking: 'normal'
+                }
+            },
+                series: [{
+                name: 'Numbers',
+                data: [
+                       {y: {{ n_users }}, color: '#4BA600'},
+                       {y: {{ tot_users }}, color: '#DE6800'},
+
+                ]
+            }]
+        });
+        });
+
+    });
+</script>
+{% endblock %}
 {% block content %}
     <div class="hero-unit">
+
+
         <h3>Welcome in TransafeAlp</h3>
-        <p class="text-justify">{% lorem 2 p random %}</p>
+
+        <p class="text-justify">{% lorem 1 p random %}</p>
         <p>
             <a href="{% url 'scenario.views.search_event' 'emergency' %}" class="btn btn-large btn-danger">Start Emergency</a>
             <a href="{% url 'scenario.views.search_event' 'simulation' %}" class="btn btn-warning btn-large">Start Simulation</a>
         </p>
     </div>
+    <!-- Example row of columns -->
+     <div class="row-fluid marketing">
+        <div class="span6">
+          <div id="container" style="min-width: 500px; height: 400px; margin: 0px 0px 10px 0px; padding-right: 20px "></div>
+        </div>
+
+        <div class="span6">
+          <div id="container2" style="min-width: 500px; height: 400px; margin:  0px 20px 10px 0px"></div>
+      </div>
+     </div>
+
 {% endblock %}

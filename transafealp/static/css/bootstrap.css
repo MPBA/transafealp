@@ -6204,3 +6204,7 @@ a.badge:focus {
 .affix {
   position: fixed;
 }
+
+.main_graph {
+    border:3px solid #000000;
+}

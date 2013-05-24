@@ -63,7 +63,7 @@ In this file there are all the importing string command for js and css files.-->
       <div class="navbar-inner" style="height: 95px">
         <div class="container-fluid">
 
-          <a class="brand" href="#"><img class="navbar-link" data-toggle="tooltip" title="TransafeAlp"  src="{% static "img/logo_toosmall.png" %}"></a>
+          <a class="brand" href="/"><img class="navbar-link" data-toggle="tooltip" title="TransafeAlp"  src="{% static "img/logo_toosmall.png" %}"></a>
           <div class="nav-collapse collapse">
             <!-- template block for auth section -->
             {% block logged %}
@@ -115,8 +115,8 @@ In this file there are all the importing string command for js and css files.-->
                   {% endif %}
 
                   <li class="nav-header">Tools</li>
-                  <li><a href="#">Simulations</a></li>
-                  <li><a href="#">Emergencies</a></li>
+                  <li><a href="{% url 'scenario.views.search_event' 'simulation' %}">Simulations</a></li>
+                  <li><a href="{% url 'scenario.views.search_event' 'emergency' %}">Emergencies</a></li>
                   <li class="divider"></li>
                   <li class="nav-header">HowTo</li>
                   <li class="dropdown-submenu">
