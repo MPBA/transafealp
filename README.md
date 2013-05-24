@@ -11,17 +11,9 @@ interventions on infrastructure in order to minimize the inconvenience to the pe
 routes in order to minimize the overall risk to the transport of dangerous substances. In the presence of special events, the competent
 authorities have a tool that can simplify the choices of action and information to the people involved.
 
-## Release History
+## Release Info
+[WIKI page](https://github.com/MPBAUnofficial/transafealp/wiki)
 
-**version alpha** [2013-05-07] Basic scenario intervention support  
-
-**v0.0.1** [2013-05-13] Bug fixes. Scenario creation improvements
-
-**v0.0.2** [2013-05-13] Bug fixes
-
-**v0.5.0** [2013-05-22] [stable] Integration search scenaro whit start emergency / simulation
-
-Download area https://github.com/MPBAUnofficial/transafealp/tags
 
 ## Virtualenv
     virtualenv transafealp-env --no-site-packages
