@@ -46,7 +46,6 @@
 
                 $('#submitevent').removeClass('disabled');
                 $('#submitevent').attr('href','#confirm');
-
             }
 
         });
@@ -100,7 +99,20 @@
             },2000)
 
             $("#confirmevent").click(function() {
-                alert("Handler for .click() called.");
+                var m = markers.markers[0];
+
+                $.ajax({
+                    type: "GET",
+                    url: '{% url 'jites.views.start_event' scenario_id type  %}',
+                    data: {
+                        point: m.lonlat.lat + ',' + m.lonlat.lon
+                    }
+                }).done(function( response ) {
+                    //redirect to event dashboard
+                    var displaymode = $('input:radio[name=displaymode]:checked').val()
+                    window.location = '/jites/dashboard/' + displaymode + '/{{ scenario_id }}';
+                });
+
             });
         });
     </script>
@@ -119,6 +131,20 @@
             <td width="10%"><strong>Type</strong></td>
             <td><span class="label label-info">{{ type }}</span></td>
         </tr>
+        <tr>
+            <td width="10%"><strong>Display mode</strong></td>
+            <td>
+                <label class="radio">
+                    <input type="radio" name="displaymode" id="ds1" value="single" checked>
+                    Single page (Tab panel layout)
+                </label>
+                <label class="radio">
+                    <input type="radio" name="displaymode" id="ds2" value="extended">
+                    Extended mode (Large display, optimized for 4 TV)
+                </label>
+            </td>
+        </tr>
+
         <tr>
             <td><strong>Location</strong></td>
             <td>

@@ -10,13 +10,14 @@ from scenario.models import Scenario, ScenarioSubcategory
 from scenario.utility import Membership
 
 @login_required
-def emergency(request, displaymode):
+def dashboard(request, displaymode, event_id):
     context = {
         'displaymode': displaymode,
+        'event_id': event_id,
         'username': request.user
     }
 
-    return render_to_response('jites/emergency.html', context, context_instance=RequestContext(request))
+    return render_to_response('jites/dashboard.html', context, context_instance=RequestContext(request))
 
 @login_required
 def poll(request):
@@ -65,15 +66,23 @@ def select_event_location(request,scenario_id,type):
     transaction.commit_unless_managed()
     category = ScenarioSubcategory.objects.get(pk=int(list(row)[1]))
     geometry = list(row)[3]
-    context = {'scenario': list(row), 'category': category, 'geometry': geometry, 'type': type}
+    context = {'scenario': list(row), 'scenario_id': scenario_id, 'category': category, 'geometry': geometry, 'type': type}
     return render_to_response('jites/select_event_location.html', context, context_instance=RequestContext(request))
 
 @login_required
 def start_event(request, scenario_id, type):
+    point = request.GET['point']
     scenario = Scenario.objects.get(pk=scenario_id)
+
     if type == 'visualization':
         #do something
         pass
     elif type == 'emergency':
         #do something
         pass
+    result = ({
+                  'success': 'true'
+              })
+    j = json.dumps(result)
+
+    return HttpResponse(j, content_type="application/json")
