@@ -2,8 +2,7 @@
 __author__ = 'ernesto (arbitrio@fbk.eu)'
 
 from django.shortcuts import render_to_response, redirect
-from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from .models import Scenario, ScenarioSubcategory, ActionM2MActor, Action, Actor, ActionGraph, Visualization, ManagingAuthority
@@ -12,7 +11,6 @@ from utility import Membership, Actor_Action_Association, handle_uploaded_file
 from django.db import connection, transaction
 from django.contrib import messages
 from django.utils.encoding import smart_str
-from django.db import IntegrityError
 from django.contrib.auth.decorators import user_passes_test
 from django.utils.safestring import mark_safe
 import json
