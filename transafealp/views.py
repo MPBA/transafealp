@@ -33,5 +33,4 @@ class MainView(LoginRequiredMixin, TemplateView):
         context['cpu'] = str("%0.2f" % float(psutil.cpu_percent()))
         context['ram'] = "%0.2f" % psutil.virtual_memory()[2]
         context['disk'] = "%0.2f" % psutil.disk_usage('/')[3]
-        print "%0.2f" % psutil.disk_usage('/')[3]
         return context
