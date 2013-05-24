@@ -11,6 +11,9 @@ Ext.define('Jites.view.Webgis',{
     layout: {
         type: 'border'
     },
+
+    border: false,
+
     initComponent: function() {
         var me = this;
 

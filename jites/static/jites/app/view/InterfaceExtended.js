@@ -43,6 +43,7 @@ Ext.define('Jites.view.InterfaceExtended',{
                 xtype: 'container',
                 id: 'webgis',
                 disabled: true,
+                layout: 'fit',
                 width: me.componentSize.wRow1,
                 height: me.componentSize.hRow2
             },{
