@@ -59,8 +59,8 @@ def annotation(request):
 def select_event_location(request,scenario_id,type):
     cursor = connection.cursor()
     cursor.execute(
-        "SELECT name, subcategory_id, description , ST_AsGeoJSON(ST_Transform(ST_SetSRID(geom,900913),900913)) FROM scenario WHERE id=%s AND managing_authority_id=%s",
-        [scenario_id, Membership(request.user).membership_auth.pk])
+        "SELECT name, subcategory_id, description , ST_AsGeoJSON(ST_Transform(ST_SetSRID(geom,900913),900913)) FROM scenario WHERE id=%s",
+        [scenario_id])
     row = cursor.fetchone()
 
     transaction.commit_unless_managed()
