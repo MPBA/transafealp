@@ -3,12 +3,12 @@
 	<schema name="public" catalogname="transafe" schemaname="public" >
 		<table name="action" >
 			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
+			<column name="scenario_id" type="bigint" length="19" jt="-5" mandatory="y" />
+			<column name="name" type="text" length="2147483647" jt="12" mandatory="y" />
 			<column name="numcode" type="integer" length="10" jt="4" mandatory="y" >
 				<defo>0</defo>
 			</column>
-			<column name="name" type="text" length="2147483647" jt="12" mandatory="y" />
 			<column name="description" type="text" length="2147483647" jt="12" mandatory="y" />
-			<column name="scenario_id" type="bigint" length="19" jt="-5" mandatory="y" />
 			<column name="duration" type="integer" length="10" jt="4" mandatory="y" >
 				<defo>15</defo>
 			</column>
@@ -506,6 +506,10 @@
 			<index name="ev_action_graph_pkey" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
+			<index name="ev_action_graph_action_id_parent_id_key" unique="UNIQUE" >
+				<column name="action_id" />
+				<column name="parent_id" />
+			</index>
 			<fk name="ev_action_graph_action_id_fkey" to_schema="public" to_table="ev_action" delete_action="CASCADE" update_action="CASCADE" >
 				<fk_column name="action_id" pk="id" />
 			</fk>
@@ -520,6 +524,10 @@
 			<index name="ev_action_m2m_actor_pkey" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
+			<index name="ev_action_m2m_actor_action_id_actor_id_key" unique="UNIQUE" >
+				<column name="action_id" />
+				<column name="actor_id" />
+			</index>
 			<fk name="ev_action_m2m_actor_action_id_fkey" to_schema="public" to_table="ev_action" delete_action="CASCADE" update_action="CASCADE" >
 				<fk_column name="action_id" pk="id" />
 			</fk>
@@ -529,17 +537,22 @@
 		</table>
 		<table name="ev_actor" >
 			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
+			<column name="event_id" type="bigint" length="19" jt="-5" mandatory="y" />
 			<column name="name" type="text" length="2147483647" jt="12" mandatory="y" />
 			<column name="istitution" type="text" length="2147483647" jt="12" mandatory="y" />
 			<column name="contact_info" type="text" length="2147483647" jt="12" mandatory="y" />
 			<column name="email" type="text" length="2147483647" jt="12" mandatory="y" />
 			<column name="phone" type="text" length="2147483647" jt="12" mandatory="y" />
-			<index name="ev_actor_email_key" unique="UNIQUE" >
-				<column name="email" />
-			</index>
 			<index name="ev_actor_pkey" unique="PRIMARY_KEY" >
 				<column name="id" />
 			</index>
+			<index name="ev_actor_event_id_email_key" unique="UNIQUE" >
+				<column name="event_id" />
+				<column name="email" />
+			</index>
+			<fk name="ev_actor_event_id_fkey" to_schema="public" to_table="event" delete_action="CASCADE" update_action="CASCADE" >
+				<fk_column name="event_id" pk="id" />
+			</fk>
 		</table>
 		<table name="ev_visualization" >
 			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
@@ -746,6 +759,12 @@
 		<trigger name="ev_logger_003" id="Trigger1544934" isSystem="false" />
 		<trigger name="ev_logger_004" id="Trigger1544934" isSystem="false" />
 		<trigger name="ev_logger_005" id="Trigger1544935" isSystem="false" />
+		<trigger name="update_ev_action" id="Trigger6871542" isSystem="false" >
+			<string><![CDATA[CREATE TRIGGER update_ev_action BEFORE UPDATE ON ev_action FOR EACH ROW EXECUTE PROCEDURE update_ev_action()]]></string>
+		</trigger>
+		<trigger name="after_update_ev_action" id="Trigger6871542" isSystem="false" >
+			<string><![CDATA[CREATE TRIGGER after_update_ev_action AFTER UPDATE ON ev_action FOR EACH ROW EXECUTE PROCEDURE after_update_ev_action()]]></string>
+		</trigger>
 		<function name="_add_overview_constraint" id="Function2000181" isSystem="false" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION public._add_overview_constraint(ovschema name, ovtable name, ovcolumn name, refschema name, reftable name, refcolumn name, factor integer)
  RETURNS boolean
@@ -12095,6 +12114,7 @@ BEGIN
 	END IF;
 	IF (TG_OP = 'UPDATE') THEN
 		audit_row.fields = (hstore(NEW.*) - hstore(OLD.*));
+		IF audit_row.fields = hstore('') THEN RETURN NULL; END IF; --skip empty updates
 	ELSIF (TG_OP = 'INSERT') THEN
 		audit_row.fields = hstore(NEW.*);
 	END IF;
@@ -12104,15 +12124,122 @@ END;
 $function$
 ]]></string>
 		</function>
+		<function name="after_update_ev_action" id="Function6871534" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.after_update_ev_action()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+	IF (OLD.status != NEW.status) THEN
+		--set all children to 'non executable' since the parent action was reverted to a non terminated status
+		IF (OLD.status IN ('terminated (success)','terminated (not needed)','terminated (failed)')
+			AND NEW.status IN ('executable','running'))
+		THEN
+			UPDATE ev_action SET status = 'non executable' WHERE id IN 
+				(SELECT action_id FROM ev_action_graph WHERE parent_id = NEW.id);
+		END IF;
+		--check if some children can be marked as 'executable' (only if all parents are teminated)
+		IF (OLD.status IN ('executable','running')
+			AND NEW.status IN ('terminated (success)','terminated (not needed)','terminated (failed)'))
+		THEN
+			UPDATE ev_action SET status = 'executable' WHERE id IN 
+				(SELECT y.action_id FROM (
+					SELECT x.action_id,unnest((ev_action_next_status(x.action_id)).available_statuses) available_status
+						FROM (SELECT action_id FROM ev_action_graph WHERE parent_id = NEW.id) x
+					) y WHERE y.available_status = 'executable'
+				);
+		END IF;
+	END IF;
+	RETURN NEW;
+END
+$function$
+]]></string>
+		</function>
+		<function name="ev_action_next_status" id="Function6871536" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.ev_action_next_status(ev_action_id bigint, OUT available_statuses text[], OUT reason text)
+ RETURNS record
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+	a ev_action;
+	tarr text[];
+BEGIN
+	SELECT INTO a * FROM ev_action WHERE id = ev_action_id;
+	IF NOT FOUND THEN
+		RAISE EXCEPTION 'Action % not found!', ev_action_id;
+	END IF;
+	IF (a.status = 'non executable') THEN
+		--check if there are non terminated parents
+		FOR a IN SELECT ea.* FROM ev_action_graph ag LEFT JOIN ev_action ea ON ea.id = ag.parent_id
+			WHERE ag.action_id = ev_action_id
+		LOOP
+			IF a.status IN ('executable','non executable','running') THEN
+				tarr = tarr || a.name;
+			END IF;
+		END LOOP;
+		IF (array_length(tarr, 1) > 0) THEN
+			reason = 'Parent action(s) ' || array_to_string(tarr, ', ', '') || ' not completed';
+		ELSE
+			reason = 'All previous acions are completed.';
+			available_statuses = ARRAY['executable'];
+		END IF;
+		
+	ELSIF (a.status = 'executable') THEN
+		available_statuses = ARRAY['non executable','running','terminated (success)',
+			'terminated (not needed)','terminated (failed)'];
+		reason = 'All previous acions are completed.';
+		
+	ELSIF (a.status = 'running') THEN
+		available_statuses = ARRAY['terminated (success)','terminated (not needed)','terminated (failed)'];
+		reason = 'Action is running and can be completed.';
+		
+	ELSIF (a.status IN ('terminated (success)','terminated (not needed)','terminated (failed)')) THEN
+		--check if there are running or terminated children
+		FOR a IN SELECT ea.* FROM ev_action_graph ag LEFT JOIN ev_action ea ON ea.id = ag.action_id
+			WHERE ag.parent_id = ev_action_id
+		LOOP
+			IF a.status IN ('running','terminated (success)','terminated (not needed)','terminated (failed)') THEN
+				tarr = tarr || a.name;
+			END IF;
+		END LOOP;
+		IF (array_length(tarr, 1) > 0) THEN
+			reason = 'Child(ren) Action(s) ' || array_to_string(tarr, ', ', '') || ' completed or running. Action cannot be reverted';
+			available_statuses = ARRAY['terminated (success)','terminated (not needed)','terminated (failed)'];
+		ELSE
+			reason = 'Action is completed and can reverted to another status.';
+			available_statuses = ARRAY['executable','non executable','terminated (success)',
+				'terminated (not needed)','terminated (failed)'];
+		END IF;
+	END IF;
+	
+	RETURN;
+END
+$function$
+]]></string>
+		</function>
+		<function name="update_ev_action" id="Function6871539" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.update_ev_action()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+	IF ((OLD.status != NEW.status) AND
+		(NEW.status NOT IN (SELECT unnest(available_statuses) FROM ev_action_next_status(OLD.id)))
+	) THEN
+		RAISE EXCEPTION 'Status (%) not available for action %!', NEW.status,OLD.name;
+	END IF;
+	RETURN NEW;
+END
+$function$
+]]></string>
+		</function>
 	</schema>
 	<connector name="PostgreSQL" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-9.1-902.jdbc3.jar" host="geopg" port="5432" instance="transafe_dev" user="transafe_dev" passwd="dHJhbkBzYWZlLmFscA==" schema_mapping="" />
 	<layout id="Layout2000347" name="public" show_relation_columns="y" >
 		<entity schema="public" name="managing_authority" color="fea4a4" x="1035" y="60" />
-		<entity schema="public" name="action" color="c4fdb1" x="1500" y="480" />
 		<entity schema="public" name="alpcheck2" color="9de5fd" x="1095" y="285" />
 		<entity schema="public" name="action_m2m_actor" color="c4fdb1" x="1320" y="555" />
 		<entity schema="public" name="scenario_category" color="c4fdb1" x="1515" y="150" />
-		<entity schema="public" name="actor" color="c4fdb1" x="1290" y="705" />
 		<entity schema="public" name="action_graph" color="c4fdb1" x="1305" y="420" />
 		<entity schema="public" name="admin_tools_menu_bookmark" color="ffcc66" x="540" y="150" />
 		<entity schema="public" name="auth_user_groups" color="ffcc66" x="420" y="465" />
@@ -12130,18 +12257,20 @@ $function$
 		<entity schema="public" name="django_content_type" color="ffcc66" x="45" y="615" />
 		<entity schema="public" name="auth_user" color="ffcc66" x="345" y="105" />
 		<entity schema="public" name="django_flatpage" color="ffcc66" x="150" y="120" />
-		<entity schema="public" name="plrutils_graphfunction" color="ffcc66" x="750" y="150" />
 		<entity schema="public" name="visualization" color="c4fdb1" x="1515" y="675" />
-		<entity schema="public" name="event" color="ffff99" x="1785" y="75" />
-		<entity schema="public" name="event_log" color="ffff99" x="2040" y="75" />
+		<entity schema="public" name="event" color="ffff99" x="1770" y="75" />
+		<entity schema="public" name="event_log" color="ffff99" x="2025" y="75" />
 		<entity schema="public" name="scenario_subcategory" color="c4fdb1" x="1275" y="120" />
 		<entity schema="public" name="scenario" color="c4fdb1" x="1380" y="270" />
-		<entity schema="public" name="ev_message" color="ffff99" x="2055" y="255" />
-		<entity schema="public" name="ev_visualization" color="ffff99" x="1980" y="660" />
-		<entity schema="public" name="ev_actor" color="ffff99" x="1800" y="675" />
-		<entity schema="public" name="ev_action" color="ffff99" x="1935" y="405" />
-		<entity schema="public" name="ev_action_graph" color="ffff99" x="1740" y="390" />
-		<entity schema="public" name="ev_action_m2m_actor" color="ffff99" x="1740" y="525" />
+		<entity schema="public" name="ev_message" color="ffff99" x="2040" y="255" />
+		<entity schema="public" name="ev_visualization" color="ffff99" x="1965" y="660" />
+		<entity schema="public" name="ev_action" color="ffff99" x="1920" y="405" />
+		<entity schema="public" name="ev_action_graph" color="ffff99" x="1725" y="390" />
+		<entity schema="public" name="ev_action_m2m_actor" color="ffff99" x="1725" y="525" />
+		<entity schema="public" name="plrutils_graphfunction" color="ffcc66" x="750" y="150" />
+		<entity schema="public" name="action" color="c4fdb1" x="1500" y="480" />
+		<entity schema="public" name="ev_actor" color="ffff99" x="1785" y="675" />
+		<entity schema="public" name="actor" color="c4fdb1" x="1350" y="705" />
 		<group name="Users" color="fea4a4" >
 			<entity schema="public" name="managing_authority" />
 		</group>

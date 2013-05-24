@@ -27,12 +27,12 @@ $BODY$
 LANGUAGE 'plr';
 
 --Example of usage (function outputs a PNG file as a bytea)
-select plr_set_display(':5.0'); --this is needed only if you run the query outside plr-utils.
+/*select plr_set_display(':5.0'); --this is needed only if you run the query outside plr-utils.
 select * from graph_action(
 	1, --scenario id
 	1000, --image width
 	1000 --image height
-);
+);*/
 
 -- since pl/r is an untrusted language pl/r functions need superuser
 -- permissions to be created. Later we assign grant to normal db user
@@ -70,15 +70,55 @@ BEGIN
 	ev.event_geom = event_geom;
 
 	INSERT INTO event VALUES (ev.*);
+
+	--copy actions from the given scenario
+	INSERT INTO ev_action (event_id,name,numcode,description,duration) 
+		SELECT ev.id,name,numcode,description,duration FROM action WHERE scenario_id = scen.id;
+
+	--copy visualizations
+	INSERT INTO ev_visualization (action_id,description,type,resource,options)
+		SELECT ea.id,v.description,v.type,v.resource,v.options FROM action a
+			RIGHT JOIN visualization v ON a.id = v.action_id
+			LEFT JOIN ev_action ea ON ea.name = a.name
+			WHERE a.scenario_id = scen.id AND ea.event_id = ev.id;
+
+	--copy action graph (recompute new ids)
+	INSERT INTO ev_action_graph (action_id,parent_id,is_main_parent)
+		SELECT ea.id action_id,eap.id parent_id,ag.is_main_parent FROM action_graph ag
+		LEFT JOIN action a ON a.id = ag.action_id
+		LEFT JOIN action ap ON ap.id = ag.parent_id
+		LEFT JOIN ev_action ea ON ea.name = a.name
+		LEFT JOIN ev_action eap ON eap.name = ap.name
+		WHERE a.scenario_id = scen.id AND ap.scenario_id = scen.id
+			AND eap.event_id = ev.id AND ea.event_id = ev.id;
+
+	--copy actors
+	INSERT INTO ev_actor (event_id,name,istitution,contact_info,email,phone)
+		SELECT DISTINCT ev.id,ar.name,ar.istitution,ar.contact_info,ar.email,ar.phone FROM actor ar
+		RIGHT JOIN action_m2m_actor m2m ON m2m.actor_id = ar.id
+		LEFT JOIN action an ON an.id = m2m.action_id
+		WHERE an.scenario_id = scen.id;
+
+	--copy action_m2m_actor (recompute new ids)
+	INSERT INTO ev_action_m2m_actor (action_id,actor_id)
+		SELECT ea.id,ear.id FROM action_m2m_actor m2m
+		LEFT JOIN action a ON a.id = m2m.action_id
+		LEFT JOIN actor ar ON ar.id = m2m.actor_id
+		LEFT JOIN ev_action ea ON ea.name = a.name
+		LEFT JOIN ev_actor ear ON ear.email = ar.email
+		WHERE a.scenario_id = scen.id AND ea.event_id = ev.id AND ear.event_id = ev.id;
 	
-	
-	--copy all actions for the given scenario
-	INSERT INTO ev_action (event_id,name,numcode,description,duration,status,comment)
-		VALUES ((SELECT ev.id,name,numcode,description,duration FROM action WHERE scenario_id = scen.id));
-	
+	ANALYZE ev_action;
+	ANALYZE ev_visualization;
+	ANALYZE ev_action_graph;
+	ANALYZE ev_actor;
+	ANALYZE ev_action_m2m_actor;
+	ANALYZE event_log;
+
 	RETURN ev;
 END
 $BODY$
 LANGUAGE plpgsql;
 
-select * from start_event('Frejus [SECT1/2/A]',false,'SRID=3035;POINT(0 0)');
+--Example of usage 
+--select * from start_event('Frejus [SECT1/2/A]',false,'SRID=3035;POINT(0 0)');
