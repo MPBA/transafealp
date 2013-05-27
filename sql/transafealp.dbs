@@ -639,6 +639,142 @@
 				<fk_column name="event_id" pk="id" />
 			</fk>
 		</table>
+		<table name="gt_catalog" >
+			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
+			<column name="name" type="varchar" length="255" jt="12" mandatory="y" />
+			<column name="creation_time" type="timestamp" length="22" jt="93" mandatory="y" >
+				<defo>now()</defo>
+			</column>
+			<column name="numcode" type="integer" length="10" jt="4" mandatory="y" >
+				<defo>0</defo>
+			</column>
+			<column name="tabletype" type="text" length="2147483647" jt="12" mandatory="y" >
+				<defo>&#039;local&#039;::text</defo>
+			</column>
+			<column name="tableschema" type="name" length="2147483647" jt="-1" />
+			<column name="tablename" type="name" length="2147483647" jt="-1" />
+			<column name="code_column" type="name" length="2147483647" jt="-1" />
+			<column name="time_column" type="name" length="2147483647" jt="-1" />
+			<index name="gt_catalog_pkey" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<constraint name="gt_catalog_tabletype_check" >
+				<string>tabletype = ANY (ARRAY[&#039;local&#039;::text, &#039;pgsql&#039;::text, &#039;csv&#039;::text, &#039;multicorn&#039;::text])</string>
+			</constraint>
+		</table>
+		<table name="gt_catalog_layer" >
+			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
+			<column name="name" type="varchar" length="255" jt="12" mandatory="y" />
+			<column name="creation_time" type="timestamp" length="22" jt="93" mandatory="y" >
+				<defo>now()</defo>
+			</column>
+			<column name="numcode" type="integer" length="10" jt="4" mandatory="y" >
+				<defo>0</defo>
+			</column>
+			<column name="tabletype" type="text" length="2147483647" jt="12" mandatory="y" >
+				<defo>&#039;local&#039;::text</defo>
+			</column>
+			<column name="tableschema" type="name" length="2147483647" jt="-1" />
+			<column name="tablename" type="name" length="2147483647" jt="-1" />
+			<column name="code_column" type="name" length="2147483647" jt="-1" />
+			<column name="time_column" type="name" length="2147483647" jt="-1" />
+			<column name="group_id" type="bigint" length="19" jt="-5" mandatory="y" >
+				<defo>0</defo>
+			</column>
+			<column name="gt_style_id" type="bigint" length="19" jt="-5" />
+			<column name="geom_column" type="name" length="2147483647" jt="-1" />
+			<column name="ui_qtip" type="varchar" length="255" jt="12" />
+			<column name="gs_name" type="varchar" length="255" jt="12" mandatory="y" />
+			<column name="gs_workspace" type="varchar" length="255" jt="12" />
+			<column name="gs_url" type="varchar" length="255" jt="12" mandatory="y" />
+			<column name="gs_legend_url" type="varchar" length="255" jt="12" />
+			<index name="gt_catalog_layer_id_key" unique="UNIQUE" >
+				<column name="id" />
+			</index>
+			<index name="gt_catalog_layer_tableschema_tablename_code_column_geom_col_key" unique="UNIQUE" >
+				<column name="tableschema" />
+				<column name="tablename" />
+				<column name="code_column" />
+				<column name="geom_column" />
+			</index>
+			<constraint name="set_all_table_fields" >
+				<string>(((tableschema IS NULL) = (tablename IS NULL)) AND ((tablename IS NULL) = (geom_column IS NULL))) OR (((tableschema IS NOT NULL) AND (tablename IS NOT NULL)) AND (geom_column IS NULL))</string>
+			</constraint>
+			<constraint name="gt_catalog_tabletype_check" >
+				<string>tabletype = ANY (ARRAY[&#039;local&#039;::text, &#039;pgsql&#039;::text, &#039;csv&#039;::text, &#039;multicorn&#039;::text])</string>
+			</constraint>
+			<fk name="gt_catalog_layer_group_id_fkey" to_schema="public" to_table="gt_layer_group" delete_action="CASCADE" update_action="CASCADE" >
+				<fk_column name="group_id" pk="id" />
+			</fk>
+			<fk name="gt_catalog_layer_gt_style_id_fkey" to_schema="public" to_table="gt_style" update_action="CASCADE" >
+				<fk_column name="gt_style_id" pk="id" />
+			</fk>
+		</table>
+		<table name="gt_layer_group" >
+			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
+			<column name="name" type="varchar" length="255" jt="12" mandatory="y" />
+			<index name="gt_layer_group_pkey" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+		</table>
+		<table name="gt_layer_meta" >
+			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
+			<column name="layer_id" type="bigint" length="19" jt="-5" mandatory="y" />
+			<column name="title" type="varchar" length="255" jt="12" />
+			<column name="description" type="text" length="2147483647" jt="12" />
+			<column name="category" type="text" length="2147483647" jt="12" />
+			<column name="extent" type="text" length="2147483647" jt="12" />
+			<column name="measure_unit" type="text" length="2147483647" jt="12" />
+			<column name="author" type="text" length="2147483647" jt="12" />
+			<column name="ref_year" type="integer" length="10" jt="4" />
+			<column name="creation_year" type="integer" length="10" jt="4" />
+			<column name="native_format" type="text" length="2147483647" jt="12" />
+			<column name="genealogy" type="text" length="2147483647" jt="12" />
+			<column name="spatial_resolution" type="text" length="2147483647" jt="12" />
+			<column name="ref_system" type="text" length="2147483647" jt="12" />
+			<column name="availability" type="text" length="2147483647" jt="12" />
+			<column name="has_attributes" type="bool" length="1" jt="-7" />
+			<column name="source" type="text" length="2147483647" jt="12" />
+			<index name="gt_layer_meta_pkey" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<index name="gt_layer_meta_layer_id_key" unique="UNIQUE" >
+				<column name="layer_id" />
+			</index>
+			<fk name="gt_layer_meta_layer_id_fkey" to_schema="public" to_table="gt_catalog_layer" delete_action="CASCADE" update_action="CASCADE" >
+				<fk_column name="layer_id" pk="id" />
+			</fk>
+		</table>
+		<table name="gt_layer_tree" >
+			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
+			<column name="group_id" type="bigint" length="19" jt="-5" mandatory="y" />
+			<column name="parent_group_id" type="bigint" length="19" jt="-5" mandatory="y" />
+			<index name="gt_layer_tree_pkey" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<index name="gt_layer_tree_group_id_key" unique="UNIQUE" >
+				<column name="group_id" />
+			</index>
+			<fk name="gt_layer_tree_group_id_fkey" to_schema="public" to_table="gt_layer_group" delete_action="CASCADE" update_action="CASCADE" >
+				<fk_column name="group_id" pk="id" />
+			</fk>
+			<fk name="gt_layer_tree_parent_group_id_fkey" to_schema="public" to_table="gt_layer_group" delete_action="CASCADE" update_action="CASCADE" >
+				<fk_column name="parent_group_id" pk="id" />
+			</fk>
+		</table>
+		<table name="gt_style" >
+			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
+			<column name="name" type="varchar" length="255" jt="12" mandatory="y" />
+			<column name="label" type="varchar" length="255" jt="12" mandatory="y" />
+			<column name="xml" type="xml" length="2147483647" jt="1111" />
+			<column name="feature_type" type="text" length="2147483647" jt="12" />
+			<index name="gt_style_pkey" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<index name="gt_style_name_key" unique="UNIQUE" >
+				<column name="name" />
+			</index>
+		</table>
 		<view name="geography_columns" >
 			<view_script><![CDATA[SELECT current_database() AS f_table_catalog, n.nspname AS f_table_schema, c.relname AS f_table_name, a.attname AS f_geography_column, postgis_typmod_dims(a.atttypmod) AS coord_dimension, postgis_typmod_srid(a.atttypmod) AS srid, postgis_typmod_type(a.atttypmod) AS type FROM pg_class c, pg_attribute a, pg_type t, pg_namespace n WHERE (((((((t.typname = 'geography'::name) AND (a.attisdropped = false)) AND (a.atttypid = t.oid)) AND (a.attrelid = c.oid)) AND (c.relnamespace = n.oid)) AND (NOT pg_is_other_temp_schema(c.relnamespace))) AND has_table_privilege(c.oid, 'SELECT'::text));]]></view_script>
 			<column name="f_table_catalog" type="name" />
@@ -724,6 +860,11 @@
 		<sequence name="ev_actor_id_seq" start="1" />
 		<sequence name="ev_action_m2m_actor_id_seq" start="1" />
 		<sequence name="ev_visualization_id_seq" start="1" />
+		<sequence name="gt_catalog_id_seq" start="1" />
+		<sequence name="gt_style_id_seq" start="1" />
+		<sequence name="gt_layer_group_id_seq" start="1" />
+		<sequence name="gt_layer_tree_id_seq" start="1" />
+		<sequence name="gt_layer_meta_id_seq" start="1" />
 		<trigger name="after_new_action_graph" id="Trigger2058498" isSystem="false" >
 			<string><![CDATA[CREATE TRIGGER after_new_action_graph AFTER INSERT ON action_graph FOR EACH ROW EXECUTE PROCEDURE after_new_action_graph()]]></string>
 		</trigger>
@@ -765,6 +906,18 @@
 		<trigger name="after_update_ev_action" id="Trigger6871542" isSystem="false" >
 			<string><![CDATA[CREATE TRIGGER after_update_ev_action AFTER UPDATE ON ev_action FOR EACH ROW EXECUTE PROCEDURE after_update_ev_action()]]></string>
 		</trigger>
+		<trigger name="gt_catalog_noedit_check" id="Trigger8113829" isSystem="false" >
+			<string><![CDATA[CREATE TRIGGER gt_catalog_noedit_check BEFORE INSERT OR DELETE OR UPDATE ON gt_catalog FOR EACH STATEMENT EXECUTE PROCEDURE gt_catalog_noedit()]]></string>
+		</trigger>
+		<trigger name="gt_layer_tree_after_check" id="Trigger8113829" isSystem="false" >
+			<string><![CDATA[CREATE TRIGGER gt_layer_tree_after_check AFTER INSERT OR UPDATE ON gt_layer_tree FOR EACH ROW EXECUTE PROCEDURE gt_group_tree_check()]]></string>
+		</trigger>
+		<trigger name="gt_catalog_layer_after_check" id="Trigger8113830" isSystem="false" >
+			<string><![CDATA[CREATE TRIGGER gt_catalog_layer_after_check AFTER INSERT ON gt_catalog_layer FOR EACH ROW EXECUTE PROCEDURE gt_catalog_layer_after_insert_check()]]></string>
+		</trigger>
+		<trigger name="gt_catalog_noedit_check_001" id="Trigger8113830" isSystem="false" />
+		<trigger name="gt_catalog_noedit_check_002" id="Trigger8113830" isSystem="false" />
+		<trigger name="gt_layer_tree_after_check_001" id="Trigger8113830" isSystem="false" />
 		<function name="_add_overview_constraint" id="Function2000181" isSystem="false" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION public._add_overview_constraint(ovschema name, ovtable name, ovcolumn name, refschema name, reftable name, refcolumn name, factor integer)
  RETURNS boolean
@@ -12233,44 +12386,248 @@ END
 $function$
 ]]></string>
 		</function>
+		<function name="_gt_group_find_subtree" id="Function8113814" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public._gt_group_find_subtree(group_id bigint, catalog_tree_table name)
+ RETURNS TABLE(id bigint)
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+	RETURN QUERY EXECUTE 'WITH RECURSIVE subtree(elem) AS (
+		(SELECT group_id FROM '||quote_ident($2)||' WHERE parent_group_id = '||$1||')
+		UNION
+		(SELECT group_id FROM '||quote_ident($2)||',subtree
+		 WHERE '||quote_ident($2)||'.parent_group_id = subtree.elem)
+	)
+	SELECT elem FROM subtree';
+END
+$function$
+]]></string>
+		</function>
+		<function name="gt_catalog_layer_after_insert_check" id="Function8113816" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.gt_catalog_layer_after_insert_check()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+	colname name;
+	datatype varchar;
+	codefound boolean = false;
+	datafound boolean = false;
+BEGIN
+	IF NEW.geom_column IS NOT NULL THEN
+		IF (NEW.geom_column,'geometry'::varchar) NOT IN
+		(SELECT column_name, data_type FROM gt_get_table_columns(NEW.tableschema,NEW.tablename)) THEN
+			RAISE EXCEPTION 'column ''%'' with type ''geometry'' not found in table ''%.%''',
+				NEW.geom_column,NEW.tableschema,NEW.tablename;
+		END IF;
+	END IF;
+	IF NEW.code_column IS NOT NULL THEN
+		IF (NEW.code_column,'character varying'::varchar) NOT IN
+		(SELECT column_name, data_type FROM gt_get_table_columns(NEW.tableschema,NEW.tablename)) THEN
+			RAISE EXCEPTION 'column ''%'' with type ''character varying'' not found in table ''%.%''',
+				NEW.code_column,NEW.tableschema,NEW.tablename;
+		END IF;
+	END IF;
+	RETURN NEW;
+END
+$function$
+]]></string>
+		</function>
+		<function name="gt_catalog_noedit" id="Function8113818" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.gt_catalog_noedit()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+	reln name;
+BEGIN
+	SELECT INTO reln p.relname FROM pg_class p WHERE TG_RELID = p.oid;
+	IF (reln = 'gt_catalog') THEN
+		RAISE EXCEPTION 'Cannot insert or edit gt_catalog directly!';
+	END IF;
+	RETURN NEW;
+END
+$function$
+]]></string>
+		</function>
+		<function name="gt_get_table_columns" id="Function8113824" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.gt_get_table_columns(tableschema name, tablename name)
+ RETURNS TABLE(column_name name, data_type character varying, is_nullable boolean)
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+	query_text text;
+	udt_name varchar;
+BEGIN
+	query_text := 'SELECT column_name,data_type,is_nullable::boolean,udt_name
+			FROM information_schema.columns
+			WHERE table_schema = '||quote_literal($1)||' AND table_name = '||quote_literal($2)
+			|| ' ORDER BY ordinal_position';
+	FOR column_name,data_type,is_nullable,udt_name IN EXECUTE query_text
+	LOOP
+		IF data_type = 'USER-DEFINED' THEN
+			data_type := udt_name;
+		END IF;
+		RETURN NEXT;
+	END LOOP;
+	IF NOT FOUND THEN
+		RAISE EXCEPTION 'Table % not found in schema %',tablename,tableschema;
+	END IF;
+END
+$function$
+]]></string>
+		</function>
+		<function name="gt_group_tree_check" id="Function8113827" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.gt_group_tree_check()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+	IF (TG_OP = 'UPDATE' AND OLD.group_id < 2) THEN
+		RAISE EXCEPTION 'Cannot modify root elements';
+	END IF;
+	IF (NEW.parent_group_id NOT IN
+		(SELECT gid FROM gt_select('SELECT group_id FROM '||TG_TABLE_NAME) AS (gid bigint))
+	) THEN
+		RAISE EXCEPTION 'Parent not present in tree.';
+	END IF;
+	IF (NEW.group_id IN (SELECT * FROM _gt_group_find_subtree(NEW.group_id,TG_TABLE_NAME))) THEN
+		RAISE EXCEPTION 'Cannot set a descendant as parent.';
+	END IF;
+	RETURN NEW;
+END
+$function$
+]]></string>
+		</function>
+		<function name="gt_select" id="Function8113828" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.gt_select(query_text text)
+ RETURNS SETOF record
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+	RETURN QUERY EXECUTE query_text;
+END
+$function$
+]]></string>
+		</function>
+		<function name="start_event" id="Function8113829" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.start_event(scenario_name text, is_real boolean, event_geom geometry)
+ RETURNS event
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+	ev event;
+	scen scenario;
+BEGIN
+	--let's create the new event!
+	SELECT INTO scen * FROM scenario WHERE name = scenario_name;
+	IF NOT FOUND THEN
+		RAISE EXCEPTION 'Scenario not found!';
+	END IF;
+	ev.managing_authority_id = scen.managing_authority_id;
+	ev.event_name = scen.name;
+	ev.event_description = scen.description;
+	ev.scenario_geom = scen.geom;
+	
+	SELECT INTO ev.category_name,ev.category_description,ev.subcategory_name,ev.subcategory_description
+		c.name,c.description,sc.name,sc.description
+		FROM scenario_subcategory sc LEFT JOIN scenario_category c ON sc.category_id = c.id
+		WHERE sc.id = scen.subcategory_id;
+	ev.id = nextval('event_id_seq');
+	ev.is_real = is_real;
+	ev.time_start = statement_timestamp();
+	ev.status = 'open'::TEXT;
+	ev.time_end = NULL;
+	ev.event_geom = event_geom;
+	INSERT INTO event VALUES (ev.*);
+	--copy actions from the given scenario
+	INSERT INTO ev_action (event_id,name,numcode,description,duration) 
+		SELECT ev.id,name,numcode,description,duration FROM action WHERE scenario_id = scen.id;
+	--copy visualizations
+	INSERT INTO ev_visualization (action_id,description,type,resource,options)
+		SELECT ea.id,v.description,v.type,v.resource,v.options FROM action a
+			RIGHT JOIN visualization v ON a.id = v.action_id
+			LEFT JOIN ev_action ea ON ea.name = a.name
+			WHERE a.scenario_id = scen.id AND ea.event_id = ev.id;
+	--copy action graph (recompute new ids)
+	INSERT INTO ev_action_graph (action_id,parent_id,is_main_parent)
+		SELECT ea.id action_id,eap.id parent_id,ag.is_main_parent FROM action_graph ag
+		LEFT JOIN action a ON a.id = ag.action_id
+		LEFT JOIN action ap ON ap.id = ag.parent_id
+		LEFT JOIN ev_action ea ON ea.name = a.name
+		LEFT JOIN ev_action eap ON eap.name = ap.name
+		WHERE a.scenario_id = scen.id AND ap.scenario_id = scen.id
+			AND eap.event_id = ev.id AND ea.event_id = ev.id;
+	--copy actors
+	INSERT INTO ev_actor (event_id,name,istitution,contact_info,email,phone)
+		SELECT DISTINCT ev.id,ar.name,ar.istitution,ar.contact_info,ar.email,ar.phone FROM actor ar
+		RIGHT JOIN action_m2m_actor m2m ON m2m.actor_id = ar.id
+		LEFT JOIN action an ON an.id = m2m.action_id
+		WHERE an.scenario_id = scen.id;
+	--copy action_m2m_actor (recompute new ids)
+	INSERT INTO ev_action_m2m_actor (action_id,actor_id)
+		SELECT ea.id,ear.id FROM action_m2m_actor m2m
+		LEFT JOIN action a ON a.id = m2m.action_id
+		LEFT JOIN actor ar ON ar.id = m2m.actor_id
+		LEFT JOIN ev_action ea ON ea.name = a.name
+		LEFT JOIN ev_actor ear ON ear.email = ar.email
+		WHERE a.scenario_id = scen.id AND ea.event_id = ev.id AND ear.event_id = ev.id;
+	
+	ANALYZE ev_action;
+	ANALYZE ev_visualization;
+	ANALYZE ev_action_graph;
+	ANALYZE ev_actor;
+	ANALYZE ev_action_m2m_actor;
+	ANALYZE event_log;
+	RETURN ev;
+END
+$function$
+]]></string>
+		</function>
 	</schema>
 	<connector name="PostgreSQL" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-9.1-902.jdbc3.jar" host="geopg" port="5432" instance="transafe_dev" user="transafe_dev" passwd="dHJhbkBzYWZlLmFscA==" schema_mapping="" />
 	<layout id="Layout2000347" name="public" show_relation_columns="y" >
-		<entity schema="public" name="managing_authority" color="fea4a4" x="1035" y="60" />
-		<entity schema="public" name="alpcheck2" color="9de5fd" x="1095" y="285" />
-		<entity schema="public" name="action_m2m_actor" color="c4fdb1" x="1320" y="555" />
-		<entity schema="public" name="scenario_category" color="c4fdb1" x="1515" y="150" />
-		<entity schema="public" name="action_graph" color="c4fdb1" x="1305" y="420" />
-		<entity schema="public" name="admin_tools_menu_bookmark" color="ffcc66" x="540" y="150" />
-		<entity schema="public" name="auth_user_groups" color="ffcc66" x="420" y="465" />
-		<entity schema="public" name="auth_group" color="ffcc66" x="420" y="630" />
-		<entity schema="public" name="auth_group_permissions" color="ffcc66" x="555" y="630" />
-		<entity schema="public" name="auth_user_user_permissions" color="ffcc66" x="600" y="450" />
-		<entity schema="public" name="django_session" color="ffcc66" x="240" y="420" />
-		<entity schema="public" name="django_flatpage_sites" color="ffcc66" x="75" y="345" />
-		<entity schema="public" name="django_site" color="ffcc66" x="105" y="495" />
-		<entity schema="public" name="auth_permission" color="ffcc66" x="780" y="615" />
-		<entity schema="public" name="admin_tools_dashboard_preferences" color="ffcc66" x="600" y="270" />
-		<entity schema="public" name="interruptions" color="9de5fd" x="975" y="300" />
-		<entity schema="public" name="plrutils_database" color="ffcc66" x="810" y="420" />
-		<entity schema="public" name="django_admin_log" color="ffcc66" x="270" y="570" />
-		<entity schema="public" name="django_content_type" color="ffcc66" x="45" y="615" />
-		<entity schema="public" name="auth_user" color="ffcc66" x="345" y="105" />
-		<entity schema="public" name="django_flatpage" color="ffcc66" x="150" y="120" />
-		<entity schema="public" name="visualization" color="c4fdb1" x="1515" y="675" />
-		<entity schema="public" name="event" color="ffff99" x="1770" y="75" />
-		<entity schema="public" name="event_log" color="ffff99" x="2025" y="75" />
-		<entity schema="public" name="scenario_subcategory" color="c4fdb1" x="1275" y="120" />
-		<entity schema="public" name="scenario" color="c4fdb1" x="1380" y="270" />
-		<entity schema="public" name="ev_message" color="ffff99" x="2040" y="255" />
-		<entity schema="public" name="ev_visualization" color="ffff99" x="1965" y="660" />
-		<entity schema="public" name="ev_action" color="ffff99" x="1920" y="405" />
-		<entity schema="public" name="ev_action_graph" color="ffff99" x="1725" y="390" />
-		<entity schema="public" name="ev_action_m2m_actor" color="ffff99" x="1725" y="525" />
-		<entity schema="public" name="plrutils_graphfunction" color="ffcc66" x="750" y="150" />
-		<entity schema="public" name="action" color="c4fdb1" x="1500" y="480" />
-		<entity schema="public" name="ev_actor" color="ffff99" x="1785" y="675" />
-		<entity schema="public" name="actor" color="c4fdb1" x="1350" y="705" />
+		<entity schema="public" name="scenario_category" color="c4fdb1" x="1275" y="90" />
+		<entity schema="public" name="action_graph" color="c4fdb1" x="1065" y="360" />
+		<entity schema="public" name="admin_tools_menu_bookmark" color="ffcc66" x="540" y="720" />
+		<entity schema="public" name="auth_user_groups" color="ffcc66" x="420" y="1035" />
+		<entity schema="public" name="auth_group" color="ffcc66" x="420" y="1200" />
+		<entity schema="public" name="auth_group_permissions" color="ffcc66" x="555" y="1200" />
+		<entity schema="public" name="auth_user_user_permissions" color="ffcc66" x="600" y="1020" />
+		<entity schema="public" name="django_session" color="ffcc66" x="240" y="990" />
+		<entity schema="public" name="django_flatpage_sites" color="ffcc66" x="75" y="915" />
+		<entity schema="public" name="django_site" color="ffcc66" x="105" y="1065" />
+		<entity schema="public" name="auth_permission" color="ffcc66" x="780" y="1185" />
+		<entity schema="public" name="admin_tools_dashboard_preferences" color="ffcc66" x="600" y="840" />
+		<entity schema="public" name="plrutils_database" color="ffcc66" x="810" y="990" />
+		<entity schema="public" name="django_admin_log" color="ffcc66" x="270" y="1140" />
+		<entity schema="public" name="django_content_type" color="ffcc66" x="45" y="1185" />
+		<entity schema="public" name="auth_user" color="ffcc66" x="345" y="675" />
+		<entity schema="public" name="django_flatpage" color="ffcc66" x="150" y="690" />
+		<entity schema="public" name="event" color="ffff99" x="1065" y="690" />
+		<entity schema="public" name="scenario_subcategory" color="c4fdb1" x="1035" y="60" />
+		<entity schema="public" name="scenario" color="c4fdb1" x="1140" y="210" />
+		<entity schema="public" name="plrutils_graphfunction" color="ffcc66" x="750" y="720" />
+		<entity schema="public" name="action" color="c4fdb1" x="1260" y="420" />
+		<entity schema="public" name="gt_catalog_layer" color="9de5fd" x="255" y="270" />
+		<entity schema="public" name="gt_layer_meta" color="9de5fd" x="45" y="270" />
+		<entity schema="public" name="gt_catalog" color="9de5fd" x="60" y="75" />
+		<entity schema="public" name="gt_layer_group" color="9de5fd" x="240" y="90" />
+		<entity schema="public" name="gt_style" color="9de5fd" x="480" y="240" />
+		<entity schema="public" name="gt_layer_tree" color="9de5fd" x="465" y="90" />
+		<entity schema="public" name="alpcheck2" color="9de5fd" x="645" y="90" />
+		<entity schema="public" name="interruptions" color="9de5fd" x="495" y="420" />
+		<entity schema="public" name="visualization" color="c4fdb1" x="1455" y="420" />
+		<entity schema="public" name="managing_authority" color="fea4a4" x="855" y="360" />
+		<entity schema="public" name="ev_action_graph" color="ffff99" x="1020" y="960" />
+		<entity schema="public" name="ev_actor" color="ffff99" x="1500" y="720" />
+		<entity schema="public" name="event_log" color="ffff99" x="1320" y="675" />
+		<entity schema="public" name="ev_message" color="ffff99" x="1335" y="870" />
+		<entity schema="public" name="action_m2m_actor" color="c4fdb1" x="1335" y="225" />
+		<entity schema="public" name="actor" color="c4fdb1" x="1515" y="225" />
+		<entity schema="public" name="ev_action" color="ffff99" x="1215" y="1005" />
+		<entity schema="public" name="ev_action_m2m_actor" color="ffff99" x="1470" y="960" />
+		<entity schema="public" name="ev_visualization" color="ffff99" x="1410" y="1065" />
 		<group name="Users" color="fea4a4" >
 			<entity schema="public" name="managing_authority" />
 		</group>
@@ -12284,9 +12641,15 @@ $function$
 			<entity schema="public" name="scenario_subcategory" />
 			<entity schema="public" name="scenario_category" />
 		</group>
-		<group name="Map and Routing" color="9de5fd" >
+		<group name="Map, Layers and Routing" color="9de5fd" >
 			<entity schema="public" name="alpcheck2" />
 			<entity schema="public" name="interruptions" />
+			<entity schema="public" name="gt_catalog_layer" />
+			<entity schema="public" name="gt_style" />
+			<entity schema="public" name="gt_catalog" />
+			<entity schema="public" name="gt_layer_group" />
+			<entity schema="public" name="gt_layer_tree" />
+			<entity schema="public" name="gt_layer_meta" />
 		</group>
 		<group name="Django" color="ffcc66" >
 			<entity schema="public" name="admin_tools_menu_bookmark" />
