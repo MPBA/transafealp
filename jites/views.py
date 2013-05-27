@@ -7,7 +7,11 @@ from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 import json
 from scenario.models import Scenario, ScenarioSubcategory
-from scenario.utility import Membership
+from django.views.generic.detail import BaseDetailView
+from mixin import LoginRequiredMixin, JSONResponseMixin
+from .models import Event, EvMessage
+from django.core import serializers
+
 
 @login_required
 def dashboard(request, displaymode, event_id):
@@ -18,6 +22,7 @@ def dashboard(request, displaymode, event_id):
     }
 
     return render_to_response('jites/dashboard.html', context, context_instance=RequestContext(request))
+
 
 @login_required
 def poll(request):
@@ -46,6 +51,7 @@ def poll(request):
     j = json.dumps(result)
     return HttpResponse(j, content_type="application/json")
 
+
 @login_required
 def annotation(request):
     # TODO implemented by real request on scenario log table. This is a demo.
@@ -55,8 +61,9 @@ def annotation(request):
     j = json.dumps(result)
     return HttpResponse(j, content_type="application/json")
 
+
 @login_required
-def select_event_location(request,scenario_id,type):
+def select_event_location(request, scenario_id, type):
     cursor = connection.cursor()
     cursor.execute(
         "SELECT name, subcategory_id, description , ST_AsGeoJSON(ST_Transform(geom,900913)) FROM scenario WHERE id=%s",
@@ -68,6 +75,7 @@ def select_event_location(request,scenario_id,type):
     geometry = list(row)[3]
     context = {'scenario': list(row), 'scenario_id': scenario_id, 'category': category, 'geometry': geometry, 'type': type}
     return render_to_response('jites/select_event_location.html', context, context_instance=RequestContext(request))
+
 
 @login_required
 def start_event(request, scenario_id, type):
@@ -98,3 +106,35 @@ def start_event(request, scenario_id, type):
     j = json.dumps(result)
 
     return HttpResponse(j, content_type="application/json")
+
+
+#class based view for json render Event (in the url: /jites/get_event/<idevent>)
+class EventDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
+
+    model = Event
+
+    def get(self, request, *args, **kwargs):
+        qs = Event.objects.filter(pk=kwargs['pk'])
+        json = serializers.serialize('json', qs)
+        json_response = json
+        context = {'success': json_response}
+        return self.render_to_response(context)
+
+
+#standard view for adding message to event
+def save_event_message(request, event_id):
+    event = Event.objects.get(pk=event_id)
+    ts = datetime.now()
+    username = request.user
+    if request.method == "POST" and request.is_ajax():
+        print request.POST
+        if request.POST['content']:
+            message_to_save = EvMessage(event, ts, username, request.POST['content'])
+            message_to_save.save()
+            msg = "saved"
+        else:
+            msg = "post invalid"
+    else:
+        msg = "GET request are not allowed for this view."
+    return HttpResponse(msg)
+
