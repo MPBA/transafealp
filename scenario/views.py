@@ -30,7 +30,7 @@ def scenario_list(request):
 def scenario_detail(request, scenario_id):
     cursor = connection.cursor()
     cursor.execute(
-        "SELECT name, subcategory_id, description , ST_AsGeoJSON(ST_Transform(ST_SetSRID(geom,900913),900913)) FROM scenario WHERE id=%s AND managing_authority_id=%s",
+        "SELECT name, subcategory_id, description , ST_AsGeoJSON(ST_Transform(geom,900913)) FROM scenario WHERE id=%s AND managing_authority_id=%s",
         [scenario_id, Membership(request.user).membership_auth.pk])
     row = cursor.fetchone()
 
@@ -69,7 +69,7 @@ def scenario_add(request):
             description = smart_str(request.POST['description'])
             subcategory = ScenarioSubcategory.objects.get(pk=request.POST['subcategory'])
             cursor = connection.cursor()
-            cursor.execute("INSERT INTO scenario VALUES (DEFAULT, %s, %s, %s, %s, %s)",
+            cursor.execute("INSERT INTO scenario VALUES (DEFAULT, %s, %s, %s, %s, ST_Multi(ST_Transform(ST_SetSRID(%s::geometry,900913),3035)))",
                            [Membership(request.user).membership_auth.pk, subcategory.pk, name, description, geometry])
             transaction.commit_unless_managed()
 

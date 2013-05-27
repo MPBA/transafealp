@@ -59,7 +59,7 @@ def annotation(request):
 def select_event_location(request,scenario_id,type):
     cursor = connection.cursor()
     cursor.execute(
-        "SELECT name, subcategory_id, description , ST_AsGeoJSON(ST_Transform(ST_SetSRID(geom,900913),900913)) FROM scenario WHERE id=%s",
+        "SELECT name, subcategory_id, description , ST_AsGeoJSON(ST_Transform(geom,900913)) FROM scenario WHERE id=%s",
         [scenario_id])
     row = cursor.fetchone()
 
@@ -74,15 +74,27 @@ def start_event(request, scenario_id, type):
     point = request.GET['point']
     scenario = Scenario.objects.get(pk=scenario_id)
 
-    if type == 'visualization':
-        #do something
+    if type == 'simulation':
+        is_real = True
         pass
     elif type == 'emergency':
-        #do something
+        is_real = False
         pass
+
+    geom = 'SRID=900913;POINT({0})'.format(point)
+
+    cursor = connection.cursor()
+    cursor.execute(
+        "select * from start_event(%s,%s,ST_Transform(%s::geometry,3035));",
+        [scenario.name, is_real, geom])
+    row = cursor.fetchone()
+
+    transaction.commit_unless_managed()
+
     result = ({
                   'success': 'true'
               })
+
     j = json.dumps(result)
 
     return HttpResponse(j, content_type="application/json")

@@ -99,20 +99,30 @@
             },2000)
 
             $("#confirmevent").click(function() {
-                var m = markers.markers[0];
+                var m = markers.markers[0],
+                    request;
 
-                $.ajax({
+                //Disable button
+                $("#cancelevent").attr('disabled','true');
+                $("#confirmevent").attr('disabled','true');
+
+                request = $.ajax({
                     type: "GET",
                     url: '{% url 'jites.views.start_event' scenario_id type  %}',
                     data: {
-                        point: m.lonlat.lat + ',' + m.lonlat.lon
+                        point: m.lonlat.lon + ' ' + m.lonlat.lat
                     }
-                }).done(function( response ) {
+                })
+                .success(function( response ) {
                     //redirect to event dashboard
                     var displaymode = $('input:radio[name=displaymode]:checked').val();
                     window.location = '/jites/dashboard/' + displaymode + '/{{ scenario_id }}';
-                });
-
+                })
+                .error(function( response ) {
+                            r=response;
+                    $("#cancelevent").removeAttr("disabled");
+                    $("#confirmevent").removeAttr("disabled");
+                })
             });
         });
     </script>
@@ -162,11 +172,12 @@
         </div>
         <div class="modal-body">
             <blockquote>
-                <p>This operation is irreversible. Confirm event?</p>
+                <p>This operation is irreversible.</p>
+                <p> Confirm event?</p>
             </blockquote>
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button id="cancelevent" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
             <button id="confirmevent" class="btn btn-primary">Confirm</button>
         </div>
     </div>
