@@ -2,7 +2,7 @@
 __author__ = 'ernesto (arbitrio@fbk.eu)'
 
 from django.shortcuts import render_to_response, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from .models import Scenario, ScenarioSubcategory, ActionM2MActor, Action, Actor, ActionGraph, Visualization, ManagingAuthority
@@ -297,7 +297,10 @@ def action_graph_add(request, scenario_id):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def insert_actors_to_action(request, scenario_id, action_id=None):
-    scenario = Scenario.objects.get(pk=scenario_id, managing_authority=Membership(request.user).membership_auth)
+    try:
+        scenario = Scenario.objects.get(pk=scenario_id, managing_authority=Membership(request.user).membership_auth)
+    except Scenario.DoesNotExist:
+        raise Http404
     if action_id == None:
         actions = Action.objects.filter(scenario=scenario)
         oneaction = 0
