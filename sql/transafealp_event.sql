@@ -107,7 +107,8 @@ BEGIN
 			END IF;
 		END LOOP;
 		IF (array_length(tarr, 1) > 0) THEN
-			reason = 'Child(ren) Action(s) ' || array_to_string(tarr, ', ', '') || ' completed or running. Action cannot be reverted';
+			reason = 'Child(ren) Action(s) ' || array_to_string(tarr, ', ', '') 
+				|| ' completed or running. Action cannot be reverted';
 			available_statuses = ARRAY['terminated (success)','terminated (not needed)','terminated (failed)'];
 		ELSE
 			reason = 'Action is completed and can reverted to another status.';
@@ -160,7 +161,8 @@ BEGIN
 		THEN
 			UPDATE ev_action SET status = 'executable' WHERE id IN 
 				(SELECT y.action_id FROM (
-					SELECT x.action_id,unnest((ev_action_next_status(x.action_id)).available_statuses) available_status
+					SELECT x.action_id,
+						unnest((ev_action_next_status(x.action_id)).available_statuses) available_status
 						FROM (SELECT action_id FROM ev_action_graph WHERE parent_id = NEW.id) x
 					) y WHERE y.available_status = 'executable'
 				);
