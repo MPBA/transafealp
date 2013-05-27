@@ -13,10 +13,11 @@ class ManagingAuthority(models.Model):
     address = models.TextField()
     email = models.TextField()
     phone = models.TextField()
+
     class Meta:
         db_table = 'managing_authority'
         verbose_name = 'Managing Authority'
-        verbose_name_plural = 'Managin Authorities'
+        verbose_name_plural = 'Managing Authorities'
         ordering = ['name']
 
     def __unicode__(self):

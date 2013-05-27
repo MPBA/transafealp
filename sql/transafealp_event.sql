@@ -23,21 +23,6 @@ CREATE TABLE IF NOT EXISTS event (
 );
 --SELECT 'SRID=3035;MULTIPOLYGON(((0 0,0 1,1 1,1 0,0 0)))'::geometry;
 
------------------------------------------------------------------------------------------------------------
---
---                                               (user)                                           (user)
---                          +----------------------------------------------+                   +----------+
---                          |                                              |                   |          |
---                (auto)    |        (user)          (user)                V                   V          |
---[NON EXECUTABLE]------>[EXECUTABLE]------>[RUNNING]------>[TERMINATED (success/failure/not needed)]-----+
---         ^               |   ^                 ^                   |          |
---         +---------------+   |                 +-------------------+          |
---           (auto revert)     |                     (user revert)              |
---                             |                                                |
---                             +------------------------------------------------+
---                                              (user revert)
---
------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------
 -- ACTION GRAPH, ACTORS AND VISUALIZATIONS
 ------------------------------------------------------------------------------------------
@@ -57,6 +42,152 @@ CREATE TABLE IF NOT EXISTS ev_action (
 	comment TEXT, 
 	UNIQUE (event_id, name)
 );
+
+
+-----------------------------------------------------------------------------------------------------------
+--
+--                                               (user)                                           (user)
+--                          +----------------------------------------------+                   +----------+
+--                          |                                              |                   |          |
+--                (auto)    |        (user)          (user)                V                   V          |
+--[NON EXECUTABLE]------>[EXECUTABLE]------>[RUNNING]------>[TERMINATED (success/failure/not needed)]-----+
+--         ^               |   ^                 ^                   |          |
+--         +---------------+   |                 +-------------------+          |
+--           (auto revert)     |                     (user revert)              |
+--                             |                                                |
+--                             +------------------------------------------------+
+--                                              (user revert)
+--
+-----------------------------------------------------------------------------------------------------------
+--Check status lifecycle
+DROP FUNCTION IF EXISTS ev_action_next_status(BIGINT) CASCADE;
+CREATE OR REPLACE FUNCTION ev_action_next_status(ev_action_id BIGINT, OUT available_statuses TEXT[], OUT reason TEXT) AS
+$BODY$
+DECLARE
+	a ev_action;
+	tarr text[];
+BEGIN
+	SELECT INTO a * FROM ev_action WHERE id = ev_action_id;
+	IF NOT FOUND THEN
+		RAISE EXCEPTION 'Action % not found!', ev_action_id;
+	END IF;
+
+	IF (a.status = 'non executable') THEN
+		--check if there are non terminated parents
+		FOR a IN SELECT ea.* FROM ev_action_graph ag LEFT JOIN ev_action ea ON ea.id = ag.parent_id
+			WHERE ag.action_id = ev_action_id
+		LOOP
+			IF a.status IN ('executable','non executable','running') THEN
+				tarr = tarr || a.name;
+			END IF;
+		END LOOP;
+		IF (array_length(tarr, 1) > 0) THEN
+			reason = 'Parent action(s) ' || array_to_string(tarr, ', ', '') || ' not completed';
+		ELSE
+			reason = 'All previous acions are completed.';
+			available_statuses = ARRAY['executable'];
+		END IF;
+		
+	ELSIF (a.status = 'executable') THEN
+		available_statuses = ARRAY['non executable','running','terminated (success)',
+			'terminated (not needed)','terminated (failed)'];
+		reason = 'All previous acions are completed.';
+		
+	ELSIF (a.status = 'running') THEN
+		available_statuses = ARRAY['terminated (success)','terminated (not needed)','terminated (failed)'];
+		reason = 'Action is running and can be completed.';
+		
+	ELSIF (a.status IN ('terminated (success)','terminated (not needed)','terminated (failed)')) THEN
+		--check if there are running or terminated children
+		FOR a IN SELECT ea.* FROM ev_action_graph ag LEFT JOIN ev_action ea ON ea.id = ag.action_id
+			WHERE ag.parent_id = ev_action_id
+		LOOP
+			IF a.status IN ('running','terminated (success)','terminated (not needed)','terminated (failed)') THEN
+				tarr = tarr || a.name;
+			END IF;
+		END LOOP;
+		IF (array_length(tarr, 1) > 0) THEN
+			reason = 'Child(ren) Action(s) ' || array_to_string(tarr, ', ', '') || ' completed or running. Action cannot be reverted';
+			available_statuses = ARRAY['terminated (success)','terminated (not needed)','terminated (failed)'];
+		ELSE
+			reason = 'Action is completed and can reverted to another status.';
+			available_statuses = ARRAY['executable','non executable','terminated (success)',
+				'terminated (not needed)','terminated (failed)'];
+		END IF;
+	END IF;
+	
+	RETURN;
+END
+$BODY$
+LANGUAGE plpgsql;
+
+--trigger on update: check if status is available
+DROP FUNCTION IF EXISTS update_ev_action() CASCADE;
+CREATE OR REPLACE FUNCTION update_ev_action() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+	IF ((OLD.status != NEW.status) AND
+		(NEW.status NOT IN (SELECT unnest(available_statuses) FROM ev_action_next_status(OLD.id)))
+	) THEN
+		RAISE EXCEPTION 'Status (%) not available for action %!', NEW.status,OLD.name;
+	END IF;
+	RETURN NEW;
+END
+$BODY$
+LANGUAGE plpgsql;
+COMMENT ON FUNCTION update_ev_action() IS '';
+DROP TRIGGER IF EXISTS update_ev_action ON ev_action CASCADE;
+CREATE TRIGGER update_ev_action BEFORE UPDATE ON ev_action FOR EACH ROW EXECUTE PROCEDURE update_ev_action();
+
+--trigger after update: propagate action statuses
+DROP FUNCTION IF EXISTS after_update_ev_action() CASCADE;
+CREATE OR REPLACE FUNCTION after_update_ev_action() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+	IF (OLD.status != NEW.status) THEN
+
+		--set all children to 'non executable' since the parent action was reverted to a non terminated status
+		IF (OLD.status IN ('terminated (success)','terminated (not needed)','terminated (failed)')
+			AND NEW.status IN ('executable','running'))
+		THEN
+			UPDATE ev_action SET status = 'non executable' WHERE id IN 
+				(SELECT action_id FROM ev_action_graph WHERE parent_id = NEW.id);
+		END IF;
+
+		--check if some children can be marked as 'executable' (only if all parents are teminated)
+		IF (OLD.status IN ('executable','running')
+			AND NEW.status IN ('terminated (success)','terminated (not needed)','terminated (failed)'))
+		THEN
+			UPDATE ev_action SET status = 'executable' WHERE id IN 
+				(SELECT y.action_id FROM (
+					SELECT x.action_id,unnest((ev_action_next_status(x.action_id)).available_statuses) available_status
+						FROM (SELECT action_id FROM ev_action_graph WHERE parent_id = NEW.id) x
+					) y WHERE y.available_status = 'executable'
+				);
+		END IF;
+
+	END IF;
+	RETURN NEW;
+END
+$BODY$
+LANGUAGE plpgsql;
+COMMENT ON FUNCTION after_update_ev_action() IS '';
+DROP TRIGGER IF EXISTS after_update_ev_action ON ev_action CASCADE;
+CREATE TRIGGER after_update_ev_action AFTER UPDATE ON ev_action
+	FOR EACH ROW EXECUTE PROCEDURE after_update_ev_action();
+
+
+/*SELECT 'executable' IN (SELECT unnest(available_statuses) FROM ev_action_next_status(1))
+SELECT unnest(available_statuses) FROM ev_action_next_status(1);
+UPDATE ev_action SET status = 'executable' WHERE id = 1;
+select * from ev_action_next_status(1);
+
+select * from ev_action;
+
+SELECT y.action_id FROM (
+SELECT x.action_id,unnest((ev_action_next_status(x.action_id)).available_statuses) available_status
+	FROM (SELECT action_id FROM ev_action_graph WHERE parent_id = 1) x
+) y WHERE y.available_status = 'executable';*/
 
 --trigger on delete: disable deleting actions for running events
 DROP FUNCTION IF EXISTS delete_ev_action() CASCADE;
@@ -83,7 +214,8 @@ CREATE TABLE IF NOT EXISTS ev_action_graph (
 	id BIGSERIAL PRIMARY KEY,
 	action_id BIGINT NOT NULL REFERENCES ev_action(id) ON UPDATE CASCADE ON DELETE CASCADE,
 	parent_id BIGINT NOT NULL REFERENCES ev_action(id) ON UPDATE CASCADE ON DELETE CASCADE,
-	is_main_parent BOOLEAN NOT NULL DEFAULT TRUE
+	is_main_parent BOOLEAN NOT NULL DEFAULT TRUE,
+	UNIQUE (action_id, parent_id)
 );
 
 
@@ -93,11 +225,13 @@ CREATE TABLE IF NOT EXISTS ev_action_graph (
 DROP TABLE IF EXISTS ev_actor CASCADE;
 CREATE TABLE IF NOT EXISTS ev_actor (
 	id BIGSERIAL PRIMARY KEY,
+	event_id BIGINT NOT NULL REFERENCES event(id) ON UPDATE CASCADE ON DELETE CASCADE,
 	name TEXT NOT NULL,
 	istitution TEXT NOT NULL,
 	contact_info TEXT NOT NULL,
-	email TEXT UNIQUE NOT NULL,
-	phone TEXT NOT NULL
+	email TEXT NOT NULL,
+	phone TEXT NOT NULL,
+	UNIQUE (event_id, email)
 );
 
 --attori associati alle azioni
@@ -105,7 +239,8 @@ DROP TABLE IF EXISTS ev_action_m2m_actor CASCADE;
 CREATE TABLE IF NOT EXISTS ev_action_m2m_actor (
 	id BIGSERIAL PRIMARY KEY,
 	action_id BIGINT NOT NULL REFERENCES ev_action(id) ON UPDATE CASCADE ON DELETE CASCADE,
-	actor_id BIGINT NOT NULL REFERENCES ev_actor(id) ON UPDATE CASCADE ON DELETE CASCADE
+	actor_id BIGINT NOT NULL REFERENCES ev_actor(id) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE (action_id, actor_id)
 );
 
 --visualizzazioni che il JITES deve mostrare quando una azione viene selezionata
@@ -180,6 +315,7 @@ BEGIN
 
 	IF (TG_OP = 'UPDATE') THEN
 		audit_row.fields = (hstore(NEW.*) - hstore(OLD.*));
+		IF audit_row.fields = hstore('') THEN RETURN NULL; END IF; --skip empty updates
 	ELSIF (TG_OP = 'INSERT') THEN
 		audit_row.fields = hstore(NEW.*);
 	END IF;
@@ -197,45 +333,3 @@ DROP TRIGGER IF EXISTS ev_logger ON ev_message CASCADE;
 CREATE TRIGGER ev_logger AFTER INSERT OR UPDATE ON ev_message FOR EACH ROW EXECUTE PROCEDURE ev_logger();
 DROP TRIGGER IF EXISTS ev_logger ON ev_action CASCADE;
 CREATE TRIGGER ev_logger AFTER INSERT OR UPDATE ON ev_action FOR EACH ROW EXECUTE PROCEDURE ev_logger();
-
-
-
-/*
---Diario referenziato di svolgimento delle azioni compiute in un evento
-DROP TABLE IF EXISTS event_action_log CASCADE;
-CREATE TABLE IF NOT EXISTS event_action_log (
-	id BIGSERIAL PRIMARY KEY,
-	event_action_id BIGINT NOT NULL REFERENCES event_action(id) ON UPDATE CASCADE ON DELETE CASCADE,
-	ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	status TEXT NOT NULL CHECK (status IN ('executable','non executable','running',
-			'terminated (success)','terminated (not needed)','terminated (failed)')),
-	annotation TEXT
-);
-
---Diario referenziato delle annotazioni di un evento
-DROP TABLE IF EXISTS event_annotation_log CASCADE;
-CREATE TABLE IF NOT EXISTS event_annotation_log (
-	id BIGSERIAL PRIMARY KEY,
-	event_id BIGINT NOT NULL REFERENCES event(id) ON UPDATE CASCADE ON DELETE CASCADE,
-	ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	annotation TEXT NOT NULL
-);
-
-
-------------------------------------------------------------------------------------------
--- EVENT LOG (STATIC)
-------------------------------------------------------------------------------------------
-
---Diario statico di un evento (archivio)
-DROP TABLE IF EXISTS event_static_log CASCADE;
-CREATE TABLE IF NOT EXISTS event_static_log (
-	id BIGSERIAL PRIMARY KEY,
-	event_id BIGINT NOT NULL REFERENCES event(id) ON UPDATE CASCADE ON DELETE CASCADE,
-	ts TIMESTAMP NOT NULL,
-	action_type TEXT NOT NULL CHECK (action_type IN ('action','annotation')),
-	action_id BIGINT,
-	action_name TEXT,
-	action_description TEXT,
-	action_value TEXT NOT NULL,
-	annotation TEXT
-);*/

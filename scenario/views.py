@@ -45,7 +45,6 @@ def scenario_detail(request, scenario_id):
                                                               order_by('actor__name')
     actors = Actor.objects.filter(pk__in=[a['actor__pk'] for a in actors])
     visualizations = Visualization.objects.filter(action__scenario__id=scenario_id)
-    print actors
     context = {
                'scenario': list(row),
                'category': category,
@@ -447,7 +446,6 @@ def json_action(request, id):
     for row in rows:
         t = (row[0], row[1])
         rowarray_list.append(t)
-
     j = json.dumps(rowarray_list)
     return HttpResponse(j, content_type="application/json")
 
@@ -458,7 +456,6 @@ def search_event(request, type):
         managing_authority = Membership(request.user).membership_list
         ma_scenarios = Scenario.objects.filter(managing_authority=managing_authority)
         category = ScenarioSubcategory.objects.filter(pk__in=[cat.subcategory_id for cat in ma_scenarios])
-        print list(managing_authority)
     elif type == 'simulation':
         managing_authority = ManagingAuthority.objects.all()
         category = ScenarioSubcategory.objects.all()
