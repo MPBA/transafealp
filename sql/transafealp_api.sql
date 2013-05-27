@@ -34,10 +34,6 @@ select * from graph_action(
 	1000 --image height
 );*/
 
--- since pl/r is an untrusted language pl/r functions need superuser
--- permissions to be created. Later we assign grant to normal db user
-grant all on all functions in schema public to transafe_dev; 
-
 --starts a new event for a given scenario
 DROP FUNCTION IF EXISTS start_event (text,boolean,Geometry(Point,3035)) CASCADE;
 CREATE OR REPLACE FUNCTION start_event (scenario_name text, is_real boolean, event_geom Geometry(Point,3035))
@@ -120,5 +116,12 @@ END
 $BODY$
 LANGUAGE plpgsql;
 
---Example of usage 
+--Example of usage
 --select * from start_event('Frejus [SECT1/2/A]',false,'SRID=3035;POINT(0 0)');
+
+-- since pl/r is an untrusted language pl/r functions need superuser
+-- permissions to be created. Later we assign grant to normal db user
+GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO transafe_dev;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO transafe_dev;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO transafe_dev;
+ 
