@@ -176,7 +176,6 @@ DROP TRIGGER IF EXISTS after_update_ev_action ON ev_action CASCADE;
 CREATE TRIGGER after_update_ev_action AFTER UPDATE ON ev_action
 	FOR EACH ROW EXECUTE PROCEDURE after_update_ev_action();
 
-
 /*SELECT 'executable' IN (SELECT unnest(available_statuses) FROM ev_action_next_status(1))
 SELECT unnest(available_statuses) FROM ev_action_next_status(1);
 UPDATE ev_action SET status = 'executable' WHERE id = 1;
