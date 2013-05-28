@@ -1,7 +1,7 @@
 # Create your views here.
 from datetime import datetime
 from django.db import transaction, connection
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
@@ -11,7 +11,7 @@ from django.views.generic.detail import BaseDetailView
 from mixin import LoginRequiredMixin, JSONResponseMixin
 from .models import Event, EvMessage
 from django.core import serializers
-
+from tojson import render_to_json, login_required_json
 
 @login_required
 def dashboard(request, displaymode, event_id):
@@ -100,7 +100,8 @@ def start_event(request, scenario_id, type):
     transaction.commit_unless_managed()
 
     result = ({
-                  'success': 'true'
+                  'success': True,
+                  'event_id': list(row)[0]
               })
 
     j = json.dumps(result)
@@ -117,8 +118,40 @@ class EventDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
         qs = Event.objects.filter(pk=kwargs['pk'])
         json = serializers.serialize('json', qs)
         json_response = json
-        context = {'success': json_response}
+        context = {'success': True,
+                   'data': json_response}
         return self.render_to_response(context)
+
+
+def get_event_detail(request, pk):
+    try:
+        event = Event.objects.get(pk=pk).as_dict()
+
+        # cursor = connection.cursor()
+        # cursor.execute(
+        #     "select "
+        #     "ST_X(ST_Transform(event_geom,900913)) as event_x,"
+        #     "ST_X(ST_Transform(event_geom,900913)) as event_y,"
+        #     "ST_X(ST_Transform(scenario_geom,900913)) as scenario_bbox "
+        #     "from event where id = %s",
+        #     [pk])
+        # row = cursor.fetchone()
+        #
+        # transaction.commit_unless_managed()
+
+        json = {
+            'success': True,
+
+            'data': event
+        }
+        return json
+    except Event.DoesNotExist:
+        return (
+            {'success': False,
+            'message': ('Event {0} does not exist').format(pk)
+            },
+            {'cls': HttpResponseNotFound}
+        )
 
 
 #standard view for adding message to event

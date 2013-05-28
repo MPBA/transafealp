@@ -107,6 +107,21 @@ class Event(models.Model):
     def __unicode__(self):
         return u'%s %s' % (self.event_name, self.status)
 
+    def as_dict(self):
+        return {
+            'pk': self.pk,
+            'managing_authority': self.managing_authority.as_dict(),
+            'event_name': self.event_name,
+            'event_description': self.event_description,
+            'category_name': self.category_name,
+            'category_description': self.category_description,
+            'subcategory_name': self.subcategory_name,
+            'subcategory_description': self.subcategory_description,
+            'status': self.status,
+            'is_real': self.is_real,
+            'time_start': self.time_start.strftime('%Y-%m-%d %H:%M:%S'),
+        }
+
 
 class EventLog(models.Model):
     event = models.ForeignKey(Event)
