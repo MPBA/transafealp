@@ -2,7 +2,7 @@ __author__ = 'droghetti'
 from django.conf.urls import patterns
 from .views import EventDetailView
 
-urlpatterns = patterns("jites.views",
+urlpatterns = patterns('jites.views',
    (r'emergency/log/annotation$', 'annotation', ),
    (r'poll/$', 'poll', ),
 
