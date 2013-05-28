@@ -1,8 +1,8 @@
 # Create your views here.
 from datetime import datetime
 from django.db import transaction, connection
-from django.http import HttpResponse, HttpResponseNotFound
-from django.shortcuts import render_to_response
+from django.http import HttpResponse
+from django.shortcuts import render_to_response, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 import json
@@ -130,39 +130,7 @@ class EventDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
         #json = serializers.serialize('json', qs)
         json_response = json.dumps(dict, separators=(',', ':'), sort_keys=True)
         context = {'json': json_response}
-        return self.render_to_response(context)
-
-
-def get_event_detail(request, pk):
-    try:
-        event = Event.objects.get(pk=pk).as_dict()
-
-        # cursor = connection.cursor()
-        # cursor.execute(
-        #     "select "
-        #     "ST_X(ST_Transform(event_geom,900913)) as event_x,"
-        #     "ST_X(ST_Transform(event_geom,900913)) as event_y,"
-        #     "ST_X(ST_Transform(scenario_geom,900913)) as scenario_bbox "
-        #     "from event where id = %s",
-        #     [pk])
-        # row = cursor.fetchone()
-        #
-        # transaction.commit_unless_managed()
-
-        json = {
-            'success': True,
-
-            'data': event
-        }
-        return json
-    except Event.DoesNotExist:
-        return (
-            {'success': False,
-            'message': ('Event {0} does not exist').format(pk)
-            },
-            {'cls': HttpResponseNotFound}
-        )
-
+        return HttpResponse(json_response, mimetype='text/javascript;')
 
 #standard view for adding message to event
 def save_event_message(request, event_id):

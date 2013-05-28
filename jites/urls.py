@@ -12,7 +12,6 @@ urlpatterns = patterns('jites.views',
    (r'event/(?P<scenario_id>\d+)/(?P<type>\w+)/start$', 'start_event' ),
    (r'dashboard/(?P<displaymode>\w+)/(?P<event_id>\d+)$', 'dashboard' ),
    (r'get_event/(?P<pk>\d+)$', EventDetailView.as_view() ),
-   (r'get_event2/(?P<pk>\d+)$', 'get_event_detail'),
    (r'event/(?P<event_id>\d+)/add/message/$', 'save_event_message')
 
 )
