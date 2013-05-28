@@ -115,11 +115,21 @@ class EventDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
     model = Event
 
     def get(self, request, *args, **kwargs):
-        qs = Event.objects.filter(pk=kwargs['pk'])
-        json = serializers.serialize('json', qs)
-        json_response = json
-        context = {'success': True,
-                   'data': json_response}
+        qs = Event.objects.get(pk=kwargs['pk'])
+        dict = {'data': {'status': qs.status,
+                         'subcategory_name': qs.subcategory_name,
+                         'event_name': qs.event_name,
+                         'is_real': qs.is_real,
+                         'category_name': qs.category_name,
+                         'event_description': qs.event_description,
+                         'time_start': str(qs.time_start),
+                        },
+                'success': 'true'
+                }
+
+        #json = serializers.serialize('json', qs)
+        json_response = json.dumps(dict, separators=(',', ':'), sort_keys=True)
+        context = {'json': json_response}
         return self.render_to_response(context)
 
 
@@ -171,3 +181,28 @@ def save_event_message(request, event_id):
         msg = "GET request are not allowed for this view."
     return HttpResponse(msg)
 
+'''
+{
+
+  *
+data: {
+     *
+status: "open",
+     *
+subcategory_name: "Fire in tunnel",
+     *
+event_name: "test 1111",
+     *
+is_real: false,
+     *
+category_name: "Fire",
+     *
+event_description: "test 1111",
+     *
+time_start: "2013-05-28 12:34:38"
+},
+  *
+success: true
+
+}
+'''

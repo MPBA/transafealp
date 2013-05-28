@@ -5,8 +5,10 @@ from django.shortcuts import render_to_response, redirect
 from django.http import HttpResponse, Http404
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
-from .models import Scenario, ScenarioSubcategory, ActionM2MActor, Action, Actor, ActionGraph, Visualization, ManagingAuthority
-from .forms import ScenarioAddForm, ActionAddForm, ActorAddForm, ActionGraphAddForm, VisualizationForm, SelectActionForm, StartActionForm
+from .models import (Scenario, ScenarioSubcategory, ActionM2MActor, Action, Actor,
+                     ActionGraph, Visualization, ManagingAuthority)
+from .forms import (ScenarioAddForm, ActionAddForm, ActorAddForm, ActionGraphAddForm, VisualizationForm,
+                    SelectActionForm, StartActionForm, SelectScenarioForm)
 from utility import Membership, Actor_Action_Association, handle_uploaded_file
 from django.db import connection, transaction
 from django.contrib import messages
@@ -180,6 +182,18 @@ def actions_list(request, scenario_id):
     actions = Action.objects.filter(scenario=scenario).order_by('numcode')
     context = {'actions': actions, 'scenario': scenario}
     return render_to_response('scenario/action_list.html', context, context_instance=RequestContext(request))
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def select_scenario(request):
+    scenarios = Scenario.objects.filter(managing_authority=Membership(request.user).membership_auth)
+    form = SelectScenarioForm(scenarios)
+    context = {'form': form}
+    if request.method == 'POST':
+        return redirect('scenario.views.actors_add', request.POST['scenario'])
+    else:
+        return render_to_response('scenario/select_scenario.html', context, context_instance=RequestContext(request))
 
 
 @login_required
