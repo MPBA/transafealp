@@ -23,6 +23,15 @@ class ManagingAuthority(models.Model):
     def __unicode__(self):
         return u'%s' % (self.name)
 
+    def as_dict(self):
+        return {
+            'name': self.name,
+            'description': self.description,
+            'address': self.address,
+            'email': self.email,
+            'phone': self.phone
+        }
+
 
 class Scenario(models.Model):
     managing_authority = models.ForeignKey(ManagingAuthority)

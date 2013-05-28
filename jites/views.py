@@ -11,7 +11,7 @@ from django.views.generic.detail import BaseDetailView
 from mixin import LoginRequiredMixin, JSONResponseMixin
 from .models import Event, EvMessage
 from django.core import serializers
-
+from tojson import render_to_json, login_required_json
 
 @login_required
 def dashboard(request, displaymode, event_id):
@@ -100,7 +100,8 @@ def start_event(request, scenario_id, type):
     transaction.commit_unless_managed()
 
     result = ({
-                  'success': 'true'
+                  'success': True,
+                  'event_id': list(row)[0]
               })
 
     j = json.dumps(result)
@@ -130,7 +131,6 @@ class EventDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
         json_response = json.dumps(dict, separators=(',', ':'), sort_keys=True)
         context = {'json': json_response}
         return HttpResponse(json_response, mimetype='text/javascript;')
-
 
 #standard view for adding message to event
 def save_event_message(request, event_id):

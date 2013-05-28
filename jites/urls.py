@@ -1,3 +1,5 @@
+from kitchen.text.display import _generate_combining_table
+
 __author__ = 'droghetti'
 from django.conf.urls import patterns
 from .views import EventDetailView
