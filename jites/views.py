@@ -2,7 +2,7 @@
 from datetime import datetime
 from django.db import transaction, connection
 from django.http import HttpResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 import json
@@ -129,7 +129,7 @@ class EventDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
         #json = serializers.serialize('json', qs)
         json_response = json.dumps(dict, separators=(',', ':'), sort_keys=True)
         context = {'json': json_response}
-        return self.render_to_response(context)
+        return HttpResponse(json_response, mimetype='text/javascript;')
 
 
 #standard view for adding message to event
