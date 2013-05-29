@@ -15,30 +15,50 @@ Ext.application({
         Ext.require('Ext.util.Cookies');
 
         //Set other path
-        Ext.Loader.setPath('GeoExt', '/static//jites/GeoExt');
+        Ext.Loader.setPath('GeoExt', '/static/jites/GeoExt');
 
         //Loading configuration via AJAX request
-        //TODO to be implemented
         Jites.DISPLAYMODE = displaymode;
         Jites.USERNAME = username;
+        Jites.EVENTID = event_id;
 
-        //Create base viewport
-        Ext.create('Ext.container.Viewport', {
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
+
+        Ext.Ajax.request({
+            url: 'jites/get_event/'+Jites.EVENTID,
+            success: function(response, opts) {
+                var r = Ext.decode(response.responseText);
+                Jites.event = r.data;
+
+                //Create base viewport
+                Ext.create('Ext.container.Viewport', {
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    },
+                    border: false,
+                    items: [{
+                        xtype: 'container',
+                        renderTo: 'id_navbar',
+                        height: 95
+                    },{
+                        xtype: 'container',
+                        id: 'content',
+                        layout: 'fit',
+                        flex: 1
+                    }]
+                });
+
+                $(".loading").delay(1000) /*to remove*/
+                $(".loading").hide();
+
+                $("#id_navbar").fadeIn("slow"); /*show the navbar*/
+                $("#id_containerfluid").fadeIn("slow");/*show the container*/
+                $("#footer").fadeIn("slow"); /*show the footer*/
+
             },
-            border: false,
-            items: [{
-                xtype: 'container',
-                renderTo: 'id_navbar',
-                height: 95
-            },{
-                xtype: 'container',
-                id: 'content',
-                layout: 'fit',
-                flex: 1
-            }]
+            failure: function(response, opts) {
+                console.log('server-side failure with status code ' + response.status);
+            }
         });
 
     },

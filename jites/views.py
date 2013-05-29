@@ -1,6 +1,7 @@
 # Create your views here.
 from datetime import datetime
 from django.db import transaction, connection
+from django.db.transaction import commit_on_success
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -12,6 +13,7 @@ from mixin import LoginRequiredMixin, JSONResponseMixin
 from .models import Event, EvMessage
 from django.core import serializers
 from tojson import render_to_json, login_required_json
+
 
 @login_required
 def dashboard(request, displaymode, event_id):
@@ -28,26 +30,26 @@ def dashboard(request, displaymode, event_id):
 def poll(request):
     # TODO implemented by real request on scenario log table. This is a demo.
     result = ({
-        'type': 'event',
-        'name': 'log',
-        'data': {
-            'id': request.user.id,
-            'type': 'SYSTEM',
-            'ts': datetime.now().strftime("%d/%m/%y %H:%M:%S.%f"),
-            'username': str(request.user),
-            'msg': 'System ready to accept connections'
-        }
-    },{
-        'type': 'event',
-        'name': 'log',
-        'data': {
-            'id': request.user.id,
-            'type': 'TASK',
-            'ts': datetime.now().strftime("%d/%m/%y %H:%M:%S.%f"),
-            'username': str(request.user),
-            'msg': 'New event <strong>CP/FF/10</strong>'
-        }
-    })
+                  'type': 'event',
+                  'name': 'log',
+                  'data': {
+                      'id': request.user.id,
+                      'type': 'SYSTEM',
+                      'ts': datetime.now().strftime("%d/%m/%y %H:%M:%S.%f"),
+                      'username': str(request.user),
+                      'msg': 'System ready to accept connections'
+                  }
+              }, {
+                  'type': 'event',
+                  'name': 'log',
+                  'data': {
+                      'id': request.user.id,
+                      'type': 'TASK',
+                      'ts': datetime.now().strftime("%d/%m/%y %H:%M:%S.%f"),
+                      'username': str(request.user),
+                      'msg': 'New event <strong>CP/FF/10</strong>'
+                  }
+              })
     j = json.dumps(result)
     return HttpResponse(j, content_type="application/json")
 
@@ -73,7 +75,8 @@ def select_event_location(request, scenario_id, type):
     transaction.commit_unless_managed()
     category = ScenarioSubcategory.objects.get(pk=int(list(row)[1]))
     geometry = list(row)[3]
-    context = {'scenario': list(row), 'scenario_id': scenario_id, 'category': category, 'geometry': geometry, 'type': type}
+    context = {'scenario': list(row), 'scenario_id': scenario_id, 'category': category, 'geometry': geometry,
+               'type': type}
     return render_to_response('jites/select_event_location.html', context, context_instance=RequestContext(request))
 
 
@@ -111,11 +114,22 @@ def start_event(request, scenario_id, type):
 
 #class based view for json render Event (in the url: /jites/get_event/<idevent>)
 class EventDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
-
     model = Event
 
     def get(self, request, *args, **kwargs):
         qs = Event.objects.get(pk=kwargs['pk'])
+
+        cursor = connection.cursor()
+        cursor.execute(
+            'select '
+            'ST_X(ST_Transform(event_geom,900913)) as event_x,'
+            'ST_X(ST_Transform(event_geom,900913)) as event_y '
+            'from event where id = %s',
+            [kwargs['pk']])
+        row = cursor.fetchone()
+
+        transaction.commit_unless_managed()
+
         dict = {'data': {'status': qs.status,
                          'subcategory_name': qs.subcategory_name,
                          'event_name': qs.event_name,
@@ -123,9 +137,11 @@ class EventDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
                          'category_name': qs.category_name,
                          'event_description': qs.event_description,
                          'time_start': str(qs.time_start),
+                         'lat': row[0],
+                         'lon': row[1]
                         },
                 'success': 'true'
-                }
+        }
 
         #json = serializers.serialize('json', qs)
         json_response = json.dumps(dict, separators=(',', ':'), sort_keys=True)
@@ -148,29 +164,3 @@ def save_event_message(request, event_id):
     else:
         msg = "GET request are not allowed for this view."
     return HttpResponse(msg)
-
-'''
-{
-
-  *
-data: {
-     *
-status: "open",
-     *
-subcategory_name: "Fire in tunnel",
-     *
-event_name: "test 1111",
-     *
-is_real: false,
-     *
-category_name: "Fire",
-     *
-event_description: "test 1111",
-     *
-time_start: "2013-05-28 12:34:38"
-},
-  *
-success: true
-
-}
-'''

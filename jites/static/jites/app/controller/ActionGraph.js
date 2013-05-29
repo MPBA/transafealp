@@ -42,7 +42,7 @@ Ext.define('Jites.controller.ActionGraph', {
         parent.add(
             Ext.create('Jites.view.GenericTitle',{
                 data: {
-                    text: 'Event CP/FF/10 Frejus Italy' //TODO connect whit real event name
+                    text: Ext.String.format('Event {0} [{1}]',Jites.event.event_name, Jites.event.subcategory_name )
                 }
             }),
             Ext.create('Jites.view.ActionGraphArea',{
