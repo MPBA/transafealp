@@ -1,9 +1,9 @@
 # Create your views here.
-from datetime import datetime
-from django.db import transaction, connection
-from django.db.transaction import commit_on_success
+#from datetime import datetime
+from django.utils import timezone
+from django.db import transaction, connection, DatabaseError
 from django.http import HttpResponse
-from django.shortcuts import render_to_response, HttpResponse
+from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 import json
@@ -11,8 +11,6 @@ from scenario.models import Scenario, ScenarioSubcategory
 from django.views.generic.detail import BaseDetailView
 from mixin import LoginRequiredMixin, JSONResponseMixin
 from .models import Event, EvMessage
-from django.core import serializers
-from tojson import render_to_json, login_required_json
 
 
 @login_required
@@ -35,7 +33,7 @@ def poll(request):
                   'data': {
                       'id': request.user.id,
                       'type': 'SYSTEM',
-                      'ts': datetime.now().strftime("%d/%m/%y %H:%M:%S.%f"),
+                      'ts': timezone.now().strftime("%d/%m/%y %H:%M:%S.%f"),
                       'username': str(request.user),
                       'msg': 'System ready to accept connections'
                   }
@@ -45,7 +43,7 @@ def poll(request):
                   'data': {
                       'id': request.user.id,
                       'type': 'TASK',
-                      'ts': datetime.now().strftime("%d/%m/%y %H:%M:%S.%f"),
+                      'ts': timezone.now().strftime("%d/%m/%y %H:%M:%S.%f"),
                       'username': str(request.user),
                       'msg': 'New event <strong>CP/FF/10</strong>'
                   }
@@ -55,24 +53,20 @@ def poll(request):
 
 
 @login_required
-def annotation(request):
-    # TODO implemented by real request on scenario log table. This is a demo.
-    result = ({
-                  'success': 'true'
-              })
-    j = json.dumps(result)
-    return HttpResponse(j, content_type="application/json")
-
-
-@login_required
 def select_event_location(request, scenario_id, type):
-    cursor = connection.cursor()
-    cursor.execute(
-        "SELECT name, subcategory_id, description , ST_AsGeoJSON(ST_Transform(geom,900913)) FROM scenario WHERE id=%s",
-        [scenario_id])
-    row = cursor.fetchone()
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT name, subcategory_id, description, ST_AsGeoJSON(ST_Transform(geom,900913)) FROM scenario WHERE id=%s",
+            [scenario_id])
 
-    transaction.commit_unless_managed()
+    except DatabaseError, e:
+        transaction.rollback()
+        return HttpResponse(str(e))
+
+    row = cursor.fetchone()
+    cursor.close()
+
     category = ScenarioSubcategory.objects.get(pk=int(list(row)[1]))
     geometry = list(row)[3]
     context = {'scenario': list(row), 'scenario_id': scenario_id, 'category': category, 'geometry': geometry,
@@ -94,18 +88,22 @@ def start_event(request, scenario_id, type):
 
     geom = 'SRID=900913;POINT({0})'.format(point)
 
-    cursor = connection.cursor()
-    cursor.execute(
-        "select * from start_event(%s,%s,ST_Transform(%s::geometry,3035));",
-        [scenario.name, is_real, geom])
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            "select * from start_event(%s,%s,ST_Transform(%s::geometry,3035));",
+            [scenario.name, is_real, geom])
+    except DatabaseError, e:
+        transaction.rollback()
+        return HttpResponse(str(e))
+
     row = cursor.fetchone()
+    cursor.close()
 
-    transaction.commit_unless_managed()
-
-    result = ({
-                  'success': True,
-                  'event_id': list(row)[0]
-              })
+    result = {
+        'success': True,
+        'event_id': list(row)[0]
+    }
 
     j = json.dumps(result)
 
@@ -119,16 +117,20 @@ class EventDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
     def get(self, request, *args, **kwargs):
         qs = Event.objects.get(pk=kwargs['pk'])
 
-        cursor = connection.cursor()
-        cursor.execute(
-            'select '
-            'ST_X(ST_Transform(event_geom,900913)) as event_x,'
-            'ST_X(ST_Transform(event_geom,900913)) as event_y '
-            'from event where id = %s',
-            [kwargs['pk']])
-        row = cursor.fetchone()
+        try:
+            cursor = connection.cursor()
+            cursor.execute(
+                'select '
+                'ST_X(ST_Transform(event_geom,900913)) as event_x,'
+                'ST_X(ST_Transform(event_geom,900913)) as event_y '
+                'from event where id = %s',
+                [kwargs['pk']])
+        except DatabaseError, e:
+            transaction.rollback()
+            return HttpResponse(str(e))
 
-        transaction.commit_unless_managed()
+        row = cursor.fetchone()
+        cursor.close()
 
         dict = {'data': {'status': qs.status,
                          'subcategory_name': qs.subcategory_name,
@@ -139,28 +141,37 @@ class EventDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
                          'time_start': str(qs.time_start),
                          'lat': row[0],
                          'lon': row[1]
-                        },
+        },
                 'success': 'true'
         }
 
-        #json = serializers.serialize('json', qs)
         json_response = json.dumps(dict, separators=(',', ':'), sort_keys=True)
-        context = {'json': json_response}
-        return HttpResponse(json_response, mimetype='text/javascript;')
+        return HttpResponse(json_response, mimetype='application/json;')
+
 
 #standard view for adding message to event
+@login_required()
 def save_event_message(request, event_id):
     event = Event.objects.get(pk=event_id)
-    ts = datetime.now()
+    ts = timezone.now()
     username = request.user
     if request.method == "POST" and request.is_ajax():
-        print request.POST
         if request.POST['content']:
-            message_to_save = EvMessage(event, ts, username, request.POST['content'])
+            message_to_save = EvMessage(event=event, ts=ts, username=username, content=request.POST['content'])
             message_to_save.save()
-            msg = "saved"
+            msg = {
+                "success": True
+            }
         else:
-            msg = "post invalid"
+            msg = {
+                "success": False,
+                "message": "Form is invalid"
+            }
     else:
-        msg = "GET request are not allowed for this view."
-    return HttpResponse(msg)
+        msg = {
+            "success": False,
+            "message": "GET request are not allowed for this view."
+        }
+
+    json_response = json.dumps(msg)
+    return HttpResponse(json_response, mimetype="application/json;")

@@ -31,6 +31,7 @@ Ext.define('Jites.view.LogArea',{
                         '<tbody>',
                         '</tbody>',
                         '</table>',
+                        '<div id="logannotation-alert"></div>',
                '</div>',
                '</div>',
            '</div>'
