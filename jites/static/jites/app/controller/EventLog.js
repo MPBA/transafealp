@@ -78,10 +78,9 @@ Ext.define('Jites.controller.EventLog', {
         parent.setDisabled(false);
 
         //Enable log annotation event
-        $( "#logannotation-submit" ).click(function() {
-            console.log("dio cane")
-            return false;
-        });
+//        $( "#logannotation-submit" ).click(function() {
+//            return false;
+//        });
     },
     addRowToLogArea: function(e){
         var me = this,
@@ -166,22 +165,86 @@ Ext.define('Jites.controller.EventLog', {
         ct.setStyle('max-height', p.getHeight() + 'px');
     },
     logAnnotationEvent: function(){
-        $( "#logannotation-submit" ).click(function() {
-            Ext.Ajax.request({
-                url: 'jites/emergency/log/annotation',
-                success: function(response, opts) {
+        var me = this;
 
-                    console.dir(response);
+        $( "#logannotation-submit" ).click(function() {
+            var csfr = Ext.util.Cookies.get('csrftoken'),
+                content;
+
+            content = $("#logannotation-area").val();
+
+            //check message length
+            if(content.length == 0){
+                return;
+            }
+
+            //Disable button
+            $("#logannotation-submit").attr("disabled", "disabled");
+            $("#logannotation-cancel").attr("disabled", "disabled");
+
+            Ext.Ajax.request({
+                url: '/jites/event/'+ Jites.EVENTID +'/add/message/',
+                params: {
+                    content: content,
+                    csrfmiddlewaretoken: csfr
+                },
+                success: function(response, opts) {
+                    var alert_id;
+
+                    //enable button
+                    $("#logannotation-submit").removeAttr("disabled");
+                    $("#logannotation-cancel").removeAttr("disabled");
+                    $("#logannotation-area").val("");
+
+                    //set alert msg
+                    alert_id = me.addAlertMessage("success","Your message has been successfully saved on server.")
                 },
                 failure: function(response, opts) {
+                    var alert_id;
+
+                    //enable button
+                    $("#logannotation-submit").removeAttr("disabled");
+                    $("#logannotation-cancel").removeAttr("disabled");
+
+                    //set alert msg
+                    me.addAlertMessage("error","Unexpected error. The message is not saved");
                     console.log('server-side failure with status code ' + response.status);
                 }
             });
             return false;
         });
-        $( "#logannotation-cancel" ).click(function() {
 
+        $( "#logannotation-cancel" ).click(function() {
+            $("#logannotation-area").val("");
             return false;
         });
+    },
+    addAlertMessage: function(type, msg){
+        var id = Ext.id(),
+            tpl,
+            html;
+        //create template
+        tpl = new Ext.Template(
+            '<div id="{id}" class="alert alert-{type}">',
+                '{msg}',
+            '</div>'
+        );
+
+        //compile template
+        html = tpl.apply({
+            id: id,
+            type: type,
+            msg: msg
+        });
+
+        //add div to the container
+        $(html).hide().appendTo("#logannotation-alert").fadeIn(1000);
+
+        //set handler to auto-remove
+        Ext.defer(function() {
+            $("#"+id).fadeOut();
+        }, 3000);
+
+        return id;
     }
 });

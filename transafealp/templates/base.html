@@ -33,12 +33,15 @@ In this file there are all the importing string command for js and css files.-->
     <script>
         $(window).load(function(){
             /*script js for loading image before page load*/
-            $(".loading").delay(1000) /*to remove*/
-            $(".loading").hide();
+            {% block loadingfnc %}
+                $(".loading").delay(1000) /*to remove*/
+                $(".loading").hide();
+
 
             $("#id_navbar").fadeIn("slow"); /*show the navbar*/
             $("#id_containerfluid").fadeIn("slow");/*show the container*/
             $("#footer").fadeIn("slow"); /*show the footer*/
+            {% endblock %}
         });
 
         jQuery(document).ready(function() {

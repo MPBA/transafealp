@@ -42,7 +42,8 @@ Ext.define('Jites.controller.ActionGraph', {
         parent.add(
             Ext.create('Jites.view.GenericTitle',{
                 data: {
-                    text: 'Event CP/FF/10 Frejus Italy' //TODO connect whit real event name
+                    text: Ext.String.format('Event {0} [{1} -> {2}]',Jites.event.event_name, Jites.event.category_name,
+                        Jites.event.subcategory_name )
                 }
             }),
             Ext.create('Jites.view.ActionGraphArea',{
@@ -138,6 +139,45 @@ Ext.define('Jites.controller.ActionGraph', {
                         status: 'success'
                     },
                     name: 'ACT6'
+                }]
+            }]
+        };
+
+        a = {
+            "success": true,
+            "data": [{
+                "id": 'node1',
+                "name": 'Action name',
+                "numcode": 15,
+                "description": 'Description',
+                "duration": 15,
+                "status": "running",
+                "comment": "comment",
+                children: [{
+                    "id": 'node2',
+                    "name": 'Action name',
+                    "numcode": 15,
+                    "description": 'Description',
+                    "duration": 15,
+                    "status": "running",
+                    "comment": "comment"
+                },{
+                    "id": 'node3',
+                    "name": 'Action name',
+                    "numcode": 15,
+                    "description": 'Description',
+                    "duration": 15,
+                    "status": "running",
+                    "comment": "comment",
+                    children: [{
+                        "id": 'node4',
+                        "name": 'Action name',
+                        "numcode": 15,
+                        "description": 'Description',
+                        "duration": 15,
+                        "status": "running",
+                        "comment": "comment"
+                    }]
                 }]
             }]
         };
