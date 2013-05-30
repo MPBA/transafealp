@@ -9,9 +9,9 @@ import json
 from scenario.models import Scenario, ScenarioSubcategory
 from django.views.generic.detail import BaseDetailView
 from mixin import LoginRequiredMixin, JSONResponseMixin
-from .models import Event, EvMessage
+from .models import Event, EvMessage, EvAction, EvActionGraph
 from django.core import serializers
-from tojson import render_to_json, login_required_json
+from scenario.utility import Membership, make_tree
 
 @login_required
 def dashboard(request, displaymode, event_id):
@@ -126,11 +126,9 @@ class EventDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
                         },
                 'success': 'true'
                 }
-
-        #json = serializers.serialize('json', qs)
         json_response = json.dumps(dict, separators=(',', ':'), sort_keys=True)
-        context = {'json': json_response}
         return HttpResponse(json_response, mimetype='text/javascript;')
+
 
 #standard view for adding message to event
 def save_event_message(request, event_id):
@@ -149,28 +147,18 @@ def save_event_message(request, event_id):
         msg = "GET request are not allowed for this view."
     return HttpResponse(msg)
 
-'''
-{
 
-  *
-data: {
-     *
-status: "open",
-     *
-subcategory_name: "Fire in tunnel",
-     *
-event_name: "test 1111",
-     *
-is_real: false,
-     *
-category_name: "Fire",
-     *
-event_description: "test 1111",
-     *
-time_start: "2013-05-28 12:34:38"
-},
-  *
-success: true
+def tree_to_json(request, event_id):
+    event = Event.objects.get(pk=event_id, managing_authority=Membership(request.user).membership_auth)
+    root_action = EvAction.objects.get(event=event, name='root')
+    actions = EvActionGraph.objects.filter(action__event=event, parent__event=event)
 
-}
-'''
+    pc = []
+    pc.append([root_action.id, root_action.id, root_action.name])
+    for action in actions:
+        pc.append([action.parent.id, action.action.id, action.action.name])
+
+    tree = make_tree(pc, root_action.id)
+    json_response = json.dumps(dict(tree))
+    return HttpResponse(json_response, mimetype='text/javascript;')
+
