@@ -10,7 +10,8 @@ import json
 from scenario.models import Scenario, ScenarioSubcategory
 from django.views.generic.detail import BaseDetailView
 from mixin import LoginRequiredMixin, JSONResponseMixin
-from .models import Event, EvMessage
+from .models import Event, EvMessage, EvAction, EvActionGraph
+from scenario.utility import make_tree, Membership
 
 
 @login_required
@@ -175,3 +176,19 @@ def save_event_message(request, event_id):
 
     json_response = json.dumps(msg)
     return HttpResponse(json_response, mimetype="application/json;")
+
+
+@login_required
+def tree_to_json(request, event_id):
+    event = Event.objects.get(pk=event_id, managing_authority=Membership(request.user).membership_auth)
+    root_action = EvAction.objects.get(event=event, name='root')
+    actions = EvActionGraph.objects.filter(action__event=event, parent__event=event)
+
+    pc = []
+    pc.append([root_action.id, root_action.id, root_action.name])
+    for action in actions:
+        pc.append([action.parent.id, action.action.id, action.action.name])
+
+    tree = make_tree(pc, root_action.id)
+    json_response = json.dumps(dict(tree))
+    return HttpResponse(json_response, mimetype='text/javascript;')
