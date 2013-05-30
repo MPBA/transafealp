@@ -103,6 +103,10 @@ BEGIN
 		LEFT JOIN ev_action ea ON ea.name = a.name
 		LEFT JOIN ev_actor ear ON ear.email = ar.email
 		WHERE a.scenario_id = scen.id AND ea.event_id = ev.id AND ear.event_id = ev.id;
+
+	--mark root action as terminated
+	UPDATE ev_action SET status = 'executable' WHERE id = ev.id AND name = 'root';
+	UPDATE ev_action SET status = 'terminated (success)' WHERE id = ev.id AND name = 'root';
 	
 	ANALYZE ev_action;
 	ANALYZE ev_visualization;
@@ -118,6 +122,33 @@ LANGUAGE plpgsql;
 
 --Example of usage
 --select * from start_event('Frejus [SECT1/2/A]',false,'SRID=3035;POINT(0 0)');
+
+
+--prints available action status (wraps around function used in trigger)
+DROP FUNCTION IF EXISTS ev_action_next_status(BIGINT, TEXT) CASCADE;
+CREATE OR REPLACE FUNCTION ev_action_next_status(event_id BIGINT, action_name TEXT,
+	OUT available_statuses TEXT[], OUT reason TEXT) AS
+$BODY$
+DECLARE
+	avs TEXT[];
+	reas TEXT;
+BEGIN
+	SELECT INTO avs,reas * from ev_action_next_status(
+		(SELECT id FROM ev_action ac WHERE ac.event_id = ev_action_next_status.event_id AND ac.name = action_name)
+	);
+
+	SELECT INTO available_statuses array(SELECT unnest(avs) EXCEPT SELECT 'non executable'::text);
+	reason := reas;
+
+	RETURN;
+END
+$BODY$
+LANGUAGE plpgsql;
+
+--Example of usage
+--select * from ev_action_next_status(1,'root');
+--select * from ev_action_next_status(1,'Fuffy');
+
 
 -- since pl/r is an untrusted language pl/r functions need superuser
 -- permissions to be created. Later we assign grant to normal db user
