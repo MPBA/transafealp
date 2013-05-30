@@ -20,7 +20,7 @@ Ext.define('Jites.view.Interface',{
     },
 
     deferredRender: false,
-
+    id: 'interface',
 
     flex: 1,
 
