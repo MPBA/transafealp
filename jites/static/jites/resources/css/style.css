@@ -88,3 +88,7 @@
         progid:DXImageTransform.Microsoft.Shadow(color=#FFFFFF,direction=135,strength=2);
     progid:DXImageTransform.Microsoft.Shadow(color=#FFFFFF,direction=315,strength=2);
 }
+
+.label-not-needed {
+    background-color: #84c085;
+}
