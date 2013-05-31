@@ -78,15 +78,15 @@
                 type: 'bar'
             },
             title: {
-                text: 'Users and Sessions Stats'
+                text: 'Events Stats'
             },
             xAxis: {
-                categories: ['# Logged Sessions', '# Total Users']
+                categories: ['# Total Event', '# Closed', '# Open']
             },
             yAxis: {
                 min: 0,
                 title: {
-                    text: 'Users stats'
+                    text: 'Events stats'
                 }
             },
             legend: {
@@ -98,10 +98,12 @@
                 }
             },
                 series: [{
-                name: 'Users',
+                name: 'Events',
                 data: [
-                       {y: {{ n_users }}, color: '#4BA600'},
-                       {y: {{ tot_users }}, color: '#DE6800'},
+                       {y: {{ event }}, color: '#4BA600'},
+                       {y: {{ closed }}, color: '#DE6800'},
+                       {y: {{ open }}, color: '#1B91E0'},
+
 
                 ]
             }]

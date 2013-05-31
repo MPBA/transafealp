@@ -1,0 +1,37 @@
+# -*- encoding: utf-8 -*-
+__author__ = 'ernesto (arbitrio@fbk.eu)'
+
+
+def make_tree(pc_list, root_node):
+    results = {}
+    for record in pc_list:
+        parent_id = record[0]
+        action_id = record[1]
+
+        if action_id in results:
+            node = results[action_id]
+        else:
+            node = results[action_id] = {}
+
+        node['id'] = 'node{0}'.format(record[1])
+        node['name'] = record[2]
+        node['data'] = {
+            "numcode": record[3],
+            "description": record[4],
+            "duration": record[5],
+            "status": record[6],
+            "comment": record[7]
+        }
+
+        if parent_id != action_id:
+            if parent_id in results:
+                parent = results[parent_id]
+            else:
+                parent = results[parent_id] = {}
+            if 'children' in parent:
+                parent['children'].append(node)
+            else:
+                parent['children'] = [node]
+
+    # assuming we wanted node id #0 as the top of the tree
+    return results[root_node]
