@@ -2,7 +2,7 @@
 
 __author__ = 'droghetti'
 from django.conf.urls import patterns
-from .views import EventDetailView
+from .views import EventDetailView, ActionDetailView
 
 urlpatterns = patterns('jites.views',
    (r'poll/$', 'poll', ),
@@ -11,5 +11,7 @@ urlpatterns = patterns('jites.views',
    (r'dashboard/(?P<displaymode>\w+)/(?P<event_id>\d+)$', 'dashboard' ),
    (r'get_event/(?P<pk>\d+)$', EventDetailView.as_view() ),
    (r'event/(?P<event_id>\d+)/add/message/$', 'save_event_message'),
-   (r'tree/to/json/(?P<event_id>\d+)/$', 'tree_to_json')
+   (r'tree/to/json/(?P<event_id>\d+)/$', 'tree_to_json'),
+   (r'get_action/(?P<pk>\d+)$', ActionDetailView.as_view() ),
+
 )
