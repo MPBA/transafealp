@@ -11,7 +11,8 @@ from scenario.models import Scenario, ScenarioSubcategory
 from django.views.generic.detail import BaseDetailView
 from mixin import LoginRequiredMixin, JSONResponseMixin
 from .models import Event, EvMessage, EvAction, EvActionGraph
-from scenario.utility import make_tree, Membership
+from scenario.utility import Membership
+from .utility import make_tree
 
 
 @login_required
@@ -182,12 +183,27 @@ def save_event_message(request, event_id):
 def tree_to_json(request, event_id):
     event = Event.objects.get(pk=event_id, managing_authority=Membership(request.user).membership_auth)
     root_action = EvAction.objects.get(event=event, name='root')
-    actions = EvActionGraph.objects.filter(action__event=event, parent__event=event)
-
-    pc = []
-    pc.append([root_action.id, root_action.id, root_action.name])
+    actions = EvActionGraph.objects.filter(action__event=event, parent__event=event, is_main_parent=True)
+    pc = ([])
+    pc.append([root_action.id,
+               root_action.id,
+               root_action.name,
+               root_action.numcode,
+               root_action.description,
+               root_action.duration,
+               root_action.status,
+               root_action.comment
+               ])
     for action in actions:
-        pc.append([action.parent.id, action.action.id, action.action.name])
+        pc.append([action.parent.id,
+                   action.action.id,
+                   action.action.name,
+                   action.action.numcode,
+                   action.action.description,
+                   action.action.duration,
+                   action.action.status,
+                   action.action.comment
+                   ])
 
     tree = make_tree(pc, root_action.id)
     json_response = json.dumps(dict(tree))
