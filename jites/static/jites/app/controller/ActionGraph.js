@@ -29,7 +29,7 @@ Ext.define('Jites.controller.ActionGraph', {
                     scope: this,
                     single: true
                 }
-            }
+            },
         });
 
     },
@@ -56,131 +56,10 @@ Ext.define('Jites.controller.ActionGraph', {
     },
     initJit: function(container){
         //TODO implement ajax request to get real task tree
-        var me = this,
-            json = {
-            id: 'node1',
-            name: 'ACT1. avvisare tutti',
-            data: {
-                numcode: '11',
-                desc: 'Test test test',
-                status: 'success'
-            },
-            children:[{
-                id: 'node2',
-                name: 'ACT2',
-                data: {
-                    numcode: '11',
-                    desc: 'Test test test',
-                    status: 'success'
-                },
-                children:[{
-                    id: 'node3',
-                    name: 'ACT3 - VVFF arrive at the tunnel',
-                    data: {
-                        numcode: '11',
-                        desc: 'Test test test',
-                        status: 'success'
-                    },
-                    children:[{
-                        id: 'node8',
-                        data: {
-                            numcode: '11',
-                            desc: 'Test test test',
-                            status: 'success'
-                        },
-                        name: 'ACT8 - tutti morti'
-                    },{
-                        id: 'node9',
-                        data: {
-                            numcode: '11',
-                            desc: 'Test test test',
-                            status: 'success'
-                        },
-                        name: 'ACT9'
-                    },{
-                        id: 'node10',
-                        data: {
-                            numcode: '11',
-                            desc: 'Test test test',
-                            status: 'success'
-                        },
-                        name: 'ACT10 - todo todo'
-                    }]
-                },{
-                    id: 'node4',
-                    data: {
-                        numcode: '11',
-                        desc: 'Test test test',
-                        status: 'success'
-                    },
-                    name: 'ACT4'
-                },{
-                    id: 'node7',
-                    data: {
-                        numcode: '11',
-                        desc: 'Test test test',
-                        status: 'success'
-                    },
-                    name: 'ACT7 - todo todo'
-                }]
-            },{
-                id: 'node5',
-                name: 'ACT5',
-                data: {
-                    numcode: '11',
-                    desc: 'Test test test',
-                    status: 'success'
-                },
-                children:[{
-                    id: 'node6',
-                    data: {
-                        numcode: '11',
-                        desc: 'Test test test',
-                        status: 'success'
-                    },
-                    name: 'ACT6'
-                }]
-            }]
-        };
+        var me = this;
+        parent = me.getActiongraph();
 
-        a = {
-            "success": true,
-            "data": [{
-                "id": 'node1',
-                "name": 'Action name',
-                "numcode": 15,
-                "description": 'Description',
-                "duration": 15,
-                "status": "running",
-                "comment": "comment",
-                children: [{
-                    "id": 'node2',
-                    "name": 'Action name',
-                    "numcode": 15,
-                    "description": 'Description',
-                    "duration": 15,
-                    "status": "running",
-                    "comment": "comment"
-                },{
-                    "id": 'node3',
-                    "name": 'Action name',
-                    "numcode": 15,
-                    "description": 'Description',
-                    "duration": 15,
-                    "status": "running",
-                    "comment": "comment",
-                    children: [{
-                        "id": 'node4',
-                        "name": 'Action name',
-                        "numcode": 15,
-                        "description": 'Description',
-                        "duration": 15,
-                        "status": "running",
-                        "comment": "comment"
-                    }]
-                }]
-            }]
-        };
+        parent.setDisabled(true);
 
         //Create a new ST (spacetree) instance
         me.st = new $jit.ST({
@@ -206,16 +85,16 @@ Ext.define('Jites.controller.ActionGraph', {
 
             //set node and edge styles
             Node: {
-                color: '#ff3',
+                color: '#FFFFFF',
                 overridable: true,
-                width: 210,
+                width:  Jites.ACTIONGRAPHLABELWIDHT,
                 height: 43
             },
 
             Label: {
                 style: 'bold',
                 size: 10,
-                color: '#333'
+                color: '#FFFFFF'
             },
 
             //set edge (connection) styles
@@ -230,29 +109,50 @@ Ext.define('Jites.controller.ActionGraph', {
             onCreateLabel: me.setLabelNode
         });
 
-        //load json data
-        me.st.loadJSON(json);
 
-        //compute node positions and layout
-        me.st.compute();
+        Ext.Ajax.request({
+            url: 'jites/tree/to/json/'+Jites.EVENTID,
+            success: function(response, opts) {
+                var json = Ext.decode(response.responseText);
 
-        //emulate a click on the root node to expand the graph
-        me.st.onClick(me.st.root);
+                //load json data
+                me.st.loadJSON(json);
+
+                //compute node positions and layout
+                me.st.compute();
+
+                //emulate a click on the root node to expand the graph
+                me.st.onClick(me.st.root);
+
+                //Enable eventlog panel
+                parent.setDisabled(false);
+            },
+            failure: function(response, opts) {
+                console.log('server-side failure with status code ' + response.status);
+            }
+        });
+
+
+
 //
 //        top.onchange = left.onchange = bottom.onchange = right.onchange = changeHandler;
 //        //end
     },
-    getClassName: function(node){
-        var data = node.data,
-            style;
-        if (data.status == 'closed'){
-            style = 'label label-succes'
+    getClassName: function(data){
+        var style;
+        console.log(data);
+        if (data.status == 'non executable'){
+            style = 'label'
+        } else if (data.status == 'executable'){
+            style = 'label label-info'
         } else if (data.status == 'running'){
             style = 'label label-warning'
-        } else if (data.status == 'tobe'){
-            style = 'label'
+        } else  if (data.status == 'terminated (success)') {
+            style = 'label label-success'
+        } else  if (data.status == 'terminated (faild)') {
+            style = 'label label-important'
         } else {
-            style = 'label label-info'
+            style = 'label label-inverse'
         }
 
         return style;
@@ -261,21 +161,26 @@ Ext.define('Jites.controller.ActionGraph', {
         var id = node.id,
             data = node.data,
             style = label.style,
+            app = Jites.getApplication(),
+            ct = app.getController('ActionGraph'),
             text;
 
         label.id = id;
         label.innerHTML = '<h4>' + Ext.String.ellipsis(node.name, 25, true) + '</h4>';
         //TODO set style according to the event status
-        label.className = "label label-warning"
+        label.className = ct.getClassName(data);
 
-        label.onclick = function(){
+        label.ondblclick = function(){
             //TODO register event in ActionDetails controller
 //            var app = Jites.getApplication();
 //            var ct = app.getController('ActionDetails');
 //
 //            ct.setActionDetailsToPanel();
+            console.log(node)
+            console.log(label)
         };
         //set label styles
         style.cursor = 'pointer';
+        style.width =  Jites.ACTIONGRAPHLABELWIDHT + "px";
     }
 });

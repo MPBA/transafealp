@@ -94,7 +94,10 @@ def make_tree(pc_list, root_node):
             node = results[action_id] = {}
 
         node['name'] = record[2]
-        #node['size'] = record[3]
+        node['id'] = 'node{0}'.format(record[3])
+        node['data'] = {
+            "status": record[4]
+        };
         if parent_id != action_id:
             if parent_id in results:
                 parent = results[parent_id]

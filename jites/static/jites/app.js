@@ -21,6 +21,7 @@ Ext.application({
         Jites.DISPLAYMODE = displaymode;
         Jites.USERNAME = username;
         Jites.EVENTID = event_id;
+        Jites.ACTIONGRAPHLABELWIDHT = 210;
 
 
         Ext.Ajax.request({

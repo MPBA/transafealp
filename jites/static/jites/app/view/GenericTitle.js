@@ -14,7 +14,7 @@ Ext.define('Jites.view.GenericTitle',{
         var me = this;
 
         me.tpl = new Ext.Template(
-                '<h1 class="text-center">{text}</h1>'
+            '<h1 class="text-center">{text}</h1>'
         );
 
         me.callParent(arguments);

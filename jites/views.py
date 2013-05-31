@@ -185,9 +185,9 @@ def tree_to_json(request, event_id):
     actions = EvActionGraph.objects.filter(action__event=event, parent__event=event)
 
     pc = []
-    pc.append([root_action.id, root_action.id, root_action.name])
+    pc.append([root_action.id, root_action.id, root_action.name, root_action.pk, root_action.status])
     for action in actions:
-        pc.append([action.parent.id, action.action.id, action.action.name])
+        pc.append([action.parent.id, action.action.id, action.action.name, action.action.pk, action.action.status])
 
     tree = make_tree(pc, root_action.id)
     json_response = json.dumps(dict(tree))
