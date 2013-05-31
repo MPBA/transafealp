@@ -1,5 +1,4 @@
 # Create your views here.
-#from datetime import datetime
 from django.utils import timezone
 from django.db import transaction, connection, DatabaseError
 from django.http import HttpResponse
@@ -13,7 +12,6 @@ from mixin import LoginRequiredMixin, JSONResponseMixin
 from .models import Event, EvMessage, EvAction, EvActionGraph, EvVisualization, EvActor
 from scenario.utility import Membership
 from .utility import make_tree, Actor_Action_Association, SetEncoder
-
 
 
 @login_required
