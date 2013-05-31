@@ -46,6 +46,9 @@ Ext.define('Jites.controller.ActionGraph', {
                         Jites.event.subcategory_name )
                 }
             }),
+            Ext.create('Jites.view.ActionGraphLegend',{
+                data: me.getAvailableStatus()
+            }),
             Ext.create('Jites.view.ActionGraphArea',{
                 flex: 1
             })
@@ -131,31 +134,62 @@ Ext.define('Jites.controller.ActionGraph', {
                 console.log('server-side failure with status code ' + response.status);
             }
         });
-
-
-
 //
 //        top.onchange = left.onchange = bottom.onchange = right.onchange = changeHandler;
 //        //end
     },
-    getClassName: function(data){
-        var style;
-        console.log(data);
-        if (data.status == 'non executable'){
-            style = 'label'
-        } else if (data.status == 'executable'){
-            style = 'label label-info'
-        } else if (data.status == 'running'){
-            style = 'label label-warning'
-        } else  if (data.status == 'terminated (success)') {
-            style = 'label label-success'
-        } else  if (data.status == 'terminated (faild)') {
-            style = 'label label-important'
-        } else {
-            style = 'label label-inverse'
-        }
+    getStyleFromStatus: function(data){
+        var me = this,
+            status = me.getAvailableStatus(),
+            pluck = Ext.Array.pluck(status,'id'),
+            index = Ext.Array.indexOf(pluck,data.status),
+            style;
+
+        style = status[index] ? status[index]['style'] : 'label label-inverse';
 
         return style;
+    },
+    getLabelFromStatus: function(data){
+        var me = this,
+            status = me.getAvailableStatus(),
+            pluck = Ext.Array.pluck(status,'id'),
+            index = Ext.Array.indexOf(pluck,data.status),
+            label;
+
+        label = status[index] ? status[index]['label'] : 'Status is not available';
+
+        return label;
+    },
+    getAvailableStatus: function(){
+        var status = new Array();
+
+        status.push({
+            'id': 'non executable',
+            'label': 'Non executable',
+            'style': 'label'
+        },{
+            'id': 'executable',
+            'label': 'Executable',
+            'style': 'label label-info'
+        },{
+            'id': 'running',
+            'label': 'Running',
+            'style': 'label label-warning'
+        },{
+            'id': 'terminated (success)',
+            'label': 'Terminated (success)',
+            'style': 'label label-success'
+        },{
+            'id': 'terminated (not needed)',
+                'label': 'Terminated (not needed)',
+                'style': 'label label-not-needed'
+        },{
+            'id': 'terminated (failed)',
+            'label': 'Terminated (failed)',
+            'style': 'label label-important'
+        });
+        a=status;
+        return status;
     },
     setLabelNode: function(label,node){
         var id = node.id,
@@ -168,7 +202,7 @@ Ext.define('Jites.controller.ActionGraph', {
         label.id = id;
         label.innerHTML = '<h4>' + Ext.String.ellipsis(node.name, 25, true) + '</h4>';
         //TODO set style according to the event status
-        label.className = ct.getClassName(data);
+        label.className = ct.getStyleFromStatus(data);
 
         label.ondblclick = function(){
             //TODO register event in ActionDetails controller
