@@ -10,9 +10,10 @@ import json
 from scenario.models import Scenario, ScenarioSubcategory
 from django.views.generic.detail import BaseDetailView
 from mixin import LoginRequiredMixin, JSONResponseMixin
-from .models import Event, EvMessage, EvAction, EvActionGraph
+from .models import Event, EvMessage, EvAction, EvActionGraph, EvVisualization, EvActor
 from scenario.utility import Membership
-from .utility import make_tree
+from .utility import make_tree, Actor_Action_Association, SetEncoder
+
 
 
 @login_required
@@ -148,6 +149,49 @@ class EventDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
         }
 
         json_response = json.dumps(dict, separators=(',', ':'), sort_keys=True)
+        return HttpResponse(json_response, mimetype='application/json;')
+
+
+#class based view for json render Event (in the url: /jites/get_event/<idevent>)
+class ActionDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
+    model = EvAction
+
+    def get(self, request, *args, **kwargs):
+        action = EvAction.objects.get(pk=kwargs['pk'])
+        actors = Actor_Action_Association(request.user, action.event.pk, action.pk).actors_already_assigned_to_this_action()
+        actors_list = EvActor.objects.filter(pk__in=[l.actor.id for l in actors])
+        visualizations = EvVisualization.objects.filter(action=action)
+        act = []
+        for a in actors_list:
+            act.append({
+                    'name': a.name,
+                    'istitution': a.istitution,
+                    'contact_info': a.contact_info,
+                    'email': a.email,
+                    'phone': a.phone
+
+            })
+        vis = []
+        for v in visualizations:
+            vis.append({
+                'description': v.description,
+                'type': v.type,
+                'resource': v.resource,
+                'options': v.options
+            })
+        action_detail = {'data': {'action': {
+                                                'name': action.name,
+                                                'numcode': action.numcode,
+                                                'description': action.description,
+                                                'duration': action.duration,
+                                                'status': action.status,
+                                                'comment': action.comment
+                                            },
+                         'actors': act,
+                         'visualization': vis
+                        }
+                }
+        json_response = json.dumps(action_detail, separators=(',', ':'), sort_keys=True, cls=SetEncoder)
         return HttpResponse(json_response, mimetype='application/json;')
 
 
