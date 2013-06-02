@@ -41,6 +41,7 @@ Ext.define('Jites.view.Interface',{
                 xtype: 'container',
                 title: 'Action details',
                 disabled: true,
+                layout: 'fit',
                 id: 'actiondetails'
             },{
                 xtype: 'container',

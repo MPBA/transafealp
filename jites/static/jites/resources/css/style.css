@@ -5,6 +5,14 @@
     background-repeat: no-repeat;
     opacity: 1;
 }
+.jites-empty-area  {
+    background-color: #ffffff !important;
+    background-image: url("/static/jites/resources/images/empty_area_logo.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 1;
+    height: 100%;
+}
 .x-tab-disabled a {
     color: #808080 !important;
 }

@@ -18,7 +18,7 @@ Ext.define('Jites.view.ActionGraphLegend',{
         me.tpl = new Ext.XTemplate(
             '<div class="text-center">',
                 '<tpl for=".">',
-                    '<div class="{style}" style="margin-right: 10px;">',
+                    '<div class="{style}" style="margin-right: 10px;margin-left: 10px;">',
                         '<h6>{label}</h6>',
                     '</div>',
                 '</tpl>',

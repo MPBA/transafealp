@@ -18,7 +18,7 @@ Ext.define('Jites.controller.ActionGraph', {
         this.control({
             '#actiongraph': {
                 added:{
-                    fn: this.renderEventLog,
+                    fn: this.renderActionGraph,
                     scope: this,
                     single: true
                 }
@@ -29,12 +29,12 @@ Ext.define('Jites.controller.ActionGraph', {
                     scope: this,
                     single: true
                 }
-            },
+            }
         });
 
     },
 
-    renderEventLog: function(){
+    renderActionGraph: function(){
         var me = this,
             parent = me.getActiongraph();
 
@@ -206,12 +206,12 @@ Ext.define('Jites.controller.ActionGraph', {
 
         label.ondblclick = function(){
             //TODO register event in ActionDetails controller
-//            var app = Jites.getApplication();
-//            var ct = app.getController('ActionDetails');
-//
-//            ct.setActionDetailsToPanel();
-            console.log(node)
-            console.log(label)
+            var app = Jites.getApplication(),
+                ct = app.getController('ActionDetails'),
+                node_id;
+
+            node_id = node.id.split('node')[1];
+            ct.updateActionDetails(node_id);
         };
         //set label styles
         style.cursor = 'pointer';

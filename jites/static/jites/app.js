@@ -68,6 +68,7 @@ Ext.application({
         'JitesInterface',
         'EventLog',
         'ActionGraph',
+        'ActionDetails',
         'Webgis',
         'WebgisToolbar'
     ]

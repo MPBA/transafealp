@@ -15,7 +15,6 @@ from scenario.utility import Membership
 from .utility import make_tree, Actor_Action_Association, SetEncoder
 
 
-
 @login_required
 def dashboard(request, displaymode, event_id):
     context = {
@@ -152,23 +151,24 @@ class EventDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
         return HttpResponse(json_response, mimetype='application/json;')
 
 
-#class based view for json render Event (in the url: /jites/get_event/<idevent>)
+#class based view for json render Action (in the url: /jites/get_action/<idevent>)
 class ActionDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
     model = EvAction
 
     def get(self, request, *args, **kwargs):
         action = EvAction.objects.get(pk=kwargs['pk'])
-        actors = Actor_Action_Association(request.user, action.event.pk, action.pk).actors_already_assigned_to_this_action()
+        actors = Actor_Action_Association(request.user, action.event.pk,
+                                          action.pk).actors_already_assigned_to_this_action()
         actors_list = EvActor.objects.filter(pk__in=[l.actor.id for l in actors])
         visualizations = EvVisualization.objects.filter(action=action)
         act = []
         for a in actors_list:
             act.append({
-                    'name': a.name,
-                    'istitution': a.istitution,
-                    'contact_info': a.contact_info,
-                    'email': a.email,
-                    'phone': a.phone
+                'name': a.name,
+                'istitution': a.istitution,
+                'contact_info': a.contact_info,
+                'email': a.email,
+                'phone': a.phone
 
             })
         vis = []
@@ -179,18 +179,22 @@ class ActionDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
                 'resource': v.resource,
                 'options': v.options
             })
-        action_detail = {'data': {'action': {
-                                                'name': action.name,
-                                                'numcode': action.numcode,
-                                                'description': action.description,
-                                                'duration': action.duration,
-                                                'status': action.status,
-                                                'comment': action.comment
-                                            },
-                         'actors': act,
-                         'visualization': vis
-                        }
-                }
+        action_detail = {
+            'success': True,
+            'data': {
+                'action': {
+                    'name': action.name,
+                    'numcode': action.numcode,
+                    'description': action.description,
+                    'duration': action.duration,
+                    'status': action.status,
+                    'comment': action.comment
+                },
+                'actors': act,
+                'visualization': vis
+            }
+        }
+
         json_response = json.dumps(action_detail, separators=(',', ':'), sort_keys=True, cls=SetEncoder)
         return HttpResponse(json_response, mimetype='application/json;')
 
@@ -238,7 +242,7 @@ def tree_to_json(request, event_id):
                root_action.duration,
                root_action.status,
                root_action.comment
-               ])
+    ])
     for action in actions:
         pc.append([action.parent.id,
                    action.action.id,
@@ -248,7 +252,7 @@ def tree_to_json(request, event_id):
                    action.action.duration,
                    action.action.status,
                    action.action.comment
-                   ])
+        ])
 
     tree = make_tree(pc, root_action.id)
     json_response = json.dumps(dict(tree))
