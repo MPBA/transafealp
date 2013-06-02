@@ -22,6 +22,12 @@ Ext.define('Jites.controller.ActionDetails', {
                     scope: this,
                     single: true
                 }
+            },
+            'actiondetails': {
+                afterrender:{
+                    fn: this.addEventToStatusButton,
+                    scope: this
+                }
             }
         });
     },
@@ -60,5 +66,35 @@ Ext.define('Jites.controller.ActionDetails', {
                     ct.tpl.overwrite(ct.id,json);
             }
         });
+    },
+    addEventToStatusButton: function(container){
+        Ext.get(container.id).on('click', function(event, target) {
+            var content = $('#actiondetails-set-comment-area').val(),
+            status = target.getAttribute('status'),
+            action_id = target.getAttribute('action_id'),
+            csfr = Ext.util.Cookies.get('csrftoken');
+
+            Ext.Ajax.request({
+                url: '/jites/update_action_status/'+action_id,
+                params: {
+                    content: content,
+                    csrfmiddlewaretoken: csfr,
+                    status: status
+                },
+                success: function(response, opts) {
+//                    var json = Ext.decode(response.responseText),
+//                        ct = Ext.getCmp('actiondetailscontainer');
+//
+//                    ct.tpl.overwrite(ct.id,json);
+                },
+                failure: function(response, opts) {
+//                    console.log('server-side failure with status code ' + response.status);
+//                    var json = Ext.decode(response.responseText),
+//                        ct = Ext.getCmp('actiondetailscontainer');
+//
+//                    ct.tpl.overwrite(ct.id,json);
+                }
+            });
+        }, null, {delegate: 'button'});
     }
 });

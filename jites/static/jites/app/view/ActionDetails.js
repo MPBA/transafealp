@@ -26,8 +26,8 @@ Ext.define('Jites.view.ActionDetails',{
                             '<div><h1>{data.action.name}</h1></div>',
                             '<ul class="inline">',
                             '<li><div> {[ this.status(values.data.action) ]} </div></li>',
-                            '<tpl if="data.comment">',
-                            '<li>{data.comment}</li>',
+                            '<tpl if="data.action.comment">',
+                            '<li><em>{data.action.comment}</em></li>',
                             '</tpl>',
                             '</ul>',
                             '<hr/>',
@@ -61,6 +61,12 @@ Ext.define('Jites.view.ActionDetails',{
                                 '</li>',
                                 '</tpl>',
                             '</ul>',
+                            '<h3>Next available status <small>{data.action.next_status_reason}</small></h3>',
+                            '<ul class="inline">',
+                                '{[ this.next_status_button(values.data.action) ]}',
+                                '<textarea id="actiondetails-set-comment-area" class="span12" rows="3" style="margin-top: 12px;',
+                                ' placeholder="Add comments to next action status change...""></textarea>',
+                            '</ul>',
                         '</div>',
                     '</div>',
             '   </div>',
@@ -81,6 +87,35 @@ Ext.define('Jites.view.ActionDetails',{
 
                     html = Ext.String.format('<div class="{0}"><h6>{1}</h6></div>', style, label);
                     return html;
+                },
+                next_status_button: function(action){
+                    var status = action.next_status,
+                        app = Jites.getApplication(),
+                        ct = app.getController('ActionGraph'),
+                        pk = action.pk
+                        result = [];
+
+                    //create a html button for all element in status (array)
+                    Ext.Array.each(status,
+                        function(el){
+                            var btn,
+                                btn_label,
+                                act;
+
+                            //todo is necessary for maintaining  the compatibility whit action structure
+                            act = {
+                                status: el
+                            };
+
+                            //retrive btn style class and btn label
+                            btn = ct.getBtnFromStatus(act);
+                            btn_label = ct.getLabelFromStatus(act);
+
+                            result.push(Ext.String.format('<li><button class="{0}" status="{2}" action_id="{3}">{1}</button></li>',btn, btn_label, el, pk));
+                        }
+                    );
+
+                    return result.join("");
                 }
             }
         );

@@ -149,6 +149,17 @@ Ext.define('Jites.controller.ActionGraph', {
 
         return style;
     },
+    getBtnFromStatus: function(data){
+        var me = this,
+            status = me.getAvailableStatus(),
+            pluck = Ext.Array.pluck(status,'id'),
+            index = Ext.Array.indexOf(pluck,data.status),
+            style;
+
+        style = status[index] ? status[index]['btn'] : 'btn btn-inverse';
+
+        return style;
+    },
     getLabelFromStatus: function(data){
         var me = this,
             status = me.getAvailableStatus(),
@@ -166,29 +177,34 @@ Ext.define('Jites.controller.ActionGraph', {
         status.push({
             'id': 'non executable',
             'label': 'Non executable',
-            'style': 'label'
+            'style': 'label',
+            'btn': 'btn'
         },{
             'id': 'executable',
             'label': 'Executable',
-            'style': 'label label-info'
+            'style': 'label label-info',
+            'btn': 'btn btn-info'
         },{
             'id': 'running',
             'label': 'Running',
-            'style': 'label label-warning'
+            'style': 'label label-warning',
+            'btn': 'btn btn-warning'
         },{
             'id': 'terminated (success)',
             'label': 'Terminated (success)',
-            'style': 'label label-success'
+            'style': 'label label-success',
+            'btn': 'btn btn-success'
         },{
             'id': 'terminated (not needed)',
-                'label': 'Terminated (not needed)',
-                'style': 'label label-not-needed'
+            'label': 'Terminated (not needed)',
+            'style': 'label label-not-needed',
+            'btn': 'btn btn-not-needed'
         },{
             'id': 'terminated (failed)',
             'label': 'Terminated (failed)',
-            'style': 'label label-important'
+            'style': 'label label-important',
+            'btn': 'btn btn-danger'
         });
-        a=status;
         return status;
     },
     setLabelNode: function(label,node){

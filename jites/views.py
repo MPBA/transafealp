@@ -155,6 +155,20 @@ class ActionDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
     model = EvAction
 
     def get(self, request, *args, **kwargs):
+        try:
+            cursor = connection.cursor()
+            cursor.execute(
+                'select *'
+                ' from '
+                'ev_action_next_status(%s)',
+                [kwargs['pk']])
+        except DatabaseError, e:
+            transaction.rollback()
+            return HttpResponse(str(e))
+
+        row = cursor.fetchone()
+        cursor.close()
+
         action = EvAction.objects.get(pk=kwargs['pk'])
         actors = Actor_Action_Association(request.user, action.event.pk,
                                           action.pk).actors_already_assigned_to_this_action()
@@ -167,8 +181,7 @@ class ActionDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
                 'istitution': a.istitution,
                 'contact_info': a.contact_info,
                 'email': a.email,
-                'phone': a.phone
-
+                'phone': a.phone,
             })
         vis = []
         for v in visualizations:
@@ -182,12 +195,15 @@ class ActionDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
             'success': True,
             'data': {
                 'action': {
+                    'pk': action.pk,
                     'name': action.name,
                     'numcode': action.numcode,
                     'description': action.description,
                     'duration': action.duration,
                     'status': action.status,
-                    'comment': action.comment
+                    'comment': action.comment,
+                    'next_status': row[0],
+                    'next_status_reason': row[1],
                 },
                 'actors': act,
                 'visualization': vis
@@ -197,6 +213,27 @@ class ActionDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
         json_response = json.dumps(action_detail, separators=(',', ':'), sort_keys=True, cls=SetEncoder)
         return HttpResponse(json_response, mimetype='application/json;')
 
+#standard view for adding message to event
+@login_required()
+def update_action_status(request, pk):
+    action = EvAction.objects.get(pk=pk)
+    if request.method == "POST" and request.is_ajax():
+        action.status = request.POST['status']
+        action.comment = request.POST['content']
+        action.save()
+
+        msg = {
+            "success": True
+        }
+
+    else:
+        msg = {
+            "success": False,
+            "message": "GET request are not allowed for this view."
+        }
+
+    json_response = json.dumps(msg)
+    return HttpResponse(json_response, mimetype="application/json;")
 
 #standard view for adding message to event
 @login_required()
