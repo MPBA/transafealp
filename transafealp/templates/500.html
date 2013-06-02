@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block extrahead %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+           window.setTimeout(function() {
+           window.location.href = '/';
+            }, 5000);
+        });
+    </script>
+{% endblock %}
+{% block title %}Page not found{% endblock %}
+{% block content %}	
+<h1>Page not found</h1>
+<p>Sorry, but the requested page could not be found.</p>
+{% endblock %}

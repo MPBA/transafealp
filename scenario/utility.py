@@ -54,7 +54,7 @@ class Actor_Action_Association(object):
             actors = ActionM2MActor.objects.filter(action__scenario__managing_authority=Membership(self.user).
                                                    membership_auth, action__scenario=self.scenario).\
                                                    filter(action=self.action).order_by('actor__name')
-        except ActionM2MActor.DoesNotExists:
+        except ActionM2MActor.DoesNotExist:
             actors = None
         return actors
 

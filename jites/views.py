@@ -1,5 +1,4 @@
 # Create your views here.
-#from datetime import datetime
 from django.utils import timezone
 from django.db import transaction, connection, DatabaseError
 from django.http import HttpResponse
