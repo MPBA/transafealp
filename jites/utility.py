@@ -1,8 +1,9 @@
 # -*- encoding: utf-8 -*-
 __author__ = 'ernesto (arbitrio@fbk.eu)'
-from .models import EvActionM2MActor, EvActor
+from .models import EvActionM2MActor, EvActor, EvAction, EvVisualization
 from scenario.utility import Membership
 import json
+from django.db import transaction, connection, DatabaseError
 
 
 class SetEncoder(json.JSONEncoder):
@@ -74,3 +75,63 @@ def make_tree(pc_list, root_node):
 
     # assuming we wanted node id #0 as the top of the tree
     return results[root_node]
+
+
+def actiondetail_json(user, event_id):
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            'select *'
+            ' from '
+            'ev_action_next_status(%s)',
+            [event_id])
+    except DatabaseError, e:
+        transaction.rollback()
+        pass
+
+    row = cursor.fetchone()
+    cursor.close()
+
+    action = EvAction.objects.get(pk=event_id)
+    actors = Actor_Action_Association(user, action.event.pk,
+                                      action.pk).actors_already_assigned_to_this_action()
+    actors_list = EvActor.objects.filter(pk__in=[l.actor.id for l in actors])
+    visualizations = EvVisualization.objects.filter(action=action)
+    act = []
+    for a in actors_list:
+        act.append({
+            'name': a.name,
+            'istitution': a.istitution,
+            'contact_info': a.contact_info,
+            'email': a.email,
+            'phone': a.phone,
+        })
+    vis = []
+    for v in visualizations:
+        vis.append({
+            'description': v.description,
+            'type': v.type,
+            'resource': v.resource,
+            'options': v.options
+        })
+    action_detail = {
+        'success': True,
+        'data': {
+            'action': {
+                'pk': action.pk,
+                'name': action.name,
+                'numcode': action.numcode,
+                'description': action.description,
+                'duration': action.duration,
+                'status': action.status,
+                'comment': action.comment,
+                'next_status': row[0],
+                'next_status_reason': row[1],
+            },
+            'actors': act,
+            'visualization': vis
+        }
+    }
+
+    json_response = json.dumps(action_detail, separators=(',', ':'), sort_keys=True, cls=SetEncoder)
+    return json_response

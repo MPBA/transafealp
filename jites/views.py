@@ -12,7 +12,7 @@ from django.views.generic.detail import BaseDetailView
 from mixin import LoginRequiredMixin, JSONResponseMixin
 from .models import Event, EvMessage, EvAction, EvActionGraph, EvVisualization, EvActor
 from scenario.utility import Membership
-from .utility import make_tree, Actor_Action_Association, SetEncoder
+from .utility import make_tree, Actor_Action_Association, SetEncoder, actiondetail_json
 
 
 @login_required
@@ -224,11 +224,11 @@ def update_action_status(request, pk):
         action.save()
 
         #in action_detail ha il json che ti serve
-        action_detail = ActionDetailView.as_view()(request, pk=pk)
-        print action_detail
+        action_detail = actiondetail_json(request.user, pk)
+
         msg = {
             "success": True,
-            # "data": action_detail
+            "data": action_detail
         }
 
     else:
@@ -237,7 +237,7 @@ def update_action_status(request, pk):
             "message": "GET request are not allowed for this view."
         }
 
-    json_response = json.dumps(msg)
+    json_response = json.dumps(msg, separators=(',', ':'), sort_keys=True, cls=SetEncoder)
     return HttpResponse(json_response, mimetype="application/json;")
 
 #standard view for adding message to event

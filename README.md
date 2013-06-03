@@ -32,6 +32,7 @@ authorities have a tool that can simplify the choices of action and information 
 * git+http://github.com/MPBAUnofficial/plrutils.git@master#egg=plrutils
 * PIL
 * psutil
+* httplib2
 
 ```python
     pip install -r transafealp/requirements.txt
