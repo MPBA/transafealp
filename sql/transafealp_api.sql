@@ -34,6 +34,7 @@ select * from graph_action(
 	1000 --image height
 );*/
 
+
 --starts a new event for a given scenario
 DROP FUNCTION IF EXISTS start_event (text,boolean,Geometry(Point,3035)) CASCADE;
 CREATE OR REPLACE FUNCTION start_event (scenario_name text, is_real boolean, event_geom Geometry(Point,3035))
@@ -105,8 +106,8 @@ BEGIN
 		WHERE a.scenario_id = scen.id AND ea.event_id = ev.id AND ear.event_id = ev.id;
 
 	--mark root action as terminated
-	UPDATE ev_action SET status = 'executable' WHERE id = ev.id AND name = 'root';
-	UPDATE ev_action SET status = 'terminated (success)' WHERE id = ev.id AND name = 'root';
+	UPDATE ev_action SET status = 'executable' WHERE event_id = ev.id AND name = 'root';
+	UPDATE ev_action SET status = 'terminated (success)' WHERE event_id = ev.id AND name = 'root';
 	
 	ANALYZE ev_action;
 	ANALYZE ev_visualization;
@@ -148,6 +149,21 @@ LANGUAGE plpgsql;
 --Example of usage
 --select * from ev_action_next_status(1,'root');
 --select * from ev_action_next_status(1,'Fuffy');
+
+
+--prints available action status (wraps around function used in trigger)
+DROP FUNCTION IF EXISTS ev_action_next_status_gui(BIGINT) CASCADE;
+CREATE OR REPLACE FUNCTION ev_action_next_status_gui(action_id BIGINT, OUT available_statuses TEXT[], OUT reason TEXT) AS
+$BODY$
+DECLARE
+	avs TEXT[];
+BEGIN
+	SELECT INTO avs,reason * from ev_action_next_status(action_id);
+	SELECT INTO available_statuses array(SELECT unnest(avs) EXCEPT SELECT 'non executable'::text);
+	RETURN;
+END
+$BODY$
+LANGUAGE plpgsql;
 
 
 -- since pl/r is an untrusted language pl/r functions need superuser
