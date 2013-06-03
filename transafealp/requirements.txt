@@ -17,3 +17,5 @@ git+http://github.com/MPBAUnofficial/plrutils.git@master#egg=plrutils
 #Python imaging library
 PIL
 psutil
+#proxy for runtime wms
+httplib2

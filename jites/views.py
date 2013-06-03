@@ -223,9 +223,12 @@ def update_action_status(request, pk):
         action.comment = request.POST['content']
         action.save()
 
+        #in action_detail ha il json che ti serve
+        action_detail = ActionDetailView.as_view()(request, pk=pk)
+        print action_detail
         msg = {
             "success": True,
-
+            # "data": action_detail
         }
 
     else:
@@ -269,7 +272,6 @@ def save_event_message(request, event_id):
 def tree_to_json(request, event_id):
     event = Event.objects.get(pk=event_id, managing_authority=Membership(request.user).membership_auth)
     root_action = EvAction.objects.get(event=event, name='root')
-
     actions = EvActionGraph.objects.filter(action__event=event, parent__event=event, is_main_parent=True)
     pc = ([])
     pc.append([root_action.id,
@@ -294,7 +296,9 @@ def tree_to_json(request, event_id):
 
     tree = make_tree(pc, root_action.id)
     json_response = json.dumps(dict(tree))
+
     return HttpResponse(json_response, mimetype='text/javascript;')
+
 
 @csrf_exempt
 @login_required
