@@ -59,8 +59,9 @@ Ext.define('Jites.controller.ActionGraph', {
     },
     initJit: function(container){
         //TODO implement ajax request to get real task tree
-        var me = this;
-        parent = me.getActiongraph();
+        var me = this,
+        parent = me.getActiongraph(),
+        offset = ((parent.getWidth()/2)-120);
 
         parent.setDisabled(true);
 
@@ -68,6 +69,9 @@ Ext.define('Jites.controller.ActionGraph', {
         me.st = new $jit.ST({
             //id of container element
             injectInto: container.id,
+//            set alignment
+//            align: 'left',
+            offsetX: offset,
             //set duration for the animation
             duration: 700,
             //set animation transition type

@@ -6,6 +6,7 @@ from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 import json
+from django.views.decorators.csrf import csrf_exempt
 from scenario.models import Scenario, ScenarioSubcategory
 from django.views.generic.detail import BaseDetailView
 from mixin import LoginRequiredMixin, JSONResponseMixin
@@ -123,7 +124,7 @@ class EventDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
             cursor.execute(
                 'select '
                 'ST_X(ST_Transform(event_geom,900913)) as event_x,'
-                'ST_X(ST_Transform(event_geom,900913)) as event_y '
+                'ST_Y(ST_Transform(event_geom,900913)) as event_y '
                 'from event where id = %s',
                 [kwargs['pk']])
         except DatabaseError, e:
@@ -140,8 +141,8 @@ class EventDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
                          'category_name': qs.category_name,
                          'event_description': qs.event_description,
                          'time_start': str(qs.time_start),
-                         'lat': row[0],
-                         'lon': row[1]
+                         'lon': row[0],
+                         'lat': row[1]
         },
                 'success': 'true'
         }
@@ -223,7 +224,8 @@ def update_action_status(request, pk):
         action.save()
 
         msg = {
-            "success": True
+            "success": True,
+
         }
 
     else:
@@ -293,3 +295,16 @@ def tree_to_json(request, event_id):
     tree = make_tree(pc, root_action.id)
     json_response = json.dumps(dict(tree))
     return HttpResponse(json_response, mimetype='text/javascript;')
+
+@csrf_exempt
+@login_required
+def proxy(request):
+    import httplib2
+
+    conn = httplib2.Http()
+
+    url = request.GET['url']
+    if request.method == 'GET':
+        response, content = conn.request(url, request.method)
+
+    return HttpResponse(content, status=int(response['status']), mimetype=response['content-type'])

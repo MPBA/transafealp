@@ -16,4 +16,6 @@ urlpatterns = patterns('jites.views',
    (r'tree/to/json/(?P<event_id>\d+)/$', 'tree_to_json'),
    (r'get_action/(?P<pk>\d+)$', ActionDetailView.as_view() ),
 
+   (r'^proxy/', 'proxy'),
+
 )
