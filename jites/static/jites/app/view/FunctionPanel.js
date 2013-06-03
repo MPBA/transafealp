@@ -40,9 +40,10 @@ Ext.define('Jites.view.FunctionPanel', {
             border: false,
             baseCls: 'x-panel-body',
             margin: '0 0 20 0',
+            height: 50,
             componentCls: 'x-panel-body'
 //            items: btn
-        }]
+        }];
 
         this.callParent(arguments);
     },

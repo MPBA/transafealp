@@ -162,6 +162,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.formtools',
     'django.contrib.webdesign',
+
     #»»»»»»»»»»»»»»» transafealp apps »»»»»»»»»»»»»»»»
     'scenario',
 )

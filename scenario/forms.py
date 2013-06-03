@@ -73,3 +73,12 @@ class StartActionForm(forms.Form):
         # now customize the field
         self.fields['category'].queryset = category
         self.fields['managing_authority'].queryset = managing_authority
+
+class SelectScenarioForm(forms.Form):
+    scenario = forms.ModelChoiceField(queryset=Scenario.objects.all().order_by('name'), widget=forms.Select(attrs={'required': 'True'}))
+
+    def __init__(self, scenarios, *args, **kwargs):
+        #print managing_authority
+        # call the standard init first
+        super(SelectScenarioForm, self).__init__(*args, **kwargs)
+        self.fields['scenario'].queryset = scenarios

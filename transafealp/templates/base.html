@@ -1,3 +1,4 @@
+{% load transafealp_tags %}
 <!DOCTYPE html>
 <!-- ========================Page Description======================== -->
 <!-- This page is the base template for all the other extended template of all
@@ -33,12 +34,15 @@ In this file there are all the importing string command for js and css files.-->
     <script>
         $(window).load(function(){
             /*script js for loading image before page load*/
-            $(".loading").delay(1000) /*to remove*/
-            $(".loading").hide();
+            {% block loadingfnc %}
+                $(".loading").delay(1000) /*to remove*/
+                $(".loading").hide();
+
 
             $("#id_navbar").fadeIn("slow"); /*show the navbar*/
             $("#id_containerfluid").fadeIn("slow");/*show the container*/
             $("#footer").fadeIn("slow"); /*show the footer*/
+            {% endblock %}
         });
 
         jQuery(document).ready(function() {
@@ -82,7 +86,7 @@ In this file there are all the importing string command for js and css files.-->
             <!-- endblock auth section -->
             {% block menu %}
             <ul class="nav">
-              <li class="active" ><a href="/">Home</a></li>
+              <li class="{% active_pattern request '^/$' %}" ><a href="/">Home</a></li>
               <li><a href="#about">About</a></li>
               <li><a href="#contact">Contact</a></li>
             </ul>
@@ -106,17 +110,32 @@ In this file there are all the importing string command for js and css files.-->
                 <ul class="nav nav-list">
                   {% if request.session.ma %}
                   <li class="nav-header">Scenario</li>
-                  <li><a href="{% url 'scenario.views.scenario_add' %}">Add Scenario</a></li>
-                  <li><a href="{% url 'scenario.views.scenario_list' %}">Scenarios List</a></li>
+                  <li class="{% active request 'scenario.views.scenario_add' %}">
+                      <a href="{% url 'scenario.views.scenario_add' %}">Add Scenario</a>
+                  </li>
+                  <li class="{% active request 'scenario.views.scenario_list' %}">
+                      <a href="{% url 'scenario.views.scenario_list' %}" >Scenarios List</a>
+                  </li>
                   <li class="divider"></li>
                   <li class="nav-header">Actors</li>
-                  <li><a href="{% url 'scenario.views.actors_list' %}">Actors List</a></li>
+                  <li class="{% active request 'scenario.views.actors_list' %}">
+                      <a href="{% url 'scenario.views.actors_list' %}">Actors List</a>
+                  </li>
+                  <li class="{% active request 'scenario.views.select_scenario' %}">
+                      <a href="{% url 'scenario.views.select_scenario' %}">Add Actors</a>
+                  </li>
                   <li class="divider"></li>
                   {% endif %}
 
                   <li class="nav-header">Tools</li>
-                  <li><a href="{% url 'scenario.views.search_event' 'simulation' %}">Simulations</a></li>
-                  <li><a href="{% url 'scenario.views.search_event' 'emergency' %}">Emergencies</a></li>
+                  {% url 'scenario.views.search_event' 'simulation' as simulation %}
+                  <li class="{% active_pattern request simulation %}">
+                      <a href="{% url 'scenario.views.search_event' 'simulation' %}">Simulations</a>
+                  </li>
+                  {% url 'scenario.views.search_event' 'emergency' as emergency %}
+                  <li class="{% active_pattern request emergency  %}">
+                      <a href="{% url 'scenario.views.search_event' 'emergency' %}">Emergencies</a>
+                  </li>
                   <li class="divider"></li>
                   <li class="nav-header">HowTo</li>
                   <li class="dropdown-submenu">

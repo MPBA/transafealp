@@ -23,7 +23,7 @@ Ext.define('Jites.view.LogAnnotation', {
             '<div class="row-fluid">',
             '<div class="span8 offset2">',
             '<div class="controls controls-row">',
-                    '<textarea class="span12" rows="3"></textarea>',
+                    '<textarea id="logannotation-area" class="span12" rows="3" data-validation-required-message="This field cannot be blank" required></textarea>',
             '</div>',
             '<div  class="form-actions">',
                 '<button id="logannotation-submit" type="submit" class="btn btn-primary">Add annotation</button>',

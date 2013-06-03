@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+    <link href="{% static 'select2/select2.css' %}" rel="stylesheet"/>
+    <script src="{% static 'select2/select2.js' %}"></script>
+    <script>
+        $(document).ready(function() { $("#id_actions").select2(); });
+    </script>
+    <script type="text/javascript" src="{% static 'js/jquery.fancybox-1.3.4.pack.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/jquery.fancybox-1.3.4.css'%}" type="text/css" media="screen" />
+    <script type="text/javascript">
+    $(document).ready(function() {
+	    $("#iframe").fancybox({
+               'width'         : '55%',
+               'height'        : '70%',
+               'autoScale'     : true,
+               'transitionIn'  : 'none',
+               'transitionOut' : 'none',
+               'type'          : 'iframe',
+               'hideOnOverlayClick': false
+
+        });
+    });
+
+    $(function(ready){
+      $('.checkall').click(function () {
+        $(this).closest('table').find('input[type=checkbox]').prop('checked', this.checked);
+      });
+
+      $('#id_actions').change(function() {
+        $('#actform').submit();
+      });
+
+      var checkboxes = $("input[type='checkbox']");
+      var submitButt = $("#id_submit_add");
+      checkboxes.click(function() {
+        submitButt.attr("disabled", !checkboxes.is(":checked"));
+      });
+    });
+    </script>
+{% endblock %}
+
+{% block content %}
+
+     {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if oneaction == 1 %}
+
+        <script type="text/javascript">
+
+        jQuery(document).ready(function() {
+            $('#id_actions option[value=""]').remove();
+            if ( {{ stop }} == 0 ) {
+                $('#actform').submit();
+            }
+
+            });
+        </script>
+    {% endif %}
+
+    <form id="actform" method="POST">
+    <fieldset>
+        <legend>(Step 4/5) - Actors association</legend>
+    </fieldset>
+        {% csrf_token %}
+        <label><strong>Action</strong></label>
+        {{ form.actions }}
+    </form>
+
+    {% if request.POST %}
+        <table class="table table-striped table-bordered" id="scenarios" >
+        <caption>Actors available for {{ action.name }} (Scenario: {{ scenario.name }})</caption>
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="checkall" class="checkall"></th>
+                    <th style="width: 3%">#</th>
+                    <th style="width: 25%">Name</th>
+                    <th style="width: 40%">Istitution</th>
+                    <th style="width: 70%">Scenario</th>
+                    <th style="width: 20%">Email</th>
+                    <th style="width: 20%">Phone</th>
+                </tr>
+            </thead>
+            <tbody>
+                <form method="POST" id="id_form_actor">
+                <input type="hidden" name="actions" value="{{ action.pk }}">
+                {% csrf_token %}
+                {% for actor in actors_av %}
+                    <tr>
+                        <td><input type="checkbox" value="{{ actor.pk }}" id="id_actor_{{ actor.pk }}" name="actor_id"></td>
+                        <td>{{ actor.pk }}</td>
+                        <td>{{ actor.name|capfirst }}</td>
+                        <td>{{ actor.istitution|capfirst|truncatechars:50 }}</td>
+                        <td>{{ action.scenario }}</td>
+                        <td>{{ actor.email }}</td>
+                        <td>{{ actor.phone }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+         <div class="form-actions pagination-centered">
+            <input type="submit" value="Add selected Actors" name="add" id="id_submit_add" class="btn btn-info" disabled>
+                <a href="{% url 'scenario.views.actors_add_popup' scenario.id %}" id="iframe">
+                    <button value="Add a new Actor" class="btn btn-success pull-right">
+                        <img src="{% static 'img/users.png' %}"> Add a new Actor +
+                    </button>
+                </a>
+         </div>
+        </form>
+
+    <table class="table table-striped table-bordered" id="scenarios" >
+    <caption>Actors already assigned for {{ action.name }} (Scenario: {{ scenario.name }})</caption>
+        <thead>
+            <tr>
+                <th style="width: 3%">#</th>
+                <th style="width: 25%">Name</th>
+                <th style="width: 30%">Istitution</th>
+                <th style="width: 20%">Email</th>
+                <th style="width: 18%">Phone</th>
+                <th style="width: 10%"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <form method="POST" id="id_form_actor">
+            {% for actor in actors_aa %}
+                <tr>
+                    <td>{{ actor.pk }}</td>
+                    <td>{{ actor.actor.name|capfirst }}</td>
+                    <td>{{ actor.actor.istitution|capfirst|truncatechars:50 }}</td>
+                    <td>{{ actor.actor.email }}</td>
+                    <td>{{ actor.actor.phone }}</td>
+                    <td>
+                        <a href="{% url 'scenario.views.delete_actor_action' actor.pk %}"
+                           onclick="return confirm('You are deleting {{ actor.actor.name }} association! Are you sure?')">
+                            <img src="{% static 'img/delete.png' %}">
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </form>
+        </tbody>
+    </table>
+        {% endif %}
+
+    <div class="form-actions">
+        <a href="{% url 'scenario.views.visualization' scenario.id %}"><button class="btn btn-primary pull-right">Attachment & Visualization >></button></a>
+    </div>
+{% endblock %}

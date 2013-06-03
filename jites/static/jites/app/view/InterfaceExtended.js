@@ -37,6 +37,7 @@ Ext.define('Jites.view.InterfaceExtended',{
                 xtype: 'container',
                 id: 'actiondetails',
                 disabled: true,
+                layout: 'fit',
                 width: me.componentSize.wRow1,
                 height: me.componentSize.hRow1
             },{

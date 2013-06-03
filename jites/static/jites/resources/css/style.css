@@ -5,6 +5,14 @@
     background-repeat: no-repeat;
     opacity: 1;
 }
+.jites-empty-area  {
+    background-color: #ffffff !important;
+    background-image: url("/static/jites/resources/images/empty_area_logo.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 1;
+    height: 100%;
+}
 .x-tab-disabled a {
     color: #808080 !important;
 }
@@ -14,4 +22,81 @@
 .x-tab-default a {
     color: #000000;
 
+}
+
+.x-toolbar-pan {
+    background-image: url("../images/icons/pan25.png") !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+.x-toolbar-zoomin {
+    background-image: url("../images/icons/zoomin25.png") !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+.x-toolbar-zoommax {
+    background-image: url("../images/icons/zoommax25.png") !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+.x-toolbar-zoomout {
+    background-image: url("../images/icons/zoomout25.png") !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+.x-toolbar-navprevious {
+    background-image: url("../images/icons/navprevious25.png") !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+.x-toolbar-navnext {
+    background-image: url("../images/icons/navnext25.png") !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+.x-toolbar-getmouseposition {
+    background-image: url("../images/icons/getmouseposition25.png") !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+.x-toolbar-getlocation {
+    background-image: url("../images/icons/getlocation25.png") !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+.x-toolbar-getfeatureinfo {
+    background-image: url("../images/icons/info.png") !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+.x-button-maptoolbar {
+    /*width: 32px !important;*/
+    /*height: 32px  !important;*/
+    background: white none !important;
+    border: 1px solid black !important;
+}
+#toolbarpanel .x-btn-pressed {
+    background-color: #99BBE8 !important;
+}
+.x-btn-pressed button .x-btn-icon {
+    /*filter: invert();*/
+    /*-webkit-filter: invert();*/
+}
+.x-button-maptoolbar .x-btn-icon {
+    width: 100% !important;
+    height: 100% !important;
+}
+.olControlMousePosition{
+    font-family: Museo500, tahoma, arial, verdana, sans-serif !important;
+    bottom: 15px !important;
+    right: 10px !important;
+    text-shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;
+    filter:progid:DXImageTransform.Microsoft.Shadow(color=#FFFFFF,direction=135,strength=2);
+    filter:
+        progid:DXImageTransform.Microsoft.Shadow(color=#FFFFFF,direction=135,strength=2);
+    progid:DXImageTransform.Microsoft.Shadow(color=#FFFFFF,direction=315,strength=2);
+}
+
+.label-not-needed {
+    background-color: #84c085;
 }

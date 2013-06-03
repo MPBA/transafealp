@@ -18,7 +18,7 @@ Ext.define('Jites.controller.ActionGraph', {
         this.control({
             '#actiongraph': {
                 added:{
-                    fn: this.renderEventLog,
+                    fn: this.renderActionGraph,
                     scope: this,
                     single: true
                 }
@@ -34,7 +34,7 @@ Ext.define('Jites.controller.ActionGraph', {
 
     },
 
-    renderEventLog: function(){
+    renderActionGraph: function(){
         var me = this,
             parent = me.getActiongraph();
 
@@ -42,8 +42,12 @@ Ext.define('Jites.controller.ActionGraph', {
         parent.add(
             Ext.create('Jites.view.GenericTitle',{
                 data: {
-                    text: 'Event CP/FF/10 Frejus Italy' //TODO connect whit real event name
+                    text: Ext.String.format('Event {0} [{1} -> {2}]',Jites.event.event_name, Jites.event.category_name,
+                        Jites.event.subcategory_name )
                 }
+            }),
+            Ext.create('Jites.view.ActionGraphLegend',{
+                data: me.getAvailableStatus()
             }),
             Ext.create('Jites.view.ActionGraphArea',{
                 flex: 1
@@ -55,92 +59,10 @@ Ext.define('Jites.controller.ActionGraph', {
     },
     initJit: function(container){
         //TODO implement ajax request to get real task tree
-        var me = this,
-            json = {
-            id: 'node1',
-            name: 'ACT1. avvisare tutti',
-            data: {
-                numcode: '11',
-                desc: 'Test test test',
-                status: 'success'
-            },
-            children:[{
-                id: 'node2',
-                name: 'ACT2',
-                data: {
-                    numcode: '11',
-                    desc: 'Test test test',
-                    status: 'success'
-                },
-                children:[{
-                    id: 'node3',
-                    name: 'ACT3 - VVFF arrive at the tunnel',
-                    data: {
-                        numcode: '11',
-                        desc: 'Test test test',
-                        status: 'success'
-                    },
-                    children:[{
-                        id: 'node8',
-                        data: {
-                            numcode: '11',
-                            desc: 'Test test test',
-                            status: 'success'
-                        },
-                        name: 'ACT8 - tutti morti'
-                    },{
-                        id: 'node9',
-                        data: {
-                            numcode: '11',
-                            desc: 'Test test test',
-                            status: 'success'
-                        },
-                        name: 'ACT9'
-                    },{
-                        id: 'node10',
-                        data: {
-                            numcode: '11',
-                            desc: 'Test test test',
-                            status: 'success'
-                        },
-                        name: 'ACT10 - todo todo'
-                    }]
-                },{
-                    id: 'node4',
-                    data: {
-                        numcode: '11',
-                        desc: 'Test test test',
-                        status: 'success'
-                    },
-                    name: 'ACT4'
-                },{
-                    id: 'node7',
-                    data: {
-                        numcode: '11',
-                        desc: 'Test test test',
-                        status: 'success'
-                    },
-                    name: 'ACT7 - todo todo'
-                }]
-            },{
-                id: 'node5',
-                name: 'ACT5',
-                data: {
-                    numcode: '11',
-                    desc: 'Test test test',
-                    status: 'success'
-                },
-                children:[{
-                    id: 'node6',
-                    data: {
-                        numcode: '11',
-                        desc: 'Test test test',
-                        status: 'success'
-                    },
-                    name: 'ACT6'
-                }]
-            }]
-        };
+        var me = this;
+        parent = me.getActiongraph();
+
+        parent.setDisabled(true);
 
         //Create a new ST (spacetree) instance
         me.st = new $jit.ST({
@@ -166,16 +88,16 @@ Ext.define('Jites.controller.ActionGraph', {
 
             //set node and edge styles
             Node: {
-                color: '#ff3',
+                color: '#FFFFFF',
                 overridable: true,
-                width: 210,
+                width:  Jites.ACTIONGRAPHLABELWIDHT,
                 height: 43
             },
 
             Label: {
                 style: 'bold',
                 size: 10,
-                color: '#333'
+                color: '#FFFFFF'
             },
 
             //set edge (connection) styles
@@ -190,52 +112,125 @@ Ext.define('Jites.controller.ActionGraph', {
             onCreateLabel: me.setLabelNode
         });
 
-        //load json data
-        me.st.loadJSON(json);
 
-        //compute node positions and layout
-        me.st.compute();
+        Ext.Ajax.request({
+            url: 'jites/tree/to/json/'+Jites.EVENTID,
+            success: function(response, opts) {
+                var json = Ext.decode(response.responseText);
 
-        //emulate a click on the root node to expand the graph
-        me.st.onClick(me.st.root);
+                //load json data
+                me.st.loadJSON(json);
+
+                //compute node positions and layout
+                me.st.compute();
+
+                //emulate a click on the root node to expand the graph
+                me.st.onClick(me.st.root);
+
+                //Enable eventlog panel
+                parent.setDisabled(false);
+            },
+            failure: function(response, opts) {
+                console.log('server-side failure with status code ' + response.status);
+            }
+        });
 //
 //        top.onchange = left.onchange = bottom.onchange = right.onchange = changeHandler;
 //        //end
     },
-    getClassName: function(node){
-        var data = node.data,
+    getStyleFromStatus: function(data){
+        var me = this,
+            status = me.getAvailableStatus(),
+            pluck = Ext.Array.pluck(status,'id'),
+            index = Ext.Array.indexOf(pluck,data.status),
             style;
-        if (data.status == 'closed'){
-            style = 'label label-succes'
-        } else if (data.status == 'running'){
-            style = 'label label-warning'
-        } else if (data.status == 'tobe'){
-            style = 'label'
-        } else {
-            style = 'label label-info'
-        }
+
+        style = status[index] ? status[index]['style'] : 'label label-inverse';
 
         return style;
+    },
+    getBtnFromStatus: function(data){
+        var me = this,
+            status = me.getAvailableStatus(),
+            pluck = Ext.Array.pluck(status,'id'),
+            index = Ext.Array.indexOf(pluck,data.status),
+            style;
+
+        style = status[index] ? status[index]['btn'] : 'btn btn-inverse';
+
+        return style;
+    },
+    getLabelFromStatus: function(data){
+        var me = this,
+            status = me.getAvailableStatus(),
+            pluck = Ext.Array.pluck(status,'id'),
+            index = Ext.Array.indexOf(pluck,data.status),
+            label;
+
+        label = status[index] ? status[index]['label'] : 'Status is not available';
+
+        return label;
+    },
+    getAvailableStatus: function(){
+        var status = new Array();
+
+        status.push({
+            'id': 'non executable',
+            'label': 'Non executable',
+            'style': 'label',
+            'btn': 'btn'
+        },{
+            'id': 'executable',
+            'label': 'Executable',
+            'style': 'label label-info',
+            'btn': 'btn btn-info'
+        },{
+            'id': 'running',
+            'label': 'Running',
+            'style': 'label label-warning',
+            'btn': 'btn btn-warning'
+        },{
+            'id': 'terminated (success)',
+            'label': 'Terminated (success)',
+            'style': 'label label-success',
+            'btn': 'btn btn-success'
+        },{
+            'id': 'terminated (not needed)',
+            'label': 'Terminated (not needed)',
+            'style': 'label label-not-needed',
+            'btn': 'btn btn-not-needed'
+        },{
+            'id': 'terminated (failed)',
+            'label': 'Terminated (failed)',
+            'style': 'label label-important',
+            'btn': 'btn btn-danger'
+        });
+        return status;
     },
     setLabelNode: function(label,node){
         var id = node.id,
             data = node.data,
             style = label.style,
+            app = Jites.getApplication(),
+            ct = app.getController('ActionGraph'),
             text;
 
         label.id = id;
         label.innerHTML = '<h4>' + Ext.String.ellipsis(node.name, 25, true) + '</h4>';
         //TODO set style according to the event status
-        label.className = "label label-warning"
+        label.className = ct.getStyleFromStatus(data);
 
-        label.onclick = function(){
+        label.ondblclick = function(){
             //TODO register event in ActionDetails controller
-//            var app = Jites.getApplication();
-//            var ct = app.getController('ActionDetails');
-//
-//            ct.setActionDetailsToPanel();
+            var app = Jites.getApplication(),
+                ct = app.getController('ActionDetails'),
+                node_id;
+
+            node_id = node.id.split('node')[1];
+            ct.updateActionDetails(node_id);
         };
         //set label styles
         style.cursor = 'pointer';
+        style.width =  Jites.ACTIONGRAPHLABELWIDHT + "px";
     }
 });

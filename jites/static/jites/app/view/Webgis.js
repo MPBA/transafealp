@@ -34,7 +34,6 @@ Ext.define('Jites.view.Webgis',{
                 shadow: false,
                 style: 'background-color: #FFFFFF',
                 animCollapse: true,
-                html:'test',
                 width: 280
             },
             Ext.create('GeoExt.panel.Map',{

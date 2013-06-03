@@ -116,7 +116,7 @@
                 .success(function( response ) {
                     //redirect to event dashboard
                     var displaymode = $('input:radio[name=displaymode]:checked').val();
-                    window.location = '/jites/dashboard/' + displaymode + '/{{ scenario_id }}';
+                    window.location = '/jites/dashboard/' + displaymode + '/' + response.event_id;
                 })
                 .error(function( response ) {
                             r=response;

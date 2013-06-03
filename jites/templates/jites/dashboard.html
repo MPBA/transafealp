@@ -12,10 +12,36 @@
 
     <script type="text/javascript">
         displaymode = '{{ displaymode }}';
-        username = '{{ username }}'
+        username = '{{ username }}';
+        event_id = '{{ event_id }}';
+
+        OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
+            defaultHandlerOptions: {
+                'single': true,
+                'double': false,
+                'pixelTolerance': 0,
+                'stopSingle': false,
+                'stopDouble': false
+            },
+            initialize: function(options) {
+                this.handlerOptions = OpenLayers.Util.extend(
+                        {}, this.defaultHandlerOptions
+                );
+                OpenLayers.Control.prototype.initialize.apply(
+                        this, arguments
+                );
+                this.handler = new OpenLayers.Handler.Click(
+                        this, {
+                            'click': this.fn
+                        }, this.handlerOptions
+                );
+            }
+        });
     </script>
 {% endblock %}
 
+{% block loadingfnc %}
+{% endblock %}
 
 {% block sidebar %}
 {% endblock %}

@@ -20,7 +20,7 @@ Ext.define('Jites.view.Interface',{
     },
 
     deferredRender: false,
-
+    id: 'interface',
 
     flex: 1,
 
@@ -41,6 +41,7 @@ Ext.define('Jites.view.Interface',{
                 xtype: 'container',
                 title: 'Action details',
                 disabled: true,
+                layout: 'fit',
                 id: 'actiondetails'
             },{
                 xtype: 'container',
