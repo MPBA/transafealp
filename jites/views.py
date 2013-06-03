@@ -222,6 +222,11 @@ def update_action_status(request, pk):
         action.comment = request.POST['content']
         action.save()
 
+        #
+        # Qui pensavo di aggiungere la chiamata alla view actiondetails e farmi ritoranre il json da 
+        # aggiungere al json di questo endopoint
+        #
+
         msg = {
             "success": True
         }
