@@ -34,6 +34,9 @@ urlpatterns = patterns('',
         #################### JITES URLS #########################
         (r'^jites/',   include('jites.urls')),
 
+        #################### LAYER MAP URLS ########################
+        (r'^layer_map/', include('layer_map.urls')),
+
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += staticfiles_urlpatterns()
