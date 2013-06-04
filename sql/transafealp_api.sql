@@ -166,6 +166,115 @@ $BODY$
 LANGUAGE plpgsql;
 
 
+--compute fastest path on Alpcheck2 graph
+DROP FUNCTION IF EXISTS path_fastest(TEXT,INTEGER,INTEGER) CASCADE;
+CREATE OR REPLACE FUNCTION path_fastest(interruptions_polygons_wtk TEXT, source_id INTEGER, target_id INTEGER)
+RETURNS TEXT AS
+$BODY$
+	SELECT ST_AsGeoJSON(ST_Union(the_geom))
+	FROM Shortest_path(
+		'SELECT gid AS id, source, target, time AS cost, reverse_time AS reverse_cost
+		FROM brenner WHERE NOT ST_Intersects (
+			brenner.the_geom,
+			(st_geomfromtext('||quote_literal(interruptions_polygons_wtk)||',4326))
+		)',
+		source_id,
+		target_id,
+		false,
+		true
+	) AS path, brenner AS topo WHERE path.edge_id=topo.gid;
+$BODY$
+LANGUAGE sql;
+
+--Example of usage
+/*select path_fastest(
+	'MULTIPOLYGON(((10.233757787461212 47.26555808605963,10.442498021836581 47.83650801443217,11.178582006211556 47.577756399786665,10.89293747496162 47.116241319894,10.233757787461212 47.26555808605963)),((13.353874974961283 47.84388204579819,12.98033981871171 47.27301289785546,14.002068334336624 46.99648539191179,14.298699193711625 47.49616910757915,13.353874974961283 47.84388204579819)))',
+	2111,
+	5699
+);*/
+
+--compute shortest path on Alpcheck2 graph
+DROP FUNCTION IF EXISTS path_shortest(TEXT,INTEGER,INTEGER) CASCADE;
+CREATE OR REPLACE FUNCTION path_shortest(interruptions_polygons_wtk TEXT, source_id INTEGER, target_id INTEGER)
+RETURNS TEXT AS
+$BODY$
+	SELECT ST_AsGeoJSON(ST_Union(the_geom))
+	FROM Shortest_path(
+		'select gid AS id, source, target, cost, reverse_cost
+		FROM brenner WHERE NOT ST_Intersects (
+			brenner.the_geom,
+			(st_geomfromtext('||quote_literal(interruptions_polygons_wtk)||',4326))
+		)',
+		source_id,
+		target_id,
+		false,
+		true
+	) AS path, brenner AS topo WHERE path.edge_id=topo.gid;
+$BODY$
+LANGUAGE sql;
+
+--Example of usage
+/*select path_shortest(
+	'MULTIPOLYGON(((10.233757787461212 47.26555808605963,10.442498021836581 47.83650801443217,11.178582006211556 47.577756399786665,10.89293747496162 47.116241319894,10.233757787461212 47.26555808605963)),((13.353874974961283 47.84388204579819,12.98033981871171 47.27301289785546,14.002068334336624 46.99648539191179,14.298699193711625 47.49616910757915,13.353874974961283 47.84388204579819)))',
+	2111,
+	5699
+);*/
+
+--compute less vulnerable path on Alpcheck2 graph
+DROP FUNCTION IF EXISTS path_vulnerability(TEXT,TEXT,INTEGER,INTEGER) CASCADE;
+CREATE OR REPLACE FUNCTION path_vulnerability(vulnerability TEXT, interruptions_polygons_wtk TEXT, source_id INTEGER, target_id INTEGER)
+RETURNS TEXT AS
+$BODY$
+DECLARE
+	col text;
+	result text;
+BEGIN
+	CASE vulnerability
+	    WHEN 'landslides' THEN
+		col := 'nat01';
+	    WHEN 'mudslides' THEN
+		col := 'nat02';
+	    WHEN 'floods' THEN
+		col := 'nat03';
+	    WHEN 'earthquakes' THEN
+		col := 'nat04';
+	    WHEN 'avalanches' THEN
+		col := 'nat05';
+	    WHEN 'forestfires' THEN
+		col := 'nat06';
+	    WHEN 'scree' THEN
+		col := 'nat07';
+	    ELSE
+		RAISE EXCEPTION 'Wrong vulerability type';
+	END CASE;
+
+	SELECT INTO result ST_AsGeoJSON(ST_Union(the_geom))
+	FROM Shortest_path(
+		'select gid AS id, source, target, cost, reverse_cost
+		FROM brenner WHERE '||quote_ident(col)||' = 0 AND NOT ST_Intersects (
+			brenner.the_geom,
+			(st_geomfromtext('||quote_literal(interruptions_polygons_wtk)||',4326))
+		)',
+		source_id,
+		target_id,
+		false,
+		true
+	) AS path, brenner AS topo WHERE path.edge_id=topo.gid;
+
+	RETURN result;
+END
+$BODY$
+LANGUAGE plpgsql;
+
+--Example of usage
+/*select path_vulnerability(
+	'landslides',
+	'MULTIPOLYGON(((10.233757787461212 47.26555808605963,10.442498021836581 47.83650801443217,11.178582006211556 47.577756399786665,10.89293747496162 47.116241319894,10.233757787461212 47.26555808605963)),((13.353874974961283 47.84388204579819,12.98033981871171 47.27301289785546,14.002068334336624 46.99648539191179,14.298699193711625 47.49616910757915,13.353874974961283 47.84388204579819)))',
+	2111,
+	5699
+);*/
+
+
 -- since pl/r is an untrusted language pl/r functions need superuser
 -- permissions to be created. Later we assign grant to normal db user
 GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO transafe_dev;

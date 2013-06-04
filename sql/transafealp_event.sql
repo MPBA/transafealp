@@ -272,6 +272,7 @@ DROP TABLE IF EXISTS event_log CASCADE;
 CREATE TABLE IF NOT EXISTS event_log (
 	id BIGSERIAL PRIMARY KEY,
 	event_id BIGINT NOT NULL REFERENCES event(id) ON UPDATE CASCADE ON DELETE CASCADE,
+	txid BIGINT NOT NULL DEFAULT txid_current(),
 	ts TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	table_name TEXT NOT NULL,
 	action TEXT NOT NULL CHECK (action IN ('I','U')),
@@ -296,6 +297,7 @@ BEGIN
 		audit_row = ROW(
 			nextval('event_log_id_seq'), -- event_log id
 			NEW.id, -- event_id
+			txid_current(),
 			statement_timestamp(),
 			TG_TABLE_NAME::text, -- table_name
 			substring(TG_OP,1,1), -- action
@@ -306,6 +308,7 @@ BEGIN
 		audit_row = ROW(
 			nextval('event_log_id_seq'), -- event_log id
 			NEW.event_id, -- event_id
+			txid_current(),
 			statement_timestamp(),
 			TG_TABLE_NAME::text, -- table_name
 			substring(TG_OP,1,1), -- action
