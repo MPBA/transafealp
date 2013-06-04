@@ -81,7 +81,7 @@ Ext.define('Jites.view.ActionDetails',{
                         style,
                         label,
                         html;
-                        console.log(action);
+
                     style = ct.getStyleFromStatus(action);
                     label = ct.getLabelFromStatus(action);
 

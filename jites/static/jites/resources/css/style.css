@@ -100,3 +100,9 @@
 .label-not-needed {
     background-color: #84c085;
 }
+
+.x-mask-msg-text {
+    background-image: none !important;
+    border: none !important;
+    font: normal 16px tahoma,arial,verdana,sans-serif !important;
+}

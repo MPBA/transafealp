@@ -52,7 +52,7 @@ Ext.define('Jites.controller.Webgis', {
                 click: this.updatePanel
             },
             '#functionpanelcardarea':{
-                render: {
+                afterlayout: {
                     fn: this.renderFunctionPanelCard,
                     scope: this,
                     single: true
@@ -70,6 +70,7 @@ Ext.define('Jites.controller.Webgis', {
         });
     },
 
+    //Reneder the OpenLayers Map
     renderWebgis: function(){
         var me = this,
             parent = me.getWebgis(),
@@ -118,6 +119,7 @@ Ext.define('Jites.controller.Webgis', {
         //Enable eventlog panel
         parent.setDisabled(false);
     },
+    //Render the west panel area (function panel)
     renderWebgisWest: function(p){
         var fp = Ext.create('Jites.view.FunctionPanel');
 
@@ -160,33 +162,49 @@ Ext.define('Jites.controller.Webgis', {
             },
             options_obj: {
                 title: 'Function',
-                autoScroll: true,
+                autoScroll: false,
                 border: false
             }
         });
     },
+    //Render special function panel (whit sub card layout for multi button)
     renderFunctionPanelCard: function(p){
-        var body3 = Ext.create('Ext.panel.Panel',{html:'pippo'});
-        var btn3 = this.addCardBtn('btn-fn-filtro','Filtra <br/>segnalazioni','',body3);
-
         var body6 = Ext.create('Jites.view.WebgisAddWms',{
             store: this.getWmsCapabilitiesStore()
         });
-
         this.addCardBtn(Ext.id(),'Aggiungi <br/>WMS','',body6);
+
+//        var body7 = Ext.create('Jites.view.WebgisLayerSwitcher',{
+//            store: this.getWmsCapabilitiesStore()
+//        });
+//        this.addCardBtn(Ext.id(),'Aggiungi <br/>WMS','',body7);
+
+
+
+        //add evento to special function panel btn
+        var btncard = Ext.getCmp('functionpanelcardbtnarea');
+        Ext.get(btncard.body.id).on('click', function(event, target) {
+            this.updateBtnPanel(target);
+        }, this, {delegate: 'button'});
     },
     addToggleBtn: function(btn,opt){
         this.getFnpanel().add(Ext.create(btn,opt));
     },
+    //Add card button to special function panel (sub card layout)
     addCardBtn: function(btnid,text, iconcls, body){
-        var btn = Ext.create('Jites.view.BaseButton',{
+        var tpl = new Ext.XTemplate(
+            '<button id={id} class="btn btn-medium btn-block btn-primary" is_card={iscard} card_id={card_id}>{text}</button>'
+        );
+
+        var tc = this.getFnpanel();
+
+        tc.body.dom.innerHTML += tpl.apply({
             id: btnid,
             text: text,
-            iconCls: iconcls,
             iscard: true,
             card_id: this.getNewCardId()
         });
-        this.getFnpanel().add(btn);
+
 
         //add dock item whit return btn
         body.addDocked({
@@ -196,24 +214,28 @@ Ext.define('Jites.controller.Webgis', {
             iscard: true,
             componentCls: 'x-base-return-button',
             card_id: 0,
-            text: 'Chiudi ' + text
+            text: 'Close  ' + text
         },0);
 
 
         this.getWebgiseastpanel().add(body);
-        return btn;
     },
+    //get the actual card id for special function panel
     getCardId: function(){
         return this.card_id;
     },
+    //set new card id for special function panel
     setCardId: function(){
         this.card_id = this.card_id + 1;
     },
+    //get the actual card and then increment by 1
     getNewCardId: function(){
         var old = this.card_id;
         this.setCardId();
         return old;
     },
+
+    //update main function panel
     updatePanel: function(btn){
         //Richiamo il pannello con le funzioni
         var p = btn.up("functionpanel");
@@ -222,28 +244,27 @@ Ext.define('Jites.controller.Webgis', {
         //Faccio il cast in maniera che il numero passato alla funzione setActiveItem sia intero
         p.getLayout().setActiveItem(parseInt(btn.card_id));
     },
+    //update special function panel
     updateBtnPanel: function(btn){
         //Attivo la card associata al pulsante (parametro card_id del bottone).
         //Faccio il cast in maniera che il numero passato alla funzione setActiveItem sia intero
-        this.getWebgiseastpanel().getLayout().setActiveItem(parseInt(btn.card_id));
-        console.log('btn');
+        var id = btn instanceof Ext.button.TsaButton ? btn.card_id : btn.getAttribute('card_id');
+
+        this.getWebgiseastpanel().getLayout().setActiveItem(parseInt(id));
     },
+
+    //add wms runtime
     connectToWmsServer: function(btn){
-        var myMask = new Ext.LoadMask(btn.up('form'), {msg:"Richiesta in corso..."});
+        var myMask = new Ext.LoadMask(btn.up('form'), {msg:"Request ..."});
         myMask.show();
 
         var baseurl = btn.prev("textarea").getValue();
-        //var url = baseurl.trim() + '?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities'
+        baseurl += '?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities';
 
         Ext.Ajax.request({
             url: '/jites/proxy?url='+encodeURIComponent(baseurl.trim()),
             method: 'GET',
             scope: this,
-//            params: {
-//                SERVICE: "WMS",
-//                VERSION: "1.1.1",
-//                REQUEST: "GetCapabilities"
-//            },
             success: function(response){
                 var format = new OpenLayers.Format.WMSCapabilities({
 //                    version: "1.1.1"

@@ -7,7 +7,7 @@ Ext.define('Jites.view.WebgisAddWms', {
 
     width: 250,
 
-    title: 'Aggiungi un layer esterno',
+    title: '<h4>Add external wms</h4>',
 
     layout: 'anchor',
     defaults: {
@@ -28,22 +28,22 @@ Ext.define('Jites.view.WebgisAddWms', {
             hideLabel: true,
             name: 'home',
             margin: '0 0 15 0',
-            value: 'Per aggiungere un layer usando una risorsa OGC standard esterna e\'sufficiente inserire l\'url del server' +
-                '<br/><b>Attenzione!</b><br/>Si ricorda che la risorsa deve essere accessibile dal computer che si sta utilizzando e deve essere pubblicato in EPSG:32632.<br/><br/>' +
-                'La chiamata deve essere del tipo http://enviro.fbk.eu/geoserver/land/wms?<br/>SERVICE=WMS&VERSION=1.1.1<br/>&REQUEST=GetCapabilities'
+            value: '<p>WMS layers con be added quite simple, as long as you know the URL to access the WMS Server.</p>' +
+                '<p><span class="label label-important">Attention!</span> You must have a serviceable connection to the server and the server should expose the maps in <strong>ESPG:3857</strong></p>' +
+                '<p>Example url: <code>https://spatialdb.fbk.eu/wms</code></p>'
         },{
-            fieldLabel: 'GET CAPABILITIES URL',
+            fieldLabel: 'WMS url',
             labelAlign: "top",
             xtype:'textarea',
             name: 'ierver',
-            value: 'http://enviro.fbk.eu/geoserver/land/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities',
+            value: 'https://spatialdb.fbk.eu/geoserver/wms',
             allowBlank: false
         },{
-            text: 'Connetti',
+            text: 'Connect',
             xtype: 'button',
             iswms: true
         },{
-            title: 'Layer disponibili',
+            title: 'Available layers',
             store: this.store,
             columns: [
                 {
@@ -58,8 +58,8 @@ Ext.define('Jites.view.WebgisAddWms', {
                     xtype:'actioncolumn',
                     width:30,
                     items: [{
-                        icon: '/static/resources/images/addmap.png',  // Use a URL in the icon config
-                        tooltip: 'Aggiungi alla mappa',
+                        icon: '/static/jites/resources/images/icons/addmap.png',  // Use a URL in the icon config
+                        tooltip: 'Add to map',
                         handler: function(grid, rowIndex, colIndex,item,e,record) {
                             var getmapurl = grid.getStore().getmapurl;
                             var rec = grid.getStore().getAt(rowIndex);

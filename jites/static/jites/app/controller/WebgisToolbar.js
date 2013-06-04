@@ -335,8 +335,6 @@ Ext.define('Jites.controller.WebgisToolbar', {
         var tb = this.getToolbar(),
             bool;
 
-        console.log(newCard.id);
-
         bool = (newCard.id == 'webgis') ? true : false;
 
         tb.setVisible(bool);

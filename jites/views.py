@@ -29,6 +29,7 @@ def dashboard(request, displaymode, event_id):
 @login_required
 def poll(request):
     # TODO implemented by real request on scenario log table. This is a demo.
+
     result = ({
                   'type': 'event',
                   'name': 'log',
@@ -156,62 +157,10 @@ class ActionDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
     model = EvAction
 
     def get(self, request, *args, **kwargs):
-        try:
-            cursor = connection.cursor()
-            cursor.execute(
-                'select *'
-                ' from '
-                'ev_action_next_status(%s)',
-                [kwargs['pk']])
-        except DatabaseError, e:
-            transaction.rollback()
-            return HttpResponse(str(e))
-
-        row = cursor.fetchone()
-        cursor.close()
-
-        action = EvAction.objects.get(pk=kwargs['pk'])
-        actors = Actor_Action_Association(request.user, action.event.pk,
-                                          action.pk).actors_already_assigned_to_this_action()
-        actors_list = EvActor.objects.filter(pk__in=[l.actor.id for l in actors])
-        visualizations = EvVisualization.objects.filter(action=action)
-        act = []
-        for a in actors_list:
-            act.append({
-                'name': a.name,
-                'istitution': a.istitution,
-                'contact_info': a.contact_info,
-                'email': a.email,
-                'phone': a.phone,
-            })
-        vis = []
-        for v in visualizations:
-            vis.append({
-                'description': v.description,
-                'type': v.type,
-                'resource': v.resource,
-                'options': v.options
-            })
-        action_detail = {
-            'success': True,
-            'data': {
-                'action': {
-                    'pk': action.pk,
-                    'name': action.name,
-                    'numcode': action.numcode,
-                    'description': action.description,
-                    'duration': action.duration,
-                    'status': action.status,
-                    'comment': action.comment,
-                    'next_status': row[0],
-                    'next_status_reason': row[1],
-                },
-                'actors': act,
-                'visualization': vis
-            }
-        }
+        action_detail = actiondetail_json(request.user, kwargs['pk'])
 
         json_response = json.dumps(action_detail, separators=(',', ':'), sort_keys=True, cls=SetEncoder)
+
         return HttpResponse(json_response, mimetype='application/json;')
 
 #standard view for adding message to event
@@ -223,12 +172,11 @@ def update_action_status(request, pk):
         action.comment = request.POST['content']
         action.save()
 
-        #in action_detail ha il json che ti serve
         action_detail = actiondetail_json(request.user, pk)
 
         msg = {
             "success": True,
-            "data": action_detail
+            "action_detail": action_detail
         }
 
     else:

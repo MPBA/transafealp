@@ -83,7 +83,7 @@ def actiondetail_json(user, event_id):
         cursor.execute(
             'select *'
             ' from '
-            'ev_action_next_status(%s)',
+            'ev_action_next_status_gui(%s)',
             [event_id])
     except DatabaseError, e:
         transaction.rollback()
@@ -133,5 +133,5 @@ def actiondetail_json(user, event_id):
         }
     }
 
-    json_response = json.dumps(action_detail, separators=(',', ':'), sort_keys=True, cls=SetEncoder)
-    return json_response
+    # json_response = json.dumps(action_detail, separators=(',', ':'), sort_keys=True, cls=SetEncoder)
+    return action_detail
