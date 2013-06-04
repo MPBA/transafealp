@@ -40,44 +40,6 @@
 				<column name="email" />
 			</index>
 		</table>
-		<table name="alpcheck2" >
-			<column name="id" type="integer" length="10" jt="4" />
-			<column name="gid" type="serial" length="10" jt="4" mandatory="y" />
-			<column name="the_geom" type="geometry" length="2147483647" jt="1111" mandatory="y" />
-			<column name="source" type="integer" length="10" jt="4" />
-			<column name="target" type="integer" length="10" jt="4" />
-			<column name="cost" type="float8" length="17" decimal="17" jt="8" />
-			<column name="available" type="bool" length="1" jt="-7" mandatory="y" >
-				<defo>true</defo>
-			</column>
-			<column name="time" type="float8" length="17" decimal="17" jt="8" />
-			<column name="externalid" type="numeric" jt="2" />
-			<column name="cod_node_a" type="numeric" jt="2" />
-			<column name="cod_node_b" type="numeric" jt="2" />
-			<column name="oneway" type="numeric" jt="2" />
-			<column name="roadtype" type="numeric" jt="2" />
-			<column name="stateroadn" type="varchar" length="50" jt="12" />
-			<column name="streetname" type="varchar" length="50" jt="12" />
-			<column name="alpcheckco" type="numeric" jt="2" />
-			<column name="lanes" type="numeric" jt="2" />
-			<column name="capacity" type="numeric" jt="2" />
-			<column name="v0" type="numeric" jt="2" />
-			<column name="vc" type="numeric" jt="2" />
-			<column name="lcf" type="numeric" jt="2" />
-			<column name="aadt_lv" type="numeric" jt="2" />
-			<column name="aadt_hv" type="numeric" jt="2" />
-			<column name="aadt_tot" type="numeric" jt="2" />
-			<column name="length" type="numeric" jt="2" />
-			<column name="lv_ab" type="numeric" jt="2" />
-			<column name="hv_ab" type="numeric" jt="2" />
-			<column name="dgtv_ab" type="numeric" jt="2" />
-			<column name="lv_ba" type="numeric" jt="2" />
-			<column name="hv_ba" type="numeric" jt="2" />
-			<column name="dgtv_ba" type="numeric" jt="2" />
-			<index name="alpcheck2_pkey" unique="PRIMARY_KEY" >
-				<column name="gid" />
-			</index>
-		</table>
 		<table name="managing_authority" >
 			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
 			<column name="name" type="text" length="2147483647" jt="12" mandatory="y" />
@@ -622,6 +584,9 @@
 		<table name="event_log" >
 			<column name="id" type="bigserial" length="19" jt="-5" mandatory="y" />
 			<column name="event_id" type="bigint" length="19" jt="-5" mandatory="y" />
+			<column name="txid" type="bigint" length="19" jt="-5" mandatory="y" >
+				<defo>txid_current()</defo>
+			</column>
 			<column name="ts" type="timestamptz" length="35" decimal="6" jt="93" mandatory="y" >
 				<defo>now()</defo>
 			</column>
@@ -775,6 +740,62 @@
 				<column name="name" />
 			</index>
 		</table>
+		<table name="brenner" >
+			<column name="gid" type="serial" length="10" jt="4" mandatory="y" />
+			<column name="externalid" type="numeric" jt="2" />
+			<column name="cod_node_a" type="numeric" jt="2" />
+			<column name="cod_node_b" type="numeric" jt="2" />
+			<column name="oneway" type="numeric" jt="2" />
+			<column name="roadtype" type="numeric" jt="2" />
+			<column name="stateroadn" type="varchar" length="50" jt="12" />
+			<column name="streetname" type="varchar" length="50" jt="12" />
+			<column name="alpcheckco" type="numeric" jt="2" />
+			<column name="lanes" type="numeric" jt="2" />
+			<column name="capacity" type="numeric" jt="2" />
+			<column name="v0" type="numeric" jt="2" />
+			<column name="vc" type="numeric" jt="2" />
+			<column name="lcf" type="numeric" jt="2" />
+			<column name="aadt_lv" type="numeric" jt="2" />
+			<column name="aadt_hv" type="numeric" jt="2" />
+			<column name="aadt_tot" type="numeric" jt="2" />
+			<column name="length" type="numeric" jt="2" />
+			<column name="lv_ab" type="numeric" jt="2" />
+			<column name="hv_ab" type="numeric" jt="2" />
+			<column name="dgtv_ab" type="numeric" jt="2" />
+			<column name="lv_ba" type="numeric" jt="2" />
+			<column name="hv_ba" type="numeric" jt="2" />
+			<column name="dgtv_ba" type="numeric" jt="2" />
+			<column name="the_geom" type="geometry" length="2147483647" jt="1111" />
+			<column name="source" type="integer" length="10" jt="4" />
+			<column name="target" type="integer" length="10" jt="4" />
+			<column name="cost" type="float8" length="17" decimal="17" jt="8" />
+			<column name="available" type="bool" length="1" jt="-7" mandatory="y" >
+				<defo>true</defo>
+			</column>
+			<column name="id" type="integer" length="10" jt="4" />
+			<column name="time" type="float8" length="17" decimal="17" jt="8" />
+			<column name="reverse_cost" type="float8" length="17" decimal="17" jt="8" />
+			<column name="reverse_time" type="float8" length="17" decimal="17" jt="8" />
+			<column name="nat01" type="smallint" length="5" jt="5" />
+			<column name="nat02" type="smallint" length="5" jt="5" />
+			<column name="nat03" type="smallint" length="5" jt="5" />
+			<column name="nat04" type="smallint" length="5" jt="5" />
+			<column name="nat05" type="smallint" length="5" jt="5" />
+			<column name="nat06" type="smallint" length="5" jt="5" />
+			<column name="nat07" type="smallint" length="5" jt="5" />
+			<index name="data_pkey" unique="PRIMARY_KEY" >
+				<column name="gid" />
+			</index>
+			<constraint name="enforce_srid_the_geom" >
+				<string>st_srid(the_geom) = 4326</string>
+			</constraint>
+			<constraint name="enforce_geotype_the_geom" >
+				<string>(geometrytype(the_geom) = &#039;LINESTRING&#039;::text) OR (the_geom IS NULL)</string>
+			</constraint>
+			<constraint name="enforce_dims_the_geom" >
+				<string>st_ndims(the_geom) = 2</string>
+			</constraint>
+		</table>
 		<view name="geography_columns" >
 			<view_script><![CDATA[SELECT current_database() AS f_table_catalog, n.nspname AS f_table_schema, c.relname AS f_table_name, a.attname AS f_geography_column, postgis_typmod_dims(a.atttypmod) AS coord_dimension, postgis_typmod_srid(a.atttypmod) AS srid, postgis_typmod_type(a.atttypmod) AS type FROM pg_class c, pg_attribute a, pg_type t, pg_namespace n WHERE (((((((t.typname = 'geography'::name) AND (a.attisdropped = false)) AND (a.atttypid = t.oid)) AND (a.attrelid = c.oid)) AND (c.relnamespace = n.oid)) AND (NOT pg_is_other_temp_schema(c.relnamespace))) AND has_table_privilege(c.oid, 'SELECT'::text));]]></view_script>
 			<column name="f_table_catalog" type="name" />
@@ -831,7 +852,6 @@
 		<sequence name="actor_id_seq" start="1" />
 		<sequence name="action_id_seq" start="1" />
 		<sequence name="visualization_id_seq" start="1" />
-		<sequence name="alpcheck2_gid_seq" start="1" />
 		<sequence name="interruptions_gid_seq" start="1" />
 		<sequence name="action_m2m_actor_id_seq" start="1" />
 		<sequence name="action_graph_id_seq" start="1" />
@@ -865,6 +885,7 @@
 		<sequence name="gt_layer_group_id_seq" start="1" />
 		<sequence name="gt_layer_tree_id_seq" start="1" />
 		<sequence name="gt_layer_meta_id_seq" start="1" />
+		<sequence name="data_gid_seq" start="1" />
 		<trigger name="after_new_action_graph" id="Trigger2058498" isSystem="false" >
 			<string><![CDATA[CREATE TRIGGER after_new_action_graph AFTER INSERT ON action_graph FOR EACH ROW EXECUTE PROCEDURE after_new_action_graph()]]></string>
 		</trigger>
@@ -2492,7 +2513,31 @@ AS $function$
 ]]></string>
 		</function>
 		<function name="_st_mapalgebra4unionstate" id="Function2000219" isSystem="false" >
-			<string><![CDATA[CREATE OR REPLACE FUNCTION public._st_mapalgebra4unionstate(rast1 raster, rast2 raster, p_expression text, p_nodata1expr text, p_nodata2expr text, p_nodatanodataval double precision, t_expression text, t_nodata1expr text, t_nodata2expr text, t_nodatanodataval double precision)
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public._st_mapalgebra4unionstate(rast1 raster, rast2 raster)
+ RETURNS raster
+ LANGUAGE sql
+AS $function$
+        SELECT _ST_MapAlgebra4UnionState($1,$2, 'LAST', NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+    $function$
+CREATE OR REPLACE FUNCTION public._st_mapalgebra4unionstate(rast1 raster, rast2 raster, bandnum integer)
+ RETURNS raster
+ LANGUAGE sql
+AS $function$
+        SELECT _ST_MapAlgebra4UnionState($1,ST_Band($2,$3), 'LAST', NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+    $function$
+CREATE OR REPLACE FUNCTION public._st_mapalgebra4unionstate(rast1 raster, rast2 raster, p_expression text)
+ RETURNS raster
+ LANGUAGE sql
+AS $function$
+        SELECT _ST_MapAlgebra4UnionState($1,$2, $3, NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+    $function$
+CREATE OR REPLACE FUNCTION public._st_mapalgebra4unionstate(rast1 raster, rast2 raster, bandnum integer, p_expression text)
+ RETURNS raster
+ LANGUAGE sql
+AS $function$
+        SELECT _ST_MapAlgebra4UnionState($1, ST_Band($2,$3), $4, NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+    $function$
+CREATE OR REPLACE FUNCTION public._st_mapalgebra4unionstate(rast1 raster, rast2 raster, p_expression text, p_nodata1expr text, p_nodata2expr text, p_nodatanodataval double precision, t_expression text, t_nodata1expr text, t_nodata2expr text, t_nodatanodataval double precision)
  RETURNS raster
  LANGUAGE plpgsql
 AS $function$
@@ -2540,30 +2585,6 @@ AS $function$
             RETURN ST_MapAlgebraExpr(rast1, 1, rast2, 1, p_expression, NULL, 'UNION'::text, NULL::text, NULL::text, NULL::double precision);
         END IF;
     END;
-    $function$
-CREATE OR REPLACE FUNCTION public._st_mapalgebra4unionstate(rast1 raster, rast2 raster, bandnum integer)
- RETURNS raster
- LANGUAGE sql
-AS $function$
-        SELECT _ST_MapAlgebra4UnionState($1,ST_Band($2,$3), 'LAST', NULL, NULL, NULL, NULL, NULL, NULL, NULL)
-    $function$
-CREATE OR REPLACE FUNCTION public._st_mapalgebra4unionstate(rast1 raster, rast2 raster)
- RETURNS raster
- LANGUAGE sql
-AS $function$
-        SELECT _ST_MapAlgebra4UnionState($1,$2, 'LAST', NULL, NULL, NULL, NULL, NULL, NULL, NULL)
-    $function$
-CREATE OR REPLACE FUNCTION public._st_mapalgebra4unionstate(rast1 raster, rast2 raster, p_expression text)
- RETURNS raster
- LANGUAGE sql
-AS $function$
-        SELECT _ST_MapAlgebra4UnionState($1,$2, $3, NULL, NULL, NULL, NULL, NULL, NULL, NULL)
-    $function$
-CREATE OR REPLACE FUNCTION public._st_mapalgebra4unionstate(rast1 raster, rast2 raster, bandnum integer, p_expression text)
- RETURNS raster
- LANGUAGE sql
-AS $function$
-        SELECT _ST_MapAlgebra4UnionState($1, ST_Band($2,$3), $4, NULL, NULL, NULL, NULL, NULL, NULL, NULL)
     $function$
 ]]></string>
 		</function>
@@ -3976,26 +3997,26 @@ AS '$libdir/postgis-2.0', $function$geography_typmod_in$function$
 		</function>
 		<function name="geography_typmod_out" id="Function2000248" isSystem="false" />
 		<function name="geometry" id="Function2000248" isSystem="false" >
-			<string><![CDATA[CREATE OR REPLACE FUNCTION public.geometry(box2d)
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.geometry(bytea)
  RETURNS geometry
  LANGUAGE c
  IMMUTABLE STRICT
-AS '$libdir/postgis-2.0', $function$BOX2D_to_LWGEOM$function$
-CREATE OR REPLACE FUNCTION public.geometry(box3d)
- RETURNS geometry
- LANGUAGE c
- IMMUTABLE STRICT
-AS '$libdir/postgis-2.0', $function$BOX3D_to_LWGEOM$function$
+AS '$libdir/postgis-2.0', $function$LWGEOM_from_bytea$function$
 CREATE OR REPLACE FUNCTION public.geometry(text)
  RETURNS geometry
  LANGUAGE c
  IMMUTABLE STRICT
 AS '$libdir/postgis-2.0', $function$parse_WKT_lwgeom$function$
-CREATE OR REPLACE FUNCTION public.geometry(bytea)
+CREATE OR REPLACE FUNCTION public.geometry(box3d)
  RETURNS geometry
  LANGUAGE c
  IMMUTABLE STRICT
-AS '$libdir/postgis-2.0', $function$LWGEOM_from_bytea$function$
+AS '$libdir/postgis-2.0', $function$BOX3D_to_LWGEOM$function$
+CREATE OR REPLACE FUNCTION public.geometry(box2d)
+ RETURNS geometry
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/postgis-2.0', $function$BOX2D_to_LWGEOM$function$
 CREATE OR REPLACE FUNCTION public.geometry(geography)
  RETURNS geometry
  LANGUAGE c
@@ -5818,22 +5839,12 @@ AS '$libdir/postgis-2.0', $function$LWGEOM_area_polygon$function$
 ]]></string>
 		</function>
 		<function name="st_asbinary" id="Function2000271" isSystem="false" >
-			<string><![CDATA[CREATE OR REPLACE FUNCTION public.st_asbinary(geography)
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.st_asbinary(geometry)
  RETURNS bytea
  LANGUAGE c
  IMMUTABLE STRICT
 AS '$libdir/postgis-2.0', $function$LWGEOM_asBinary$function$
-CREATE OR REPLACE FUNCTION public.st_asbinary(geography, text)
- RETURNS bytea
- LANGUAGE sql
- IMMUTABLE STRICT
-AS $function$ SELECT ST_AsBinary($1::geometry, $2);  $function$
-CREATE OR REPLACE FUNCTION public.st_asbinary(geometry, text)
- RETURNS bytea
- LANGUAGE c
- IMMUTABLE STRICT
-AS '$libdir/postgis-2.0', $function$LWGEOM_asBinary$function$
-CREATE OR REPLACE FUNCTION public.st_asbinary(geometry)
+CREATE OR REPLACE FUNCTION public.st_asbinary(geography)
  RETURNS bytea
  LANGUAGE c
  IMMUTABLE STRICT
@@ -5843,6 +5854,16 @@ CREATE OR REPLACE FUNCTION public.st_asbinary(raster)
  LANGUAGE c
  IMMUTABLE STRICT
 AS '$libdir/rtpostgis-2.0', $function$RASTER_to_binary$function$
+CREATE OR REPLACE FUNCTION public.st_asbinary(geometry, text)
+ RETURNS bytea
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/postgis-2.0', $function$LWGEOM_asBinary$function$
+CREATE OR REPLACE FUNCTION public.st_asbinary(geography, text)
+ RETURNS bytea
+ LANGUAGE sql
+ IMMUTABLE STRICT
+AS $function$ SELECT ST_AsBinary($1::geometry, $2);  $function$
 ]]></string>
 			<comment><![CDATA[args: g1, NDR_or_XDR - Return the Well-Known Binary (WKB) representation of the geometry/geography without SRID meta data.]]></comment>
 		</function>
@@ -5908,7 +5929,17 @@ AS '$libdir/rtpostgis-2.0', $function$RASTER_asGDALRaster$function$
 			<comment><![CDATA[args: rast, format, options=NULL, srid=sameassource - Return the raster tile in the designated GDAL Raster format. Raster formats are one of those supported by your compiled library. Use ST_GDALRasters() to get a list of formats supported by your library.]]></comment>
 		</function>
 		<function name="st_asgeojson" id="Function2000272" isSystem="false" >
-			<string><![CDATA[CREATE OR REPLACE FUNCTION public.st_asgeojson(geom geometry, maxdecimaldigits integer DEFAULT 15, options integer DEFAULT 0)
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.st_asgeojson(text)
+ RETURNS text
+ LANGUAGE sql
+ IMMUTABLE STRICT
+AS $function$ SELECT _ST_AsGeoJson(1, $1::geometry,15,0);  $function$
+CREATE OR REPLACE FUNCTION public.st_asgeojson(geom geometry, maxdecimaldigits integer DEFAULT 15, options integer DEFAULT 0)
+ RETURNS text
+ LANGUAGE sql
+ IMMUTABLE STRICT
+AS $function$ SELECT _ST_AsGeoJson(1, $1, $2, $3); $function$
+CREATE OR REPLACE FUNCTION public.st_asgeojson(geog geography, maxdecimaldigits integer DEFAULT 15, options integer DEFAULT 0)
  RETURNS text
  LANGUAGE sql
  IMMUTABLE STRICT
@@ -5918,16 +5949,6 @@ CREATE OR REPLACE FUNCTION public.st_asgeojson(gj_version integer, geom geometry
  LANGUAGE sql
  IMMUTABLE STRICT
 AS $function$ SELECT _ST_AsGeoJson($1, $2, $3, $4); $function$
-CREATE OR REPLACE FUNCTION public.st_asgeojson(text)
- RETURNS text
- LANGUAGE sql
- IMMUTABLE STRICT
-AS $function$ SELECT _ST_AsGeoJson(1, $1::geometry,15,0);  $function$
-CREATE OR REPLACE FUNCTION public.st_asgeojson(geog geography, maxdecimaldigits integer DEFAULT 15, options integer DEFAULT 0)
- RETURNS text
- LANGUAGE sql
- IMMUTABLE STRICT
-AS $function$ SELECT _ST_AsGeoJson(1, $1, $2, $3); $function$
 CREATE OR REPLACE FUNCTION public.st_asgeojson(gj_version integer, geog geography, maxdecimaldigits integer DEFAULT 15, options integer DEFAULT 0)
  RETURNS text
  LANGUAGE sql
@@ -5947,26 +5968,26 @@ AS $function$ SELECT _ST_AsGeoJson($1, $2, $3, $4); $function$
 			<comment><![CDATA[args: gj_version, geog, maxdecimaldigits=15, options=0 - Return the geometry as a GeoJSON element.]]></comment>
 		</function>
 		<function name="st_asgml" id="Function2000272" isSystem="false" >
-			<string><![CDATA[CREATE OR REPLACE FUNCTION public.st_asgml(geom geometry, maxdecimaldigits integer DEFAULT 15, options integer DEFAULT 0)
- RETURNS text
- LANGUAGE sql
- IMMUTABLE STRICT
-AS $function$ SELECT _ST_AsGML(2, $1, $2, $3, null); $function$
-CREATE OR REPLACE FUNCTION public.st_asgml(version integer, geom geometry, maxdecimaldigits integer DEFAULT 15, options integer DEFAULT 0, nprefix text DEFAULT NULL::text)
- RETURNS text
- LANGUAGE sql
- IMMUTABLE
-AS $function$ SELECT _ST_AsGML($1, $2, $3, $4,$5); $function$
-CREATE OR REPLACE FUNCTION public.st_asgml(text)
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.st_asgml(text)
  RETURNS text
  LANGUAGE sql
  IMMUTABLE STRICT
 AS $function$ SELECT _ST_AsGML(2,$1::geometry,15,0, NULL);  $function$
+CREATE OR REPLACE FUNCTION public.st_asgml(geom geometry, maxdecimaldigits integer DEFAULT 15, options integer DEFAULT 0)
+ RETURNS text
+ LANGUAGE sql
+ IMMUTABLE STRICT
+AS $function$ SELECT _ST_AsGML(2, $1, $2, $3, null); $function$
 CREATE OR REPLACE FUNCTION public.st_asgml(geog geography, maxdecimaldigits integer DEFAULT 15, options integer DEFAULT 0)
  RETURNS text
  LANGUAGE sql
  IMMUTABLE STRICT
 AS $function$SELECT _ST_AsGML(2, $1, $2, $3, null)$function$
+CREATE OR REPLACE FUNCTION public.st_asgml(version integer, geom geometry, maxdecimaldigits integer DEFAULT 15, options integer DEFAULT 0, nprefix text DEFAULT NULL::text)
+ RETURNS text
+ LANGUAGE sql
+ IMMUTABLE
+AS $function$ SELECT _ST_AsGML($1, $2, $3, $4,$5); $function$
 CREATE OR REPLACE FUNCTION public.st_asgml(version integer, geog geography, maxdecimaldigits integer DEFAULT 15, options integer DEFAULT 0, nprefix text DEFAULT NULL::text)
  RETURNS text
  LANGUAGE sql
@@ -6003,12 +6024,7 @@ AS '$libdir/postgis-2.0', $function$LWGEOM_asHEXEWKB$function$
 			<comment><![CDATA[args: g1, NDRorXDR - Returns a Geometry in HEXEWKB format (as text) using either little-endian (NDR) or big-endian (XDR) encoding.]]></comment>
 		</function>
 		<function name="st_asjpeg" id="Function2000273" isSystem="false" >
-			<string><![CDATA[CREATE OR REPLACE FUNCTION public.st_asjpeg(rast raster, nbands integer[], options text[] DEFAULT NULL::text[])
- RETURNS bytea
- LANGUAGE sql
- IMMUTABLE
-AS $function$ SELECT st_asjpeg(st_band($1, $2), $3) $function$
-CREATE OR REPLACE FUNCTION public.st_asjpeg(rast raster, options text[] DEFAULT NULL::text[])
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.st_asjpeg(rast raster, options text[] DEFAULT NULL::text[])
  RETURNS bytea
  LANGUAGE plpgsql
  IMMUTABLE
@@ -6036,6 +6052,16 @@ AS $function$
 		RETURN st_asgdalraster(rast2, 'JPEG', $2, NULL);
 	END;
 	$function$
+CREATE OR REPLACE FUNCTION public.st_asjpeg(rast raster, nband integer, quality integer)
+ RETURNS bytea
+ LANGUAGE sql
+ IMMUTABLE STRICT
+AS $function$ SELECT st_asjpeg($1, ARRAY[$2], $3) $function$
+CREATE OR REPLACE FUNCTION public.st_asjpeg(rast raster, nband integer, options text[] DEFAULT NULL::text[])
+ RETURNS bytea
+ LANGUAGE sql
+ IMMUTABLE
+AS $function$ SELECT st_asjpeg(st_band($1, $2), $3) $function$
 CREATE OR REPLACE FUNCTION public.st_asjpeg(rast raster, nbands integer[], quality integer)
  RETURNS bytea
  LANGUAGE plpgsql
@@ -6058,16 +6084,11 @@ AS $function$
 		RETURN st_asjpeg(st_band($1, $2), options);
 	END;
 	$function$
-CREATE OR REPLACE FUNCTION public.st_asjpeg(rast raster, nband integer, options text[] DEFAULT NULL::text[])
+CREATE OR REPLACE FUNCTION public.st_asjpeg(rast raster, nbands integer[], options text[] DEFAULT NULL::text[])
  RETURNS bytea
  LANGUAGE sql
  IMMUTABLE
 AS $function$ SELECT st_asjpeg(st_band($1, $2), $3) $function$
-CREATE OR REPLACE FUNCTION public.st_asjpeg(rast raster, nband integer, quality integer)
- RETURNS bytea
- LANGUAGE sql
- IMMUTABLE STRICT
-AS $function$ SELECT st_asjpeg($1, ARRAY[$2], $3) $function$
 ]]></string>
 			<comment><![CDATA[args: rast, options=NULL - Return the raster tile selected bands as a single Joint Photographic Exports Group (JPEG) image (byte array). If no band is specified and 1 or more than 3 bands, then only the first band is used. If only 3 bands then all 3 bands are used and mapped to RGB.]]></comment>
 		</function>
@@ -6084,26 +6105,26 @@ AS $function$ SELECT st_asjpeg($1, ARRAY[$2], $3) $function$
 			<comment><![CDATA[args: rast, nband, quality - Return the raster tile selected bands as a single Joint Photographic Exports Group (JPEG) image (byte array). If no band is specified and 1 or more than 3 bands, then only the first band is used. If only 3 bands then all 3 bands are used and mapped to RGB.]]></comment>
 		</function>
 		<function name="st_askml" id="Function2000273" isSystem="false" >
-			<string><![CDATA[CREATE OR REPLACE FUNCTION public.st_askml(geom geometry, maxdecimaldigits integer DEFAULT 15)
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.st_askml(text)
+ RETURNS text
+ LANGUAGE sql
+ IMMUTABLE STRICT
+AS $function$ SELECT _ST_AsKML(2, $1::geometry, 15, null);  $function$
+CREATE OR REPLACE FUNCTION public.st_askml(geom geometry, maxdecimaldigits integer DEFAULT 15)
  RETURNS text
  LANGUAGE sql
  IMMUTABLE STRICT
 AS $function$ SELECT _ST_AsKML(2, ST_Transform($1,4326), $2, null); $function$
-CREATE OR REPLACE FUNCTION public.st_askml(version integer, geom geometry, maxdecimaldigits integer DEFAULT 15, nprefix text DEFAULT NULL::text)
- RETURNS text
- LANGUAGE sql
- IMMUTABLE
-AS $function$ SELECT _ST_AsKML($1, ST_Transform($2,4326), $3, $4); $function$
 CREATE OR REPLACE FUNCTION public.st_askml(geog geography, maxdecimaldigits integer DEFAULT 15)
  RETURNS text
  LANGUAGE sql
  IMMUTABLE STRICT
 AS $function$SELECT _ST_AsKML(2, $1, $2, null)$function$
-CREATE OR REPLACE FUNCTION public.st_askml(text)
+CREATE OR REPLACE FUNCTION public.st_askml(version integer, geom geometry, maxdecimaldigits integer DEFAULT 15, nprefix text DEFAULT NULL::text)
  RETURNS text
  LANGUAGE sql
- IMMUTABLE STRICT
-AS $function$ SELECT _ST_AsKML(2, $1::geometry, 15, null);  $function$
+ IMMUTABLE
+AS $function$ SELECT _ST_AsKML($1, ST_Transform($2,4326), $3, $4); $function$
 CREATE OR REPLACE FUNCTION public.st_askml(version integer, geog geography, maxdecimaldigits integer DEFAULT 15, nprefix text DEFAULT NULL::text)
  RETURNS text
  LANGUAGE sql
@@ -6179,7 +6200,12 @@ AS $function$
 		RETURN st_asgdalraster(rast2, 'PNG', $2, NULL);
 	END;
 	$function$
-CREATE OR REPLACE FUNCTION public.st_aspng(rast raster, nbands integer[], options text[] DEFAULT NULL::text[])
+CREATE OR REPLACE FUNCTION public.st_aspng(rast raster, nband integer, compression integer)
+ RETURNS bytea
+ LANGUAGE sql
+ IMMUTABLE STRICT
+AS $function$ SELECT st_aspng($1, ARRAY[$2], $3) $function$
+CREATE OR REPLACE FUNCTION public.st_aspng(rast raster, nband integer, options text[] DEFAULT NULL::text[])
  RETURNS bytea
  LANGUAGE sql
  IMMUTABLE
@@ -6206,16 +6232,11 @@ AS $function$
 		RETURN st_aspng(st_band($1, $2), options);
 	END;
 	$function$
-CREATE OR REPLACE FUNCTION public.st_aspng(rast raster, nband integer, options text[] DEFAULT NULL::text[])
+CREATE OR REPLACE FUNCTION public.st_aspng(rast raster, nbands integer[], options text[] DEFAULT NULL::text[])
  RETURNS bytea
  LANGUAGE sql
  IMMUTABLE
 AS $function$ SELECT st_aspng(st_band($1, $2), $3) $function$
-CREATE OR REPLACE FUNCTION public.st_aspng(rast raster, nband integer, compression integer)
- RETURNS bytea
- LANGUAGE sql
- IMMUTABLE STRICT
-AS $function$ SELECT st_aspng($1, ARRAY[$2], $3) $function$
 ]]></string>
 			<comment><![CDATA[args: rast, options=NULL - Return the raster tile selected bands as a single portable network graphics (PNG) image (byte array). If 1, 3, or 4 bands in raster and no bands are specified, then all bands are used. If more 2 or more than 4 bands and no bands specified, then only band 1 is used. Bands are mapped to RGB or RGBA space.]]></comment>
 		</function>
@@ -6671,16 +6692,21 @@ AS '$libdir/postgis-2.0', $function$boundary$function$
 			<comment><![CDATA[args: geomA - Returns the closure of the combinatorial boundary of this Geometry.]]></comment>
 		</function>
 		<function name="st_buffer" id="Function2000279" isSystem="false" >
-			<string><![CDATA[CREATE OR REPLACE FUNCTION public.st_buffer(geography, double precision)
- RETURNS geography
- LANGUAGE sql
- IMMUTABLE STRICT
-AS $function$SELECT geography(ST_Transform(ST_Buffer(ST_Transform(geometry($1), _ST_BestSRID($1)), $2), 4326))$function$
-CREATE OR REPLACE FUNCTION public.st_buffer(text, double precision)
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.st_buffer(text, double precision)
  RETURNS geometry
  LANGUAGE sql
  IMMUTABLE STRICT
 AS $function$ SELECT ST_Buffer($1::geometry, $2);  $function$
+CREATE OR REPLACE FUNCTION public.st_buffer(geometry, double precision)
+ RETURNS geometry
+ LANGUAGE c
+ IMMUTABLE STRICT COST 100
+AS '$libdir/postgis-2.0', $function$buffer$function$
+CREATE OR REPLACE FUNCTION public.st_buffer(geography, double precision)
+ RETURNS geography
+ LANGUAGE sql
+ IMMUTABLE STRICT
+AS $function$SELECT geography(ST_Transform(ST_Buffer(ST_Transform(geometry($1), _ST_BestSRID($1)), $2), 4326))$function$
 CREATE OR REPLACE FUNCTION public.st_buffer(geometry, double precision, integer)
  RETURNS geometry
  LANGUAGE sql
@@ -6697,11 +6723,6 @@ AS $function$ SELECT _ST_Buffer($1, $2,
 			'quad_segs='||$3) AS cstring)
 		)
 	   $function$
-CREATE OR REPLACE FUNCTION public.st_buffer(geometry, double precision)
- RETURNS geometry
- LANGUAGE c
- IMMUTABLE STRICT COST 100
-AS '$libdir/postgis-2.0', $function$buffer$function$
 ]]></string>
 			<comment><![CDATA[args: g1, radius_of_buffer - (T) For geometry: Returns a geometry that represents all points whose distance from this Geometry is less than or equal to distance. Calculations are in the Spatial Reference System of this Geometry. For geography: Uses a planar transform wrapper. Introduced in 1.5 support for different end cap and mitre settings to control shape. buffer_style options: quad_segs=#,endcap=round|flat|square,join=round|mitre|bevel,mitre_limit=#.#]]></comment>
 		</function>
@@ -6742,7 +6763,27 @@ AS '$libdir/postgis-2.0', $function$ST_CleanGeometry$function$
 ]]></string>
 		</function>
 		<function name="st_clip" id="Function2000280" isSystem="false" >
-			<string><![CDATA[CREATE OR REPLACE FUNCTION public.st_clip(rast raster, band integer, geom geometry, nodataval double precision, crop boolean DEFAULT true)
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.st_clip(rast raster, geom geometry, crop boolean)
+ RETURNS raster
+ LANGUAGE sql
+ STABLE
+AS $function$ SELECT ST_Clip($1, NULL, $2, null::float8[], $3) $function$
+CREATE OR REPLACE FUNCTION public.st_clip(rast raster, band integer, geom geometry, crop boolean)
+ RETURNS raster
+ LANGUAGE sql
+ STABLE
+AS $function$ SELECT ST_Clip($1, $2, $3, null::float8[], $4) $function$
+CREATE OR REPLACE FUNCTION public.st_clip(rast raster, geom geometry, nodataval double precision, crop boolean DEFAULT true)
+ RETURNS raster
+ LANGUAGE sql
+ STABLE
+AS $function$ SELECT ST_Clip($1, NULL, $2, ARRAY[$3], $4) $function$
+CREATE OR REPLACE FUNCTION public.st_clip(rast raster, geom geometry, nodataval double precision[] DEFAULT NULL::double precision[], crop boolean DEFAULT true)
+ RETURNS raster
+ LANGUAGE sql
+ STABLE
+AS $function$ SELECT ST_Clip($1, NULL, $2, $3, $4) $function$
+CREATE OR REPLACE FUNCTION public.st_clip(rast raster, band integer, geom geometry, nodataval double precision, crop boolean DEFAULT true)
  RETURNS raster
  LANGUAGE sql
  STABLE
@@ -6809,26 +6850,6 @@ AS $function$
 		RETURN newrast;
 	END;
 	$function$
-CREATE OR REPLACE FUNCTION public.st_clip(rast raster, band integer, geom geometry, crop boolean)
- RETURNS raster
- LANGUAGE sql
- STABLE
-AS $function$ SELECT ST_Clip($1, $2, $3, null::float8[], $4) $function$
-CREATE OR REPLACE FUNCTION public.st_clip(rast raster, geom geometry, nodataval double precision[] DEFAULT NULL::double precision[], crop boolean DEFAULT true)
- RETURNS raster
- LANGUAGE sql
- STABLE
-AS $function$ SELECT ST_Clip($1, NULL, $2, $3, $4) $function$
-CREATE OR REPLACE FUNCTION public.st_clip(rast raster, geom geometry, nodataval double precision, crop boolean DEFAULT true)
- RETURNS raster
- LANGUAGE sql
- STABLE
-AS $function$ SELECT ST_Clip($1, NULL, $2, ARRAY[$3], $4) $function$
-CREATE OR REPLACE FUNCTION public.st_clip(rast raster, geom geometry, crop boolean)
- RETURNS raster
- LANGUAGE sql
- STABLE
-AS $function$ SELECT ST_Clip($1, NULL, $2, null::float8[], $3) $function$
 ]]></string>
 		</function>
 		<function name="st_clip_001" id="Function2000280" isSystem="false" />
@@ -12248,6 +12269,7 @@ BEGIN
 		audit_row = ROW(
 			nextval('event_log_id_seq'), -- event_log id
 			NEW.id, -- event_id
+			txid_current(),
 			statement_timestamp(),
 			TG_TABLE_NAME::text, -- table_name
 			substring(TG_OP,1,1), -- action
@@ -12258,6 +12280,7 @@ BEGIN
 		audit_row = ROW(
 			nextval('event_log_id_seq'), -- event_log id
 			NEW.event_id, -- event_id
+			txid_current(),
 			statement_timestamp(),
 			TG_TABLE_NAME::text, -- table_name
 			substring(TG_OP,1,1), -- action
@@ -12368,6 +12391,22 @@ BEGIN
 	RETURN;
 END
 $function$
+CREATE OR REPLACE FUNCTION public.ev_action_next_status(event_id bigint, action_name text, OUT available_statuses text[], OUT reason text)
+ RETURNS record
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+	avs TEXT[];
+	reas TEXT;
+BEGIN
+	SELECT INTO avs,reas * from ev_action_next_status(
+		(SELECT id FROM ev_action ac WHERE ac.event_id = ev_action_next_status.event_id AND ac.name = action_name)
+	);
+	SELECT INTO available_statuses array(SELECT unnest(avs) EXCEPT SELECT 'non executable'::text);
+	reason := reas;
+	RETURN;
+END
+$function$
 ]]></string>
 		</function>
 		<function name="update_ev_action" id="Function6871539" isSystem="false" >
@@ -12402,6 +12441,7 @@ BEGIN
 END
 $function$
 ]]></string>
+			<comment><![CDATA[TODO]]></comment>
 		</function>
 		<function name="gt_catalog_layer_after_insert_check" id="Function8113816" isSystem="false" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION public.gt_catalog_layer_after_insert_check()
@@ -12476,6 +12516,7 @@ BEGIN
 END
 $function$
 ]]></string>
+			<comment><![CDATA[TODO]]></comment>
 		</function>
 		<function name="gt_group_tree_check" id="Function8113827" isSystem="false" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION public.gt_group_tree_check()
@@ -12509,6 +12550,7 @@ BEGIN
 END
 $function$
 ]]></string>
+			<comment><![CDATA[Executes a select (returns a recordset)]]></comment>
 		</function>
 		<function name="start_event" id="Function8113829" isSystem="false" >
 			<string><![CDATA[CREATE OR REPLACE FUNCTION public.start_event(scenario_name text, is_real boolean, event_geom geometry)
@@ -12572,6 +12614,9 @@ BEGIN
 		LEFT JOIN ev_action ea ON ea.name = a.name
 		LEFT JOIN ev_actor ear ON ear.email = ar.email
 		WHERE a.scenario_id = scen.id AND ea.event_id = ev.id AND ear.event_id = ev.id;
+	--mark root action as terminated
+	UPDATE ev_action SET status = 'executable' WHERE event_id = ev.id AND name = 'root';
+	UPDATE ev_action SET status = 'terminated (success)' WHERE event_id = ev.id AND name = 'root';
 	
 	ANALYZE ev_action;
 	ANALYZE ev_visualization;
@@ -12584,50 +12629,1518 @@ END
 $function$
 ]]></string>
 		</function>
+		<function name="add_vertices_geometry" id="Function3750025" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.add_vertices_geometry(geom_table character varying)
+ RETURNS void
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE
+	vertices_table varchar := quote_ident(geom_table) || '_vertices';
+BEGIN
+	
+	BEGIN
+		EXECUTE 'SELECT addGeometryColumn(''' || 
+                        quote_ident(vertices_table)  || 
+                        ''', ''the_geom'', -1, ''POINT'', 2)';
+	EXCEPTION 
+		WHEN DUPLICATE_COLUMN THEN
+	END;
+	EXECUTE 'UPDATE ' || quote_ident(vertices_table) || 
+                ' SET the_geom = NULL';
+	EXECUTE 'UPDATE ' || quote_ident(vertices_table) || 
+                ' SET the_geom = ST_STARTPOINT(geometryn(m.the_geom, 1)) FROM ' ||
+                 quote_ident(geom_table) || 
+                ' m where geom_id = m.source';
+	EXECUTE 'UPDATE ' || quote_ident(vertices_table) || 
+                ' set the_geom = ST_ENDPOINT(geometryn(m.the_geom, 1)) FROM ' || 
+                quote_ident(geom_table) || 
+                ' m where geom_id = m.target_id AND ' || 
+                quote_ident(vertices_table) || 
+                '.the_geom IS NULL';
+	RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="alphashape" id="Function3750027" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.alphashape(sql text)
+ RETURNS SETOF vertex_result
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/librouting_dd', $function$alphashape$function$
+]]></string>
+		</function>
+		<function name="assign_vertex_id" id="Function3750028" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.assign_vertex_id(geom_table character varying, tolerance double precision, geo_cname character varying, gid_cname character varying)
+ RETURNS character varying
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE
+    _r record;
+    source_id int;
+    target_id int;
+    srid integer;
+BEGIN
+    BEGIN
+    DROP TABLE vertices_tmp;
+    EXCEPTION 
+    WHEN UNDEFINED_TABLE THEN
+    END;
+    EXECUTE 'CREATE TABLE vertices_tmp (id serial)';
+--    FOR _r IN EXECUTE 'SELECT srid FROM geometry_columns WHERE f_table_name='''|| quote_ident(geom_table)||''';' LOOP
+--	srid := _r.srid;
+--    END LOOP;
+    srid := Find_SRID('public',quote_ident(geom_table),quote_ident(geo_cname));
+
+    EXECUTE 'SELECT addGeometryColumn(''vertices_tmp'', ''the_geom'', '||srid||', ''POINT'', 2)';
+    CREATE INDEX vertices_tmp_idx ON vertices_tmp USING GIST (the_geom);
+			
+    FOR _r IN EXECUTE 'SELECT ' || quote_ident(gid_cname) || ' AS id,'
+	    || ' ST_STARTPOINT('|| quote_ident(geo_cname) ||') AS source,'
+            || ' ST_ENDPOINT('|| quote_ident(geo_cname) ||') as target'
+	    || ' FROM ' || quote_ident(geom_table) 
+    LOOP
+        
+        source_id := point_to_id(ST_SETSRID(_r.source, srid), tolerance);
+	target_id := point_to_id(ST_SETSRID(_r.target, srid), tolerance);
+								
+	EXECUTE 'update ' || quote_ident(geom_table) || 
+		' SET source = ' || source_id || 
+		', target = ' || target_id || 
+		' WHERE ' || quote_ident(gid_cname) || ' =  ' || _r.id;
+    END LOOP;
+    RETURN 'OK';
+END;
+$function$
+]]></string>
+		</function>
+		<function name="astar_sp" id="Function3750031" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.astar_sp(geom_table character varying, source integer, target integer)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+        r record;
+        path_result record;
+        v_id integer;
+        e_id integer;
+        geom geoms;
+	id integer;
+BEGIN
+	
+	id :=0;
+	FOR path_result IN EXECUTE 'SELECT gid,the_geom FROM ' || 
+           'astar_sp_directed(''' || 
+           quote_ident(geom_table) || ''', ' || quote_literal(source) || ', ' || 
+	   quote_literal(target) || ', false, false)'
+        LOOP
+              geom.gid      := path_result.gid;
+              geom.the_geom := path_result.the_geom;
+              id := id+1;
+	      geom.id       := id;
+                 
+              RETURN NEXT geom;
+        END LOOP;
+        RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="astar_sp_bbox" id="Function3750039" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.astar_sp_bbox(character varying, integer, integer, double precision, double precision, double precision, double precision)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+        geom_table ALIAS FOR $1;
+	sourceid ALIAS FOR $2;
+	targetid ALIAS FOR $3;
+	ll_x ALIAS FOR $4;
+	ll_y ALIAS FOR $5;
+	ur_x ALIAS FOR $6;
+	ur_y ALIAS FOR $7;
+	rec record;
+	r record;
+        path_result record;
+        v_id integer;
+        e_id integer;
+        geom geoms;
+	
+	srid integer;
+	id integer;
+BEGIN
+	
+	id :=0;
+	FOR path_result IN EXECUTE 'SELECT gid,the_geom FROM ' || 
+           'astar_sp_bbox_directed(''' || 
+           quote_ident(geom_table) || ''', ' || quote_literal(sourceid) || ', ' || 
+	   quote_literal(targetid) || ', ' || ll_x || ', ' || ll_y || ', ' ||
+	   ur_x || ', ' || ur_y || ', false, false)'
+        LOOP
+               geom.gid      := path_result.gid;
+               geom.the_geom := path_result.the_geom;
+               id := id+1;
+	       geom.id       := id;
+                 
+               RETURN NEXT geom;
+        END LOOP;
+        RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="astar_sp_bbox_directed" id="Function3750040" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.astar_sp_bbox_directed(character varying, integer, integer, double precision, double precision, double precision, double precision, boolean, boolean)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+        geom_table ALIAS FOR $1;
+	sourceid ALIAS FOR $2;
+	targetid ALIAS FOR $3;
+	ll_x ALIAS FOR $4;
+	ll_y ALIAS FOR $5;
+	ur_x ALIAS FOR $6;
+	ur_y ALIAS FOR $7;
+	dir ALIAS FOR $8;
+	rc ALIAS FOR $9;
+	rec record;
+	r record;
+        path_result record;
+        v_id integer;
+        e_id integer;
+        geom geoms;
+	
+	srid integer;
+	
+	query text;
+	id integer;
+BEGIN
+	
+	id :=0;
+	FOR rec IN EXECUTE
+	    'select ST_SRID(the_geom) from ' ||
+	    quote_ident(geom_table) || ' limit 1'
+	LOOP
+	END LOOP;
+	srid := rec.srid;
+	
+	query := 'SELECT gid,the_geom FROM ' || 
+           'shortest_path_astar(''SELECT gid as id, source::integer, ' || 
+           'target::integer, length::double precision as cost, ' || 
+           'x1::double precision, y1::double precision, ' || 
+           'x2::double precision, y2::double precision ';
+	   
+	IF rc THEN query := query || ' , reverse_cost ';
+	END IF;
+	   
+	query := query || 'FROM ' || 
+           quote_ident(geom_table) || ' where ST_SETSRID(''''BOX3D('||ll_x||' '||
+           ll_y||','||ur_x||' '||ur_y||')''''::BOX3D, ' || srid || 
+	   ') && the_geom'', ' || quote_literal(sourceid) || ' , ' || 
+           quote_literal(targetid) || ' , '''||text(dir)||''', '''||text(rc)||''' ),'  ||
+           quote_ident(geom_table) || ' where edge_id = gid ';
+	
+	FOR path_result IN EXECUTE query
+        LOOP
+               geom.gid      := path_result.gid;
+               geom.the_geom := path_result.the_geom;
+               id := id+1;
+	       geom.id       := id;
+                 
+               RETURN NEXT geom;
+        END LOOP;
+        RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="astar_sp_delta" id="Function3750041" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.astar_sp_delta(character varying, integer, integer, double precision)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+        geom_table ALIAS FOR $1;
+	sourceid ALIAS FOR $2;
+	targetid ALIAS FOR $3;
+	delta ALIAS FOR $4;
+	rec record;
+	r record;
+        path_result record;
+        v_id integer;
+        e_id integer;
+        geom geoms;
+	
+	id integer;
+BEGIN
+	
+	id :=0;
+	FOR path_result IN EXECUTE 'SELECT gid,the_geom FROM ' || 
+           'astar_sp_delta_directed(''' || 
+           quote_ident(geom_table) || ''', ' || quote_literal(sourceid) || ', ' || 
+	   quote_literal(targetid) || ', ' || delta || ', false, false)'
+        LOOP
+                 geom.gid      := path_result.gid;
+                 geom.the_geom := path_result.the_geom;
+		 id := id+1;
+		 geom.id       := id;
+                 
+                 RETURN NEXT geom;
+        END LOOP;
+        RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="astar_sp_delta_cc" id="Function3750041" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.astar_sp_delta_cc(character varying, integer, integer, double precision, character varying)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+        geom_table ALIAS FOR $1;
+	sourceid ALIAS FOR $2;
+	targetid ALIAS FOR $3;
+	delta ALIAS FOR $4;
+	cost_column ALIAS FOR $5;
+	rec record;
+	r record;
+        path_result record;
+        v_id integer;
+        e_id integer;
+        geom geoms;
+	
+	id integer;
+BEGIN
+	
+	id :=0;
+	FOR path_result IN EXECUTE 'SELECT gid,the_geom FROM ' || 
+           'astar_sp_delta_cc_directed(''' || 
+           quote_ident(geom_table) || ''', ' || quote_literal(sourceid) || ', ' || 
+	   quote_literal(targetid) || ', ' || delta || ',' || 
+	   quote_literal(cost_column) || ', false, false)'
+        LOOP
+                 geom.gid      := path_result.gid;
+                 geom.the_geom := path_result.the_geom;
+		 id := id+1;
+		 geom.id       := id;
+                 
+                 RETURN NEXT geom;
+        END LOOP;
+        RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="astar_sp_delta_cc_directed" id="Function3750043" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.astar_sp_delta_cc_directed(character varying, integer, integer, double precision, character varying, boolean, boolean)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+        geom_table ALIAS FOR $1;
+	sourceid ALIAS FOR $2;
+	targetid ALIAS FOR $3;
+	delta ALIAS FOR $4;
+	cost_column ALIAS FOR $5;
+	dir ALIAS FOR $6;
+	rc ALIAS FOR $7;
+	rec record;
+	r record;
+        path_result record;
+        v_id integer;
+        e_id integer;
+        geom geoms;
+	
+	srid integer;
+	source_x float8;
+	source_y float8;
+	target_x float8;
+	target_y float8;
+	
+	ll_x float8;
+	ll_y float8;
+	ur_x float8;
+	ur_y float8;
+	
+	query text;
+	id integer;
+BEGIN
+	
+	id :=0;
+	FOR rec IN EXECUTE
+	    'select ST_SRID(the_geom) from ' ||
+	    quote_ident(geom_table) || ' limit 1'
+	LOOP
+	END LOOP;
+	srid := rec.srid;
+	
+	FOR rec IN EXECUTE 
+            'select ST_X(ST_STARTPOINT(the_geom)) as source_x from ' || 
+            quote_ident(geom_table) || ' where source = ' || 
+            sourceid || ' or target='||sourceid||' limit 1'
+        LOOP
+	END LOOP;
+	source_x := rec.source_x;
+	
+	FOR rec IN EXECUTE 
+            'select ST_Y(ST_STARTPOINT(the_geom)) as source_y from ' || 
+            quote_ident(geom_table) || ' where source = ' || 
+            sourceid ||  ' or target='||sourceid||' limit 1'
+        LOOP
+	END LOOP;
+	source_y := rec.source_y;
+	FOR rec IN EXECUTE 
+            'select ST_X(ST_STARTPOINT(the_geom)) as target_x from ' ||
+            quote_ident(geom_table) || ' where source = ' || 
+            targetid ||  ' or target='||targetid||' limit 1'
+        LOOP
+	END LOOP;
+	target_x := rec.target_x;
+	
+	FOR rec IN EXECUTE 
+            'select ST_Y(ST_STARTPOINT(the_geom)) as target_y from ' || 
+            quote_ident(geom_table) || ' where source = ' || 
+            targetid ||  ' or target='||targetid||' limit 1'
+        LOOP
+	END LOOP;
+	target_y := rec.target_y;
+
+	FOR rec IN EXECUTE 'SELECT CASE WHEN '||source_x||'<'||target_x||
+           ' THEN '||source_x||' ELSE '||target_x||
+           ' END as ll_x, CASE WHEN '||source_x||'>'||target_x||
+           ' THEN '||source_x||' ELSE '||target_x||' END as ur_x'
+        LOOP
+	END LOOP;
+	ll_x := rec.ll_x;
+	ur_x := rec.ur_x;
+	FOR rec IN EXECUTE 'SELECT CASE WHEN '||source_y||'<'||
+            target_y||' THEN '||source_y||' ELSE '||
+            target_y||' END as ll_y, CASE WHEN '||
+            source_y||'>'||target_y||' THEN '||
+            source_y||' ELSE '||target_y||' END as ur_y'
+        LOOP
+	END LOOP;
+	ll_y := rec.ll_y;
+	ur_y := rec.ur_y;
+	query := 'SELECT gid,the_geom FROM ' || 
+          'shortest_path_astar(''SELECT gid as id, source::integer, ' || 
+          'target::integer, '||cost_column||'::double precision as cost, ' || 
+          'x1::double precision, y1::double precision, x2::double ' ||
+          'precision, y2::double precision ';
+	
+	IF rc THEN query := query || ' , reverse_cost ';
+	END IF;
+	  
+	query := query || 'FROM ' || quote_ident(geom_table) || ' where ST_SETSRID(''''BOX3D('||
+          ll_x-delta||' '||ll_y-delta||','||ur_x+delta||' '||
+          ur_y+delta||')''''::BOX3D, ' || srid || ') && the_geom'', ' || 
+          quote_literal(sourceid) || ' , ' || 
+          quote_literal(targetid) || ' , '''||text(dir)||''', '''||text(rc)||''' ),' || 
+          quote_ident(geom_table) || ' where edge_id = gid ';
+	
+	FOR path_result IN EXECUTE query
+        LOOP
+                 geom.gid      := path_result.gid;
+                 geom.the_geom := path_result.the_geom;
+		 id := id+1;
+		 geom.id       := id;
+                 
+                 RETURN NEXT geom;
+        END LOOP;
+        RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="astar_sp_delta_directed" id="Function3750043" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.astar_sp_delta_directed(character varying, integer, integer, double precision, boolean, boolean)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+        geom_table ALIAS FOR $1;
+	sourceid ALIAS FOR $2;
+	targetid ALIAS FOR $3;
+	delta ALIAS FOR $4;
+	dir ALIAS FOR $5;
+	rc ALIAS FOR $6;
+	rec record;
+	r record;
+        path_result record;
+        v_id integer;
+        e_id integer;
+        geom geoms;
+	
+	srid integer;
+	source_x float8;
+	source_y float8;
+	target_x float8;
+	target_y float8;
+	
+	ll_x float8;
+	ll_y float8;
+	ur_x float8;
+	ur_y float8;
+	
+	query text;
+	id integer;
+BEGIN
+	
+	id :=0;
+	FOR rec IN EXECUTE
+	    'select ST_SRID(the_geom) from ' ||
+	    quote_ident(geom_table) || ' limit 1'
+	LOOP
+	END LOOP;
+	srid := rec.srid;
+	
+	FOR rec IN EXECUTE 
+            'select ST_X(ST_STARTPOINT(the_geom)) as source_x from ' || 
+            quote_ident(geom_table) || ' where source = ' || 
+            sourceid ||  ' or target='||sourceid||' limit 1'
+        LOOP
+	END LOOP;
+	source_x := rec.source_x;
+	
+	FOR rec IN EXECUTE 
+            'select ST_Y(ST_STARTPOINT(the_geom)) as source_y from ' || 
+            quote_ident(geom_table) || ' where source = ' || 
+            sourceid ||  ' or target='||sourceid||' limit 1'
+        LOOP
+	END LOOP;
+	source_y := rec.source_y;
+	FOR rec IN EXECUTE 
+            'select ST_X(ST_STARTPOINT(the_geom)) as target_x from ' ||
+            quote_ident(geom_table) || ' where source = ' || 
+            targetid ||  ' or target='||targetid||' limit 1'
+        LOOP
+	END LOOP;
+	target_x := rec.target_x;
+	
+	FOR rec IN EXECUTE 
+            'select ST_Y(ST_STARTPOINT(the_geom)) as target_y from ' || 
+            quote_ident(geom_table) || ' where source = ' || 
+            targetid ||  ' or target='||targetid||' limit 1'
+        LOOP
+	END LOOP;
+	target_y := rec.target_y;
+	FOR rec IN EXECUTE 'SELECT CASE WHEN '||source_x||'<'||target_x||
+           ' THEN '||source_x||' ELSE '||target_x||
+           ' END as ll_x, CASE WHEN '||source_x||'>'||target_x||
+           ' THEN '||source_x||' ELSE '||target_x||' END as ur_x'
+        LOOP
+	END LOOP;
+	ll_x := rec.ll_x;
+	ur_x := rec.ur_x;
+	FOR rec IN EXECUTE 'SELECT CASE WHEN '||source_y||'<'||
+            target_y||' THEN '||source_y||' ELSE '||
+            target_y||' END as ll_y, CASE WHEN '||
+            source_y||'>'||target_y||' THEN '||
+            source_y||' ELSE '||target_y||' END as ur_y'
+        LOOP
+	END LOOP;
+	ll_y := rec.ll_y;
+	ur_y := rec.ur_y;
+	query := 'SELECT gid,the_geom FROM ' || 
+          'shortest_path_astar(''SELECT gid as id, source::integer, ' || 
+          'target::integer, length::double precision as cost, ' || 
+          'x1::double precision, y1::double precision, x2::double ' ||
+          'precision, y2::double precision ';
+	  
+	IF rc THEN query := query || ' , reverse_cost ';  
+	END IF;
+	  
+	query := query || 'FROM ' || quote_ident(geom_table) || ' where ST_SETSRID(''''BOX3D('||
+          ll_x-delta||' '||ll_y-delta||','||ur_x+delta||' '||
+          ur_y+delta||')''''::BOX3D, ' || srid || ') && the_geom'', ' || 
+          quote_literal(sourceid) || ' , ' || 
+          quote_literal(targetid) || ' , '''||text(dir)||''', '''||text(rc)||''' ),' || 
+          quote_ident(geom_table) || ' where edge_id = gid ';
+	  
+	FOR path_result IN EXECUTE query
+        LOOP
+                 geom.gid      := path_result.gid;
+                 geom.the_geom := path_result.the_geom;
+		 id := id+1;
+		 geom.id       := id;
+                 
+                 RETURN NEXT geom;
+--
+--                v_id = path_result.vertex_id;
+--                e_id = path_result.edge_id;
+--                FOR r IN EXECUTE 'SELECT gid, the_geom FROM ' || 
+--                      quote_ident(geom_table) || '  WHERE gid = ' || 
+--                      quote_literal(e_id) LOOP
+--                        geom.gid := r.gid;
+--                        geom.the_geom := r.the_geom;
+--                        RETURN NEXT geom;
+--                END LOOP;
+        END LOOP;
+        RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="astar_sp_directed" id="Function3750044" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.astar_sp_directed(geom_table character varying, source integer, target integer, dir boolean, rc boolean)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+        r record;
+        path_result record;
+        v_id integer;
+        e_id integer;
+        geom geoms;
+	
+	query text;
+	id integer;
+BEGIN
+	
+	id :=0;
+	query := 'SELECT gid,the_geom FROM ' || 
+           'shortest_path_astar(''SELECT gid as id, source::integer, ' || 
+           'target::integer, length::double precision as cost, ' || 
+           'x1::double precision, y1::double precision, ' || 
+           'x2::double precision, y2::double precision ';
+	   
+	IF rc THEN query := query || ' , reverse_cost ';
+	END IF;
+	query := query || 'FROM ' || quote_ident(geom_table) || ' '', ' || 
+           quote_literal(source) || ' , ' || 
+           quote_literal(target) || ' , '''||text(dir)||''', '''||text(rc)||'''), ' ||
+           quote_ident(geom_table) || ' where edge_id = gid ';
+	   
+	FOR path_result IN EXECUTE query
+        LOOP
+              geom.gid      := path_result.gid;
+              geom.the_geom := path_result.the_geom;
+              id := id+1;
+	      geom.id       := id;
+                 
+              RETURN NEXT geom;
+        END LOOP;
+        RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="dijkstra_sp" id="Function3750046" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.dijkstra_sp(geom_table character varying, source integer, target integer)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+	r record;
+	path_result record;
+	v_id integer;
+	e_id integer;
+	geom geoms;
+	id integer;
+BEGIN
+	
+	id :=0;
+	
+	FOR path_result IN EXECUTE 'SELECT gid,the_geom FROM ' ||
+          'shortest_path(''SELECT gid as id, source::integer, target::integer, ' || 
+          'length::double precision as cost FROM ' ||
+	  quote_ident(geom_table) || ''', ' || quote_literal(source) || 
+          ' , ' || quote_literal(target) || ' , false, false), ' || 
+          quote_ident(geom_table) || ' where edge_id = gid ' 
+        LOOP
+                 geom.gid      := path_result.gid;
+                 geom.the_geom := path_result.the_geom;
+		 id := id+1;
+		 geom.id       := id;
+                 
+                 RETURN NEXT geom;
+	END LOOP;
+	RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="dijkstra_sp_delta" id="Function3750047" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.dijkstra_sp_delta(character varying, integer, integer, double precision)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+        geom_table ALIAS FOR $1;
+	sourceid ALIAS FOR $2;
+	targetid ALIAS FOR $3;
+	delta ALIAS FOR $4;
+	rec record;
+	r record;
+        path_result record;
+        v_id integer;
+        e_id integer;
+        geom geoms;
+	
+	id integer;
+BEGIN
+	
+	id :=0;
+	FOR path_result IN EXECUTE 'SELECT gid,the_geom FROM ' || 
+           'dijkstra_sp_delta_directed(''' || 
+           quote_ident(geom_table) || ''', ' || quote_literal(sourceid) || ', ' || 
+	   quote_literal(targetid) || ', ' || delta || ', false, false)'
+        LOOP
+                 geom.gid      := path_result.gid;
+                 geom.the_geom := path_result.the_geom;
+		 id := id+1;
+		 geom.id       := id;
+                 
+                 RETURN NEXT geom;
+        END LOOP;
+        RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="dijkstra_sp_delta_directed" id="Function3750048" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.dijkstra_sp_delta_directed(character varying, integer, integer, double precision, boolean, boolean)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+        geom_table ALIAS FOR $1;
+	sourceid ALIAS FOR $2;
+	targetid ALIAS FOR $3;
+	delta ALIAS FOR $4;
+	dir ALIAS FOR $5;
+	rc ALIAS FOR $6;
+	rec record;
+	r record;
+        path_result record;
+        v_id integer;
+        e_id integer;
+        geom geoms;
+	
+	srid integer;
+	source_x float8;
+	source_y float8;
+	target_x float8;
+	target_y float8;
+	
+	ll_x float8;
+	ll_y float8;
+	ur_x float8;
+	ur_y float8;
+	
+	query text;
+	id integer;
+BEGIN
+	
+	id :=0;
+	FOR rec IN EXECUTE
+	    'select ST_SRID(the_geom) from ' ||
+	    quote_ident(geom_table) || ' limit 1'
+	LOOP
+	END LOOP;
+	srid := rec.srid;
+	FOR rec IN EXECUTE 
+            'select ST_X(ST_STARTPOINT(the_geom)) as source_x from ' || 
+            quote_ident(geom_table) || ' where source = ' || 
+            sourceid ||  ' or target='||sourceid||' limit 1'
+        LOOP
+	END LOOP;
+	source_x := rec.source_x;
+	
+	FOR rec IN EXECUTE 
+            'select ST_Y(ST_STARTPOINT(the_geom)) as source_y from ' || 
+            quote_ident(geom_table) || ' where source = ' || 
+            sourceid ||  ' or target='||sourceid||' limit 1'
+        LOOP
+	END LOOP;
+	source_y := rec.source_y;
+	FOR rec IN EXECUTE 
+            'select ST_X(ST_STARTPOINT(the_geom)) as target_x from ' ||
+            quote_ident(geom_table) || ' where source = ' || 
+            targetid ||  ' or target='||targetid||' limit 1'
+        LOOP
+	END LOOP;
+	target_x := rec.target_x;
+	
+	FOR rec IN EXECUTE 
+            'select ST_Y(ST_STARTPOINT(the_geom)) as target_y from ' || 
+            quote_ident(geom_table) || ' where source = ' || 
+            targetid ||  ' or target='||targetid||' limit 1'
+        LOOP
+	END LOOP;
+	target_y := rec.target_y;
+
+	FOR rec IN EXECUTE 'SELECT CASE WHEN '||source_x||'<'||target_x||
+           ' THEN '||source_x||' ELSE '||target_x||
+           ' END as ll_x, CASE WHEN '||source_x||'>'||target_x||
+           ' THEN '||source_x||' ELSE '||target_x||' END as ur_x'
+        LOOP
+	END LOOP;
+	ll_x := rec.ll_x;
+	ur_x := rec.ur_x;
+	FOR rec IN EXECUTE 'SELECT CASE WHEN '||source_y||'<'||
+            target_y||' THEN '||source_y||' ELSE '||
+            target_y||' END as ll_y, CASE WHEN '||
+            source_y||'>'||target_y||' THEN '||
+            source_y||' ELSE '||target_y||' END as ur_y'
+        LOOP
+	END LOOP;
+	ll_y := rec.ll_y;
+	ur_y := rec.ur_y;
+	query := 'SELECT gid,the_geom FROM ' || 
+          'shortest_path(''SELECT gid as id, source::integer, target::integer, ' || 
+          'length::double precision as cost ';
+	  
+	IF rc THEN query := query || ' , reverse_cost ';
+	END IF;
+	query := query || ' FROM ' || quote_ident(geom_table) || ' where ST_SETSRID(''''BOX3D('||
+          ll_x-delta||' '||ll_y-delta||','||ur_x+delta||' '||
+          ur_y+delta||')''''::BOX3D, ' || srid || ') && the_geom'', ' || 
+          quote_literal(sourceid) || ' , ' || 
+          quote_literal(targetid) || ' , '''||text(dir)||''', '''||text(rc)||''' ), ' ||
+          quote_ident(geom_table) || ' where edge_id = gid ';
+	  
+	FOR path_result IN EXECUTE query
+        LOOP
+                 geom.gid      := path_result.gid;
+                 geom.the_geom := path_result.the_geom;
+		 id := id+1;
+		 geom.id       := id;
+                 
+                 RETURN NEXT geom;
+        END LOOP;
+        RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="dijkstra_sp_directed" id="Function3750049" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.dijkstra_sp_directed(geom_table character varying, source integer, target integer, dir boolean, rc boolean)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+	r record;
+	path_result record;
+	v_id integer;
+	e_id integer;
+	geom geoms;
+	query text;
+	id integer;
+BEGIN
+	
+	id :=0;
+	
+	query := 'SELECT gid,the_geom FROM ' ||
+          'shortest_path(''SELECT gid as id, source::integer, target::integer, ' || 
+          'length::double precision as cost ';
+	  
+	IF rc THEN query := query || ', reverse_cost ';  
+	END IF;
+	
+	query := query || 'FROM ' ||  quote_ident(geom_table) || ''', ' || quote_literal(source) || 
+          ' , ' || quote_literal(target) || ' , '''||text(dir)||''', '''||text(rc)||'''), ' || 
+          quote_ident(geom_table) || ' where edge_id = gid ';
+	FOR path_result IN EXECUTE query
+        LOOP
+                 geom.gid      := path_result.gid;
+                 geom.the_geom := path_result.the_geom;
+		 id := id+1;
+		 geom.id       := id;
+                 
+                 RETURN NEXT geom;
+	END LOOP;
+	RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="driving_distance" id="Function3750050" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.driving_distance(sql text, source_id integer, distance double precision, directed boolean, has_reverse_cost boolean)
+ RETURNS SETOF path_result
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/librouting_dd', $function$driving_distance$function$
+CREATE OR REPLACE FUNCTION public.driving_distance(table_name character varying, x double precision, y double precision, distance double precision, cost character varying, reverse_cost character varying, directed boolean, has_reverse_cost boolean)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE
+     q text;
+     srid integer;
+     r record;
+     geom geoms;
+BEGIN
+     
+     FOR r IN EXECUTE 'SELECT srid FROM geometry_columns WHERE f_table_name = '''||table_name||'''' LOOP
+     END LOOP;
+     
+     srid := r.srid;
+     
+     RAISE NOTICE 'SRID: %', srid;
+     q := 'SELECT gid, the_geom FROM points_as_polygon(''SELECT a.vertex_id::integer AS id, b.x1::double precision AS x, b.y1::double precision AS y'||
+     ' FROM driving_distance(''''''''SELECT gid AS id,source::integer,target::integer, '||cost||'::double precision AS cost, '||
+     reverse_cost||'::double precision as reverse_cost FROM '||
+     table_name||' WHERE ST_setSRID(''''''''''''''''BOX3D('||
+     x-distance||' '||y-distance||', '||x+distance||' '||y+distance||')''''''''''''''''::BOX3D, '||srid||') && the_geom  '''''''', (SELECT id FROM find_node_by_nearest_link_within_distance(''''''''POINT('||x||' '||y||')'''''''','||distance/10||','''''''''||table_name||''''''''')),'||
+     distance||',true,true) a, (SELECT * FROM '||table_name||' WHERE ST_setSRID(''''''''BOX3D('||
+     x-distance||' '||y-distance||', '||x+distance||' '||y+distance||')''''''''::BOX3D, '||srid||')&&the_geom) b WHERE a.vertex_id = b.source'')';
+     RAISE NOTICE 'Query: %', q;
+     
+     FOR r IN EXECUTE q LOOP     
+        geom.gid := r.gid;
+        geom.the_geom := r.the_geom;
+        RETURN NEXT geom;
+     END LOOP;
+     
+     RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="driving_distance_001" id="Function3750051" isSystem="false" />
+		<function name="ev_action_next_status_001" id="Function3750052" isSystem="false" />
+		<function name="ev_action_next_status_gui" id="Function3750053" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.ev_action_next_status_gui(action_id bigint, OUT available_statuses text[], OUT reason text)
+ RETURNS record
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+	avs TEXT[];
+BEGIN
+	SELECT INTO avs,reason * from ev_action_next_status(action_id);
+	SELECT INTO available_statuses array(SELECT unnest(avs) EXCEPT SELECT 'non executable'::text);
+	RETURN;
+END
+$function$
+]]></string>
+		</function>
+		<function name="insert_vertex" id="Function3750054" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.insert_vertex(vertices_table character varying, geom_id anyelement)
+ RETURNS integer
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE
+        vertex_id int;
+        myrec record;
+BEGIN
+        LOOP
+          FOR myrec IN EXECUTE 'SELECT id FROM ' || 
+                     quote_ident(vertices_table) || 
+                     ' WHERE geom_id = ' || quote_literal(geom_id)  LOOP
+                        IF myrec.id IS NOT NULL THEN
+                                RETURN myrec.id;
+                        END IF;
+          END LOOP; 
+          EXECUTE 'INSERT INTO ' || quote_ident(vertices_table) || 
+                  ' (geom_id) VALUES (' || quote_literal(geom_id) || ')';
+        END LOOP;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="path_fastest" id="Function3750055" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.path_fastest(interruptions_polygons_wtk text, source_id integer, target_id integer)
+ RETURNS text
+ LANGUAGE sql
+AS $function$
+	SELECT ST_AsGeoJSON(ST_Union(the_geom))
+	FROM Shortest_path(
+		'SELECT gid AS id, source, target, time AS cost, reverse_time AS reverse_cost
+		FROM brenner WHERE NOT ST_Intersects (
+			brenner.the_geom,
+			(st_geomfromtext('||quote_literal(interruptions_polygons_wtk)||',4326))
+		)',
+		source_id,
+		target_id,
+		false,
+		true
+	) AS path, brenner AS topo WHERE path.edge_id=topo.gid;
+$function$
+]]></string>
+		</function>
+		<function name="path_shortest" id="Function3750056" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.path_shortest(interruptions_polygons_wtk text, source_id integer, target_id integer)
+ RETURNS text
+ LANGUAGE sql
+AS $function$
+	SELECT ST_AsGeoJSON(ST_Union(the_geom))
+	FROM Shortest_path(
+		'select gid AS id, source, target, cost, reverse_cost
+		FROM brenner WHERE NOT ST_Intersects (
+			brenner.the_geom,
+			(st_geomfromtext('||quote_literal(interruptions_polygons_wtk)||',4326))
+		)',
+		source_id,
+		target_id,
+		false,
+		true
+	) AS path, brenner AS topo WHERE path.edge_id=topo.gid;
+$function$
+]]></string>
+		</function>
+		<function name="path_vulnerability" id="Function3750056" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.path_vulnerability(vulnerability text, interruptions_polygons_wtk text, source_id integer, target_id integer)
+ RETURNS text
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+	col text;
+	result text;
+BEGIN
+	CASE vulnerability
+	    WHEN 'landslides' THEN
+		col := 'nat01';
+	    WHEN 'mudslides' THEN
+		col := 'nat02';
+	    WHEN 'floods' THEN
+		col := 'nat03';
+	    WHEN 'earthquakes' THEN
+		col := 'nat04';
+	    WHEN 'avalanches' THEN
+		col := 'nat05';
+	    WHEN 'forestfires' THEN
+		col := 'nat06';
+	    WHEN 'scree' THEN
+		col := 'nat07';
+	    ELSE
+		RAISE EXCEPTION 'Wrong vulerability type';
+	END CASE;
+	SELECT INTO result ST_AsGeoJSON(ST_Union(the_geom))
+	FROM Shortest_path(
+		'select gid AS id, source, target, cost, reverse_cost
+		FROM brenner WHERE '||quote_ident(col)||' = 0 AND NOT ST_Intersects (
+			brenner.the_geom,
+			(st_geomfromtext('||quote_literal(interruptions_polygons_wtk)||',4326))
+		)',
+		source_id,
+		target_id,
+		false,
+		true
+	) AS path, brenner AS topo WHERE path.edge_id=topo.gid;
+	RETURN result;
+END
+$function$
+]]></string>
+		</function>
+		<function name="point_to_id" id="Function3750057" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.point_to_id(p geometry, tolerance double precision)
+ RETURNS bigint
+ LANGUAGE plpgsql
+ STRICT
+AS $function$ 
+DECLARE
+    _r record; 
+    _id bigint; 
+    _srid integer;
+BEGIN
+    _srid := Find_SRID('public','vertices_tmp','the_geom');
+    SELECT
+        ST_Distance(the_geom,GeometryFromText( ST_AsText(p), _srid)) AS d, id, the_geom
+    INTO _r FROM vertices_tmp WHERE
+        the_geom && Expand(GeometryFromText(ST_AsText(p), _srid), tolerance ) AND ST_Distance(the_geom, GeometryFromText(ST_AsText(p), _srid)) < tolerance
+    ORDER BY d LIMIT 1; IF FOUND THEN
+        _id:= _r.id;
+    ELSE
+        INSERT INTO vertices_tmp(the_geom) VALUES (ST_SETSRID(p,_srid)); _id:=lastval();
+    END IF;
+    RETURN _id;
+END; $function$
+]]></string>
+		</function>
+		<function name="points_as_polygon" id="Function3750057" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.points_as_polygon(query character varying)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE
+     r record;
+     path_result record;					     
+     i int;							     
+     q text;
+     x float8[];
+     y float8[];
+     geom geoms;
+     id integer;
+BEGIN
+	
+     id :=0;
+									     
+     i := 1;								     
+     q := 'select 1 as gid, GeometryFromText(''POLYGON((';
+     
+     FOR path_result IN EXECUTE 'select x, y from alphashape('''|| 
+         query || ''')' LOOP
+         x[i] = path_result.x;
+         y[i] = path_result.y;
+         i := i+1;
+     END LOOP;
+     q := q || x[1] || ' ' || y[1];
+     i := 2;
+     WHILE x[i] IS NOT NULL LOOP
+         q := q || ', ' || x[i] || ' ' || y[i];
+         i := i + 1;
+     END LOOP;
+    q := q || ', ' || x[1] || ' ' || y[1];
+    q := q || '))'',-1) as the_geom';
+    FOR r in EXECUTE q LOOP
+         geom.gid:=r.gid;
+         geom.the_geom=r.the_geom;
+	 id := id+1;
+	 geom.id       := id;
+	 RETURN NEXT geom;
+    END LOOP;
+    RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="shootingstar_sp" id="Function3750058" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.shootingstar_sp(character varying, integer, integer, double precision, character varying, boolean, boolean)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+        geom_table ALIAS FOR $1;
+	sourceid ALIAS FOR $2;
+	targetid ALIAS FOR $3;
+	delta ALIAS FOR $4;
+        cost_column ALIAS FOR $5;
+	dir ALIAS FOR $6;
+	rc ALIAS FOR $7;
+	rec record;
+	r record;
+        path_result record;
+        v_id integer;
+        e_id integer;
+        geom geoms;
+	
+	srid integer;
+	source_x float8;
+	source_y float8;
+	target_x float8;
+	target_y float8;
+	
+	ll_x float8;
+	ll_y float8;
+	ur_x float8;
+	ur_y float8;
+	
+	query text;
+	id integer;
+BEGIN
+	
+	id :=0;
+	FOR rec IN EXECUTE
+	    'select ST_SRID(the_geom) from ' ||
+	    quote_ident(geom_table) || ' limit 1'
+	LOOP
+	END LOOP;
+	srid := rec.srid;
+	
+	FOR rec IN EXECUTE 
+            'select ST_X(ST_STARTPOINT(the_geom)) as source_x from ' || 
+            quote_ident(geom_table) || ' where gid = '||sourceid
+        LOOP
+	END LOOP;
+	source_x := rec.source_x;
+	
+	FOR rec IN EXECUTE 
+            'select ST_Y(ST_STARTPOINT(the_geom)) as source_y from ' || 
+            quote_ident(geom_table) || ' where gid = ' ||sourceid
+        LOOP
+	END LOOP;
+	source_y := rec.source_y;
+	FOR rec IN EXECUTE 
+            'select ST_X(ST_STARTPOINT(the_geom)) as target_x from ' ||
+            quote_ident(geom_table) || ' where gid = ' ||targetid
+        LOOP
+	END LOOP;
+	target_x := rec.target_x;
+	
+	FOR rec IN EXECUTE 
+            'select ST_Y(ST_STARTPOINT(the_geom)) as target_y from ' || 
+            quote_ident(geom_table) || ' where gid = ' ||targetid
+        LOOP
+	END LOOP;
+	target_y := rec.target_y;
+	FOR rec IN EXECUTE 'SELECT CASE WHEN '||source_x||'<'||target_x||
+           ' THEN '||source_x||' ELSE '||target_x||
+           ' END as ll_x, CASE WHEN '||source_x||'>'||target_x||
+           ' THEN '||source_x||' ELSE '||target_x||' END as ur_x'
+        LOOP
+	END LOOP;
+	ll_x := rec.ll_x;
+	ur_x := rec.ur_x;
+	FOR rec IN EXECUTE 'SELECT CASE WHEN '||source_y||'<'||
+            target_y||' THEN '||source_y||' ELSE '||
+            target_y||' END as ll_y, CASE WHEN '||
+            source_y||'>'||target_y||' THEN '||
+            source_y||' ELSE '||target_y||' END as ur_y'
+        LOOP
+	END LOOP;
+	ll_y := rec.ll_y;
+	ur_y := rec.ur_y;
+	query := 'SELECT gid,the_geom FROM ' || 
+          'shortest_path_shooting_star(''SELECT gid as id, source::integer, ' || 
+          'target::integer, '||cost_column||'::double precision as cost, ' || 
+          'x1::double precision, y1::double precision, x2::double ' ||
+          'precision, y2::double precision, rule::varchar, ' ||
+	  'to_cost::double precision ';
+	  
+	IF rc THEN query := query || ' , reverse_cost ';  
+	END IF;
+	  
+	query := query || 'FROM ' || quote_ident(geom_table) || ' where ST_SETSRID(''''BOX3D('||
+          ll_x-delta||' '||ll_y-delta||','||ur_x+delta||' '||
+          ur_y+delta||')''''::BOX3D, ' || srid || ') && the_geom'', ' || 
+          quote_literal(sourceid) || ' , ' || 
+          quote_literal(targetid) || ' , '''||text(dir)||''', '''||text(rc)||''' ),' || 
+          quote_ident(geom_table) || ' where edge_id = gid ';
+	  
+	FOR path_result IN EXECUTE query
+        LOOP
+                 geom.gid      := path_result.gid;
+                 geom.the_geom := path_result.the_geom;
+		 id := id+1;
+		 geom.id       := id;
+                 
+                 RETURN NEXT geom;
+        END LOOP;
+        RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="shortest_path" id="Function3750059" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.shortest_path(sql text, source_id integer, target_id integer, directed boolean, has_reverse_cost boolean)
+ RETURNS SETOF path_result
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/librouting', $function$shortest_path$function$
+]]></string>
+		</function>
+		<function name="shortest_path_astar" id="Function3750060" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.shortest_path_astar(sql text, source_id integer, target_id integer, directed boolean, has_reverse_cost boolean)
+ RETURNS SETOF path_result
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/librouting', $function$shortest_path_astar$function$
+]]></string>
+		</function>
+		<function name="shortest_path_shooting_star" id="Function3750061" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.shortest_path_shooting_star(sql text, source_id integer, target_id integer, directed boolean, has_reverse_cost boolean)
+ RETURNS SETOF path_result
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/librouting', $function$shortest_path_shooting_star$function$
+]]></string>
+		</function>
+		<function name="text_001" id="Function3750062" isSystem="false" />
+		<function name="tsp" id="Function3750063" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.tsp(sql text, ids character varying, source integer)
+ RETURNS SETOF path_result
+ LANGUAGE c
+ IMMUTABLE STRICT
+AS '$libdir/librouting_tsp', $function$tsp$function$
+]]></string>
+		</function>
+		<function name="tsp_astar" id="Function3750064" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.tsp_astar(geom_table character varying, ids character varying, source integer, delta double precision)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+        r record;
+        path_result record;
+        v_id integer;
+	prev integer;
+	geom geoms;
+	id integer;
+BEGIN
+	
+	id :=0;
+	prev := source;
+	FOR path_result IN EXECUTE 'SELECT vertex_id FROM tsp(''select distinct source::integer as source_id, x1::double precision as x, y1::double precision as y from ' ||
+	  quote_ident(geom_table) || ' where source in (' || 
+          ids || ') UNION select distinct target as source_id, ST_X(ST_ENDPOINT(the_geom)), ST_Y(ST_ENDPOINT(the_geom)) from tsp_test where target in ('||ids||')'', '''|| ids  ||''', '|| source  ||')' LOOP
+                v_id = path_result.vertex_id;
+		
+                FOR r IN EXECUTE 'SELECT gid, the_geom FROM astar_sp_delta( ''' || 
+                  quote_ident(geom_table)  ||''', '|| v_id ||', '|| 
+                  prev ||','||delta||')' LOOP
+                    geom.gid := r.gid;
+	            geom.the_geom := r.the_geom;
+                    id := id+1;
+		    geom.id       := id;
+    	            RETURN NEXT geom;
+                END LOOP;
+		
+	prev = v_id;
+	END LOOP;
+        RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="tsp_astar_directed" id="Function3750065" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.tsp_astar_directed(geom_table character varying, ids character varying, source integer, delta double precision, dir boolean, rc boolean)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+        r record;
+        path_result record;
+        v_id integer;
+	prev integer;
+	geom geoms;
+	
+	query text;
+	id integer;
+BEGIN
+	
+	id :=0;
+	prev := source;
+	query := 'SELECT vertex_id FROM tsp(''select distinct source::integer '||
+		'as source_id, x1::double precision as x, y1::double precision as y ';
+		
+	IF rc THEN query := query || ' , reverse_cost ';
+	END IF;
+	query := query || 'from ' || quote_ident(geom_table) || ' where source in (' || 
+          ids || ') UNION select distinct target as source_id, x1::double precision as x, y1::double precision as y ';
+	IF rc THEN query := query || ' , reverse_cost ';
+	END IF;
+        
+        query := query || 'from tsp_test where target in ('||ids||')'', '''|| ids  ||''', '|| source  ||')';
+	
+	FOR path_result IN EXECUTE query
+	LOOP
+                v_id = path_result.vertex_id;
+		
+                FOR r IN EXECUTE 'SELECT gid, the_geom FROM astar_sp_delta_directed( ''' || 
+                  quote_ident(geom_table)  ||''', '|| v_id ||', '|| 
+                  prev ||','||delta||', '''||text(dir)||''', '''||text(rc)||''')' LOOP
+                    geom.gid := r.gid;
+	            geom.the_geom := r.the_geom;
+                    id := id+1;
+		    geom.id       := id;
+    	            RETURN NEXT geom;
+                END LOOP;
+		
+	prev = v_id;
+	END LOOP;
+        RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="tsp_dijkstra" id="Function3750066" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.tsp_dijkstra(geom_table character varying, ids character varying, source integer)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+        r record;
+        path_result record;
+        v_id integer;
+	prev integer;
+	geom geoms;
+	id integer;
+BEGIN
+	
+	id :=0;
+	prev := source;
+	FOR path_result IN EXECUTE 'SELECT vertex_id FROM tsp(''select distinct source::integer as source_id, ST_X(ST_STARTPOINT(the_geom)), ST_Y(ST_STARTPOINT(the_geom)) from ' ||
+	   quote_ident(geom_table) || ' where source in (' || 
+           ids || ') UNION select distinct target as source_id, ST_X(ST_ENDPOINT(the_geom)), ST_Y(ST_ENDPOINT(the_geom)) from tsp_test where target in ('||ids||')'', '''|| ids  ||''', '|| source  ||')' LOOP
+                v_id = path_result.vertex_id;
+		
+                FOR r IN EXECUTE 'SELECT gid, the_geom FROM dijkstra_sp_delta( ''' || 
+                  quote_ident(geom_table)  ||''', '|| v_id ||', '|| 
+                  prev ||',0.03)' LOOP
+                    geom.gid := r.gid;
+	            geom.the_geom := r.the_geom;
+                    id := id+1;
+		    geom.id       := id;
+    	            RETURN NEXT geom;
+                END LOOP;
+		
+	prev = v_id;
+	END LOOP;
+        RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="tsp_dijkstra_directed" id="Function3750067" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.tsp_dijkstra_directed(geom_table character varying, ids character varying, source integer, delta double precision, dir boolean, rc boolean)
+ RETURNS SETOF geoms
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+        r record;
+        path_result record;
+        v_id integer;
+	prev integer;
+	geom geoms;
+	
+	query text;
+	id integer;
+BEGIN
+	
+	id :=0;
+	prev := source;
+	
+	query := 'SELECT vertex_id FROM tsp(''select distinct source::integer as source_id, '||
+		    'ST_X(ST_STARTPOINT(the_geom)), ST_Y(ST_STARTPOINT(the_geom))';
+		    
+	IF rc THEN query := query || ' , reverse_cost ';
+	END IF;
+	query := query || ' from ' || quote_ident(geom_table) || ' where source in (' || 
+           ids || ') UNION select distinct target as source_id, ST_X(ST_ENDPOINT(the_geom)), ST_Y(ST_ENDPOINT(the_geom))';
+        
+        IF rc THEN query := query || ' , reverse_cost ';
+	END IF;
+	query := query || 'from tsp_test where target in ('||ids||')'', '''|| ids  ||''', '|| source  ||')';
+	   
+	FOR path_result IN EXECUTE query
+	LOOP
+                v_id = path_result.vertex_id;
+		
+                FOR r IN EXECUTE 'SELECT gid, the_geom FROM dijkstra_sp_delta_directed( ''' || 
+                  quote_ident(geom_table)  ||''', '|| v_id ||', '|| 
+                  prev ||','||delta||', '''||text(dir)||''', '''||text(rc)||''')' LOOP
+                    geom.gid := r.gid;
+	            geom.the_geom := r.the_geom;
+                    id := id+1;
+		    geom.id       := id;
+    	            RETURN NEXT geom;
+                END LOOP;
+		
+	prev = v_id;
+	END LOOP;
+        RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="tsp_ids" id="Function3750068" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.tsp_ids(geom_table character varying, ids character varying, source integer)
+ RETURNS SETOF integer
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+        r record;
+        path_result record;
+        v_id integer;
+	prev integer;
+BEGIN
+	prev := -1;
+	FOR path_result IN EXECUTE 'SELECT vertex_id FROM tsp(''select distinct source::integer as source_id, ST_X(ST_STARTPOINT(the_geom)), ST_Y(ST_STARTPOINT(the_geom)) from ' ||
+		quote_ident(geom_table) || ' where source in (' || 
+                ids || ')  UNION select distinct target as source_id, ST_X(ST_ENDPOINT(the_geom)), ST_Y(ST_ENDPOINT(the_geom)) from tsp_test where target in ('||ids||')'', '''|| ids  ||''', '|| source  ||')' LOOP
+                v_id = path_result.vertex_id;
+        RETURN NEXT v_id;
+	END LOOP;
+        RETURN;
+END;
+$function$
+]]></string>
+		</function>
+		<function name="update_cost_from_distance" id="Function3750069" isSystem="false" >
+			<string><![CDATA[CREATE OR REPLACE FUNCTION public.update_cost_from_distance(geom_table character varying)
+ RETURNS void
+ LANGUAGE plpgsql
+ STRICT
+AS $function$
+DECLARE 
+BEGIN
+	BEGIN
+	  EXECUTE 'CREATE INDEX ' || quote_ident(geom_table) || 
+                  '_edge_id_idx ON ' || quote_ident(geom_table) || 
+                  ' (edge_id)';
+	EXCEPTION 
+		WHEN DUPLICATE_TABLE THEN
+		RAISE NOTICE 'Not creating index, already there';
+	END;
+	EXECUTE 'UPDATE ' || quote_ident(geom_table) || 
+              '_edges SET cost = (SELECT sum( length( g.the_geom ) ) FROM ' || 
+              quote_ident(geom_table) || 
+              ' g WHERE g.edge_id = id GROUP BY id)';
+	RETURN;
+END;
+$function$
+]]></string>
+		</function>
 	</schema>
 	<connector name="PostgreSQL" database="PostgreSQL" driver_class="org.postgresql.Driver" driver_jar="postgresql-9.1-902.jdbc3.jar" host="geopg" port="5432" instance="transafe_dev" user="transafe_dev" passwd="dHJhbkBzYWZlLmFscA==" schema_mapping="" />
 	<layout id="Layout2000347" name="public" show_relation_columns="y" >
-		<entity schema="public" name="scenario_category" color="c4fdb1" x="1275" y="90" />
-		<entity schema="public" name="action_graph" color="c4fdb1" x="1065" y="360" />
-		<entity schema="public" name="admin_tools_menu_bookmark" color="ffcc66" x="540" y="720" />
-		<entity schema="public" name="auth_user_groups" color="ffcc66" x="420" y="1035" />
-		<entity schema="public" name="auth_group" color="ffcc66" x="420" y="1200" />
-		<entity schema="public" name="auth_group_permissions" color="ffcc66" x="555" y="1200" />
-		<entity schema="public" name="auth_user_user_permissions" color="ffcc66" x="600" y="1020" />
-		<entity schema="public" name="django_session" color="ffcc66" x="240" y="990" />
-		<entity schema="public" name="django_flatpage_sites" color="ffcc66" x="75" y="915" />
-		<entity schema="public" name="django_site" color="ffcc66" x="105" y="1065" />
-		<entity schema="public" name="auth_permission" color="ffcc66" x="780" y="1185" />
-		<entity schema="public" name="admin_tools_dashboard_preferences" color="ffcc66" x="600" y="840" />
-		<entity schema="public" name="plrutils_database" color="ffcc66" x="810" y="990" />
-		<entity schema="public" name="django_admin_log" color="ffcc66" x="270" y="1140" />
-		<entity schema="public" name="django_content_type" color="ffcc66" x="45" y="1185" />
-		<entity schema="public" name="auth_user" color="ffcc66" x="345" y="675" />
-		<entity schema="public" name="django_flatpage" color="ffcc66" x="150" y="690" />
-		<entity schema="public" name="event" color="ffff99" x="1065" y="690" />
-		<entity schema="public" name="scenario_subcategory" color="c4fdb1" x="1035" y="60" />
-		<entity schema="public" name="scenario" color="c4fdb1" x="1140" y="210" />
-		<entity schema="public" name="plrutils_graphfunction" color="ffcc66" x="750" y="720" />
-		<entity schema="public" name="action" color="c4fdb1" x="1260" y="420" />
-		<entity schema="public" name="gt_catalog_layer" color="9de5fd" x="255" y="270" />
-		<entity schema="public" name="gt_layer_meta" color="9de5fd" x="45" y="270" />
-		<entity schema="public" name="gt_catalog" color="9de5fd" x="60" y="75" />
-		<entity schema="public" name="gt_layer_group" color="9de5fd" x="240" y="90" />
-		<entity schema="public" name="gt_style" color="9de5fd" x="480" y="240" />
-		<entity schema="public" name="gt_layer_tree" color="9de5fd" x="465" y="90" />
-		<entity schema="public" name="alpcheck2" color="9de5fd" x="645" y="90" />
-		<entity schema="public" name="interruptions" color="9de5fd" x="495" y="420" />
-		<entity schema="public" name="visualization" color="c4fdb1" x="1455" y="420" />
-		<entity schema="public" name="managing_authority" color="fea4a4" x="855" y="360" />
-		<entity schema="public" name="ev_action_graph" color="ffff99" x="1020" y="960" />
-		<entity schema="public" name="ev_actor" color="ffff99" x="1500" y="720" />
-		<entity schema="public" name="event_log" color="ffff99" x="1320" y="675" />
-		<entity schema="public" name="ev_message" color="ffff99" x="1335" y="870" />
-		<entity schema="public" name="action_m2m_actor" color="c4fdb1" x="1335" y="225" />
-		<entity schema="public" name="actor" color="c4fdb1" x="1515" y="225" />
-		<entity schema="public" name="ev_action" color="ffff99" x="1215" y="1005" />
-		<entity schema="public" name="ev_action_m2m_actor" color="ffff99" x="1470" y="960" />
-		<entity schema="public" name="ev_visualization" color="ffff99" x="1410" y="1065" />
+		<entity schema="public" name="scenario_category" color="c4fdb1" x="1275" y="180" />
+		<entity schema="public" name="action_graph" color="c4fdb1" x="1065" y="450" />
+		<entity schema="public" name="admin_tools_menu_bookmark" color="ffcc66" x="540" y="810" />
+		<entity schema="public" name="auth_user_groups" color="ffcc66" x="420" y="1125" />
+		<entity schema="public" name="auth_group" color="ffcc66" x="420" y="1290" />
+		<entity schema="public" name="auth_group_permissions" color="ffcc66" x="555" y="1290" />
+		<entity schema="public" name="auth_user_user_permissions" color="ffcc66" x="600" y="1110" />
+		<entity schema="public" name="django_session" color="ffcc66" x="240" y="1080" />
+		<entity schema="public" name="django_flatpage_sites" color="ffcc66" x="75" y="1005" />
+		<entity schema="public" name="django_site" color="ffcc66" x="105" y="1155" />
+		<entity schema="public" name="auth_permission" color="ffcc66" x="780" y="1275" />
+		<entity schema="public" name="admin_tools_dashboard_preferences" color="ffcc66" x="600" y="930" />
+		<entity schema="public" name="plrutils_database" color="ffcc66" x="810" y="1080" />
+		<entity schema="public" name="django_admin_log" color="ffcc66" x="270" y="1230" />
+		<entity schema="public" name="django_content_type" color="ffcc66" x="45" y="1275" />
+		<entity schema="public" name="auth_user" color="ffcc66" x="345" y="765" />
+		<entity schema="public" name="django_flatpage" color="ffcc66" x="150" y="780" />
+		<entity schema="public" name="event" color="ffff99" x="1065" y="780" />
+		<entity schema="public" name="scenario_subcategory" color="c4fdb1" x="1035" y="150" />
+		<entity schema="public" name="scenario" color="c4fdb1" x="1140" y="300" />
+		<entity schema="public" name="plrutils_graphfunction" color="ffcc66" x="750" y="810" />
+		<entity schema="public" name="action" color="c4fdb1" x="1260" y="510" />
+		<entity schema="public" name="gt_catalog_layer" color="9de5fd" x="255" y="360" />
+		<entity schema="public" name="gt_layer_meta" color="9de5fd" x="45" y="360" />
+		<entity schema="public" name="gt_catalog" color="9de5fd" x="60" y="165" />
+		<entity schema="public" name="gt_layer_group" color="9de5fd" x="240" y="180" />
+		<entity schema="public" name="gt_style" color="9de5fd" x="480" y="330" />
+		<entity schema="public" name="gt_layer_tree" color="9de5fd" x="465" y="180" />
+		<entity schema="public" name="interruptions" color="9de5fd" x="495" y="510" />
+		<entity schema="public" name="visualization" color="c4fdb1" x="1455" y="510" />
+		<entity schema="public" name="managing_authority" color="fea4a4" x="855" y="450" />
+		<entity schema="public" name="ev_action_graph" color="ffff99" x="1020" y="1050" />
+		<entity schema="public" name="ev_actor" color="ffff99" x="1500" y="810" />
+		<entity schema="public" name="ev_message" color="ffff99" x="1335" y="960" />
+		<entity schema="public" name="action_m2m_actor" color="c4fdb1" x="1335" y="315" />
+		<entity schema="public" name="actor" color="c4fdb1" x="1515" y="315" />
+		<entity schema="public" name="ev_action" color="ffff99" x="1215" y="1095" />
+		<entity schema="public" name="ev_action_m2m_actor" color="ffff99" x="1470" y="1050" />
+		<entity schema="public" name="ev_visualization" color="ffff99" x="1410" y="1155" />
+		<entity schema="public" name="brenner" color="9de5fd" x="630" y="60" />
+		<entity schema="public" name="event_log" color="ffff99" x="1320" y="765" />
 		<group name="Users" color="fea4a4" >
 			<entity schema="public" name="managing_authority" />
 		</group>
@@ -12642,7 +14155,6 @@ $function$
 			<entity schema="public" name="scenario_category" />
 		</group>
 		<group name="Map, Layers and Routing" color="9de5fd" >
-			<entity schema="public" name="alpcheck2" />
 			<entity schema="public" name="interruptions" />
 			<entity schema="public" name="gt_catalog_layer" />
 			<entity schema="public" name="gt_style" />
@@ -12650,6 +14162,7 @@ $function$
 			<entity schema="public" name="gt_layer_group" />
 			<entity schema="public" name="gt_layer_tree" />
 			<entity schema="public" name="gt_layer_meta" />
+			<entity schema="public" name="brenner" />
 		</group>
 		<group name="Django" color="ffcc66" >
 			<entity schema="public" name="admin_tools_menu_bookmark" />
