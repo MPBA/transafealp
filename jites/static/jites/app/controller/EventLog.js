@@ -60,7 +60,7 @@ Ext.define('Jites.controller.EventLog', {
         );
 
         //Setting up the PollingProvider (~5 sec). NB> autoconnect to the server-side and begin the polling process.
-        polling = new Ext.direct.PollingProvider({
+        polling = Ext.create('Ext.direct.PollingProvider',{
             type:'polling',
             url: '/jites/poll',
             interval: 5000000,

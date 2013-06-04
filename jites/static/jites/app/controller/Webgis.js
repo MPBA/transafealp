@@ -24,12 +24,9 @@ Ext.define('Jites.controller.Webgis', {
     ],
 
     card_id: 1,
-//    requires: [
-//        'GeoExt.container.WmsLegend',
-//        'GeoExt.container.UrlLegend',
-//        'GeoExt.container.VectorLegend',
-//        'GeoExt.panel.Legend'
-//    ],
+    requires: [
+        'Ext.data.NodeInterface'
+    ],
 
     init: function() {
         //Loads required classes by the given names (and all their direct dependencies)
@@ -80,7 +77,15 @@ Ext.define('Jites.controller.Webgis', {
         OpenLayers.ImgPath = '/static/openlayer/img/';
         extent =  new OpenLayers.Bounds(596825.316768,5437464.443338,1800249.889923,6097880.36763);
 
-        layer = new OpenLayers.Layer.OSM( "Simple OSM Map");
+//        layer = new OpenLayers.Layer.OSM( "Simple OSM Map",{
+//            displayInLayerSwitcher: false
+//        });
+        layer = new OpenLayers.Layer.OSM("OpenCycleMap",
+            ["http://a.tile.opencyclemap.org/cycle/${z}/${x}/${y}.png",
+                "http://b.tile.opencyclemap.org/cycle/${z}/${x}/${y}.png",
+                "http://c.tile.opencyclemap.org/cycle/${z}/${x}/${y}.png"],{
+                displayInLayerSwitcher: false
+            });
 
         map = new OpenLayers.Map({
             theme: "/static/openlayer/css/style.css",
@@ -146,10 +151,32 @@ Ext.define('Jites.controller.Webgis', {
                 pressed: false
             },
             options_obj: {
-                title: 'Legend',
+                title: '<h4>Legend panel<h4>',
                 autoScroll: true,
-                border: false,
+                border: true,
+                defaults: {
+                    border: false
+                },
+                frame: true,
                 layerStore: GeoExt.panel.Map.guess().layers
+            }
+        });
+
+        //add card geotree catalog
+        var md =  Ext.create('Jites.model.GeotreeCatalogLayer');
+        Ext.data.NodeInterface.decorate(md);
+        var st = Ext.create('Jites.store.GeotreeCatalogLayer',{
+            model: 'Jites.model.GeotreeCatalogLayer'
+        });
+
+        fp.addNewComponent({
+            classe: 'Jites.view.TreePanelLayer',
+            name_btn: 'Layer',
+            options_btn: {
+                pressed: false
+            },
+            options_obj: {
+                store:st
             }
         });
 
@@ -172,12 +199,12 @@ Ext.define('Jites.controller.Webgis', {
         var body6 = Ext.create('Jites.view.WebgisAddWms',{
             store: this.getWmsCapabilitiesStore()
         });
-        this.addCardBtn(Ext.id(),'Aggiungi <br/>WMS','',body6);
+        this.addCardBtn(Ext.id(),'Add WMS resources','',body6);
 
-//        var body7 = Ext.create('Jites.view.WebgisLayerSwitcher',{
-//            store: this.getWmsCapabilitiesStore()
-//        });
-//        this.addCardBtn(Ext.id(),'Aggiungi <br/>WMS','',body7);
+        var body7 = Ext.create('Jites.view.WebgisLayerSwitcher',{
+            map: Jites.maps[0]
+        });
+        this.addCardBtn(Ext.id(),'Layer switcher / layer opacity','',body7);
 
 
 

@@ -106,3 +106,17 @@
     border: none !important;
     font: normal 16px tahoma,arial,verdana,sans-serif !important;
 }
+#geotreecataloglayer .x-grid-header-hidden .x-grid-body {
+    border: none !important;
+}
+.x-tree-checkbox {
+    width: 13px !important;
+    height: 13px !important;
+}
+.x-tree-checkbox-checked {
+    background-position: 0 -13px;
+}
+
+#geotreecataloglayer .x-grid-header-ct {
+    display:none;
+}

@@ -5,7 +5,7 @@ from .api_settings import MAX_GROUPS
 def add_metadata(obj, current, *args, **kwargs):
     try:
         metadata = obj.metadata.serialize()
-    except ObjectDoesNotExist:
+    except AttributeError:
         metadata = None
 
     current['metadata'] = metadata
