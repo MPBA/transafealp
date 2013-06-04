@@ -19,3 +19,5 @@ PIL
 psutil
 #proxy for runtime wms
 httplib2
+#pybab
+git+http://github.com/MPBAUnofficial/pybab.git@develop#egg=pybab
