@@ -38,8 +38,12 @@ Ext.define('Jites.view.Interface',{
                 },
                 id: 'actiongraph'
             },{
-                xtype: 'container',
+                xtype: 'window',
+                closeAction: 'hide',
+                width: (Ext.getCmp('content').getWidth() - 50),
+                height: (Ext.getCmp('content').getHeight() - 50),
                 title: 'Action details',
+                hidden: true,
                 disabled: true,
                 layout: 'fit',
                 id: 'actiondetails'

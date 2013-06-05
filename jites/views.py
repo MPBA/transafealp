@@ -163,6 +163,7 @@ class ActionDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
 
         return HttpResponse(json_response, mimetype='application/json;')
 
+
 #standard view for adding message to event
 @login_required()
 def update_action_status(request, pk):

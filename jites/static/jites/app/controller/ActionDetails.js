@@ -50,6 +50,11 @@ Ext.define('Jites.controller.ActionDetails', {
         parent.setDisabled(false);
     },
     updateActionDetails: function(action_id){
+        if(Jites.DISPLAYMODE == 'single'){
+            var win = Ext.getCmp('actiondetails');
+            win.show();
+        }
+
         var el = Ext.get(actiondetailscontainer);
         el.mask('<h5>Update action status in progress</h5>');
 
@@ -97,6 +102,7 @@ Ext.define('Jites.controller.ActionDetails', {
 
                     ct.tpl.overwrite(ct.id,json.action_detail);
                     el.unmask();
+
                 },
                 failure: function(response, opts) {
                     console.log('server-side failure with status code ' + response.status);
