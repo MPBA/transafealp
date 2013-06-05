@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from scenario.models import Scenario, ScenarioSubcategory
 from django.views.generic.detail import BaseDetailView
 from mixin import LoginRequiredMixin, JSONResponseMixin
-from .models import Event, EvMessage, EvAction, EvActionGraph, EvVisualization, EvActor
+from .models import Event, EvMessage, EvAction, EvActionGraph, EvVisualization, EvActor, EventLog
 from scenario.utility import Membership
 from .utility import make_tree, Actor_Action_Association, SetEncoder, actiondetail_json
 
@@ -166,12 +166,24 @@ class ActionDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
 #standard view for adding message to event
 @login_required()
 def update_action_status(request, pk):
-    action = EvAction.objects.get(pk=pk)
+    #action = EvAction.objects.get(pk=pk)
     if request.method == "POST" and request.is_ajax():
-        action.status = request.POST['status']
-        action.comment = request.POST['content']
-        action.save()
+        status = request.POST['status']
+        comment = request.POST['content']
+        try:
+            cursor = connection.cursor()
+            cursor.execute('update ev_action set status = %s, comment = %s where id = %s returning txid_current();',
+                           [status, comment, pk])
+        except DatabaseError, e:
+            transaction.rollback()
+            return HttpResponse(str(e))
 
+        row = cursor.fetchone()
+        txid = row[0]
+        #log is a queryset with all updated related action.
+        log = EventLog.objects.filter(txid=txid, action='U')
+
+        cursor.close()
         action_detail = actiondetail_json(request.user, pk)
 
         msg = {
@@ -218,7 +230,7 @@ def save_event_message(request, event_id):
 
 @login_required
 def tree_to_json(request, event_id):
-    event = Event.objects.get(pk=event_id, managing_authority=Membership(request.user).membership_auth)
+    event = Event.objects.get(pk=event_id)
     root_action = EvAction.objects.get(event=event, name='root')
     actions = EvActionGraph.objects.filter(action__event=event, parent__event=event, is_main_parent=True)
     pc = ([])
