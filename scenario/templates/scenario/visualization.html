@@ -142,7 +142,7 @@
 
                                 </td>
                                 <td>
-                                    <img src="{% static 'img/delete.png' %}">
+                                    <a href="{% url 'scenario.views.del_visualization' file.pk scenario_id action.pk %}"><img src="{% static 'img/delete.png' %}"></a>
                                 </td>
                             </tr>
                         {% endfor %}

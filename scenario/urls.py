@@ -23,6 +23,7 @@ urlpatterns = patterns('scenario.views',
                        (r'^association/delete/(?P<association_id>\d+)/$', 'delete_actor_action'),
                        (r'^visualization/(?P<scenario_id>\d+)/$', 'visualization'),
                        (r'^visualization/(?P<scenario_id>\d+)/(?P<action_id>.*)/$', 'visualization'),
+                       (r'^del/visualization/(?P<visualization_id>\d+)/(?P<scenario_id>\d+)/(?P<action_id>.*)/$', 'del_visualization'),
                        (r'^json_action/(?P<id>\d+)/$', 'json_action'),
                        (r'^event/search/(?P<type>\w+)/$', 'search_event')
                        )

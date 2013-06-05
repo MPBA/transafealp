@@ -444,11 +444,28 @@ def visualization(request, scenario_id, action_id=None):
                    'visualizations': visualizations,
                    'action_form': action_form,
                    'action': action,
+                   'scenario_id': scenario_id,
                    'oneaction': oneaction,
                    'stop': 1}
         return render_to_response('scenario/visualization.html', context, context_instance=RequestContext(request))
-    context = {'actions': actions, 'action_form': action_form, 'oneaction': oneaction, 'stop': 0}
+    context = {'scenario_id': scenario_id, 'actions': actions, 'action_form': action_form, 'oneaction': oneaction, 'stop': 0}
     return render_to_response('scenario/visualization.html', context, context_instance=RequestContext(request))
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def del_visualization(request, visualization_id, scenario_id, action_id):
+
+    visualization = Visualization.objects.get(pk=visualization_id)
+    try:
+        visualization.delete()
+        messages.add_message(request, messages.SUCCESS, 'Visualization' + smart_str(visualization) + 'correctly deleted!')
+        return redirect('scenario.views.visualization', scenario_id, action_id)
+    except Exception, e:
+        messages.add_message(request, messages.ERROR, smart_str(e))
+        return redirect('scenario.views.visualization', scenario_id, action_id)
+        pass
+    pass
 
 
 @login_required

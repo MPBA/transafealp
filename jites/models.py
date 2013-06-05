@@ -125,10 +125,11 @@ class Event(models.Model):
 
 class EventLog(models.Model):
     event = models.ForeignKey(Event)
+    txid = models.IntegerField()
     ts = models.DateTimeField()
     table_name = models.TextField()
     action = models.TextField()
-    row_id = models.BigIntegerField()
+    row_id = models.IntegerField()
     fields = models.TextField()
 
     class Meta:
