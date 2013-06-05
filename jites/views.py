@@ -40,7 +40,7 @@ def poll(request):
                       'username': str(request.user),
                       'msg': 'System ready to accept connections'
                   }
-              }, {
+              },{
                   'type': 'event',
                   'name': 'log',
                   'data': {

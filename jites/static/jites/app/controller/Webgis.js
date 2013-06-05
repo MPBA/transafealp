@@ -206,8 +206,6 @@ Ext.define('Jites.controller.Webgis', {
         });
         this.addCardBtn(Ext.id(),'Layer switcher / layer opacity','',body7);
 
-
-
         //add evento to special function panel btn
         var btncard = Ext.getCmp('functionpanelcardbtnarea');
         Ext.get(btncard.body.id).on('click', function(event, target) {

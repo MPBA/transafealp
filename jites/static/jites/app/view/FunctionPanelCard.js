@@ -26,7 +26,6 @@ Ext.define('Jites.view.FunctionPanelCard', {
 
     initComponent: function() {
 
-
         this.callParent(arguments);
     }
 });
