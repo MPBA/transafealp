@@ -180,15 +180,23 @@ def update_action_status(request, pk):
 
         row = cursor.fetchone()
         txid = row[0]
-        #log is a queryset with all updated related action.
-        log = EventLog.objects.filter(txid=txid, action='U')
-
         cursor.close()
+        #logs_rows is a queryset with all updated related action.
+        logs_rows = EventLog.objects.filter(txid=txid, action='U', table_name='ev_action')
+        updated_actions_dict = []
+        for log in logs_rows:
+            updated_actions_dict.append({
+                'row_id': log.row_id,
+                'status': log.new_fields['status'],
+                'name': log.fields['name']
+            })
+
         action_detail = actiondetail_json(request.user, pk)
 
         msg = {
             "success": True,
-            "action_detail": action_detail
+            "action_detail": action_detail,
+            "updated_actions": updated_actions_dict,
         }
 
     else:
@@ -199,6 +207,7 @@ def update_action_status(request, pk):
 
     json_response = json.dumps(msg, separators=(',', ':'), sort_keys=True, cls=SetEncoder)
     return HttpResponse(json_response, mimetype="application/json;")
+
 
 #standard view for adding message to event
 @login_required()

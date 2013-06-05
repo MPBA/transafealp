@@ -21,3 +21,4 @@ psutil
 httplib2
 #pybab
 git+http://github.com/MPBAUnofficial/pybab.git@develop#egg=pybab
+git+https://github.com/niwibe/djorm-ext-hstore.git
