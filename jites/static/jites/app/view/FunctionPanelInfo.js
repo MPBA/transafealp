@@ -52,7 +52,7 @@ Ext.define('Jites.view.FunctionPanelInfo', {
             '<td>Go to the location actual (by your browser)</td>',
             '</tr>',
             '<tr>',
-            '<td colspan="2;"><span class="label label-info" style="margin-bottom: 5px">Map catalog</span></td>',
+            '<td colspan="2;"><span class="label label-info" style="margin-bottom: 5px;margin-top: 10px;">Map catalog</span></td>',
             '</tr>',
             '</tbody></table>'
         );

@@ -35,7 +35,7 @@ urlpatterns = patterns('',
         (r'^jites/',   include('jites.urls')),
 
         #################### LAYER MAP URLS ########################
-        (r'^layer_map/', include('layer_map.urls')),
+        (r'^api/', include('layer_map.urls')),
 
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

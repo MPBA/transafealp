@@ -253,7 +253,7 @@ def tree_to_json(request, event_id):
 def proxy(request):
     import httplib2
 
-    conn = httplib2.Http()
+    conn = httplib2.Http(disable_ssl_certificate_validation=True)
 
     url = request.GET['url']
     if request.method == 'GET':

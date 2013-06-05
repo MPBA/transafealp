@@ -5,7 +5,8 @@ Ext.define('Jites.view.WebgisLayerSwitcher', {
     requires: [
         'Jites.model.Layer',
         'Jites.store.Layers',
-        'Ext.grid.column.Action'
+        'Ext.grid.column.Action',
+        'Ext.grid.plugin.DragDrop'
     ],
 
     layout: 'fit',
@@ -99,7 +100,7 @@ Ext.define('Jites.view.WebgisLayerSwitcher', {
                 width: 22,
                 items: [
                     {
-                        icon: '/static/resources/images/delete.png',
+                        icon: '/static/jites/resources/images/delete.png',
                         tooltip: 'Delete',
                         name: 'gridfunction',
 
@@ -121,11 +122,11 @@ Ext.define('Jites.view.WebgisLayerSwitcher', {
 		];
 
         //Creo il Webgis.store.Layers per questo TreePanel e ne faccio il load per caricare i dati presenti nella mappa
-        var store = new Jites.store.Layers({
+        var store = Ext.create('Jites.store.Layers',{
             data: this.map.getLayersBy('displayInLayerSwitcher', true),
             listeners: {
                 'update': function (store, record, op) {
-                    rec = record
+                    var rec = record
                     if (op == Ext.data.Model.EDIT) {
                         //Assumo che l'id del layer generato da OpenLayer sia sempre univoco e quindi rappresenti sempre un solo layer
                         var layer = rec.data.map.getLayersBy('id', rec.getId())[0];
@@ -134,7 +135,8 @@ Ext.define('Jites.view.WebgisLayerSwitcher', {
                     }
                 }
             }
-        })
+        });
+
         this.store = store;
 
         //Setto i listernes per registrare gli eventi sulla mappa (solo se la configurazione dynamic e' true)
@@ -146,6 +148,7 @@ Ext.define('Jites.view.WebgisLayerSwitcher', {
                 scope: this
             });
         }
+
         this.callParent(arguments);
     },
     removeRow: function (object) {
