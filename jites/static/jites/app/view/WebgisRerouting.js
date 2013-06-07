@@ -112,7 +112,7 @@ Ext.define('Jites.view.WebgisRerouting', {
                     end = $('#routing-end').attr('roadid'),
                     wkt = new OpenLayers.Format.WKT(),
                     csfr = Ext.util.Cookies.get('csrftoken'),
-                    poly = wkt.write(panel.vector.features);
+                    poly = wkt.write(panel.vector.features[0]);
 
                 Ext.Ajax.request({
                     url: '/jites/rerouting/shortest',

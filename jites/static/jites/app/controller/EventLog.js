@@ -62,8 +62,13 @@ Ext.define('Jites.controller.EventLog', {
         //Setting up the PollingProvider (~5 sec). NB> autoconnect to the server-side and begin the polling process.
         polling = Ext.create('Ext.direct.PollingProvider',{
             type:'polling',
-            url: '/jites/poll',
-            interval: 5000000,
+            url: '/jites/poll/'+Jites.EVENTID,
+            baseParams: {
+                ts_post: Jites.LASTPOLLTIMESTAMP,
+                "csrfmiddlewaretoken":Ext.util.Cookies.get('csrftoken')
+            },
+            method: 'POST',
+            interval: 500000,
             id: 'eventlog-poll-provider'
         });
         Ext.direct.Manager.addProvider(polling);
@@ -93,16 +98,16 @@ Ext.define('Jites.controller.EventLog', {
 
         //Base template to visualize new log event
         tpl = new Ext.XTemplate(
-            '<td><span class="badge {[this.getColor(values.type)]}">{type}</span></td>',
+            '<td><span class="badge {[this.getColor(values.table_name)]}">{table_name}</span></td>',
             '<td>{ts}</td>',
             '<td>{username}</td>',
             '<td>{msg}</td>',{
                 getColor: function(type){
                     var color;
 
-                    if(type=='SYSTEM'){
+                    if(type=='ev_action'){
                         color = 'badge-success'
-                    } else if (type=='TASK') {
+                    } else if (type=='ev_message') {
                         color = 'badge-warning'
                     } else {
                         color = ''

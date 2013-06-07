@@ -5,7 +5,7 @@ from django.conf.urls import patterns
 from .views import EventDetailView, ActionDetailView
 
 urlpatterns = patterns('jites.views',
-   (r'poll/$', 'poll', ),
+   (r'poll/(?P<event_id>\d+)$', 'poll', ),
    (r'event/(?P<scenario_id>\d+)/(?P<type>\w+)$', 'select_event_location' ),
    (r'event/(?P<scenario_id>\d+)/(?P<type>\w+)/start$', 'start_event' ),
    (r'dashboard/(?P<displaymode>\w+)/(?P<event_id>\d+)$', 'dashboard' ),

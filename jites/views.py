@@ -38,11 +38,11 @@ def poll(request, event_id):
                 #msg =  if row.table_name == 'ev_message' else row.fields['name']
                 result.append({
                     'type': 'event',
-                    'name': 'message',
+                    'name': 'log',
                     'data': {
                         'id': request.user.id,
                         'table_name': row.table_name,
-                        'ts': str(row.ts),
+                        'ts': str(row.ts.strftime("%d/%m/%y %H:%M:%S.%f")),
                         'username': row.fields['username'],
                         'msg': row.fields['content']
                     }
@@ -50,11 +50,11 @@ def poll(request, event_id):
             elif row.table_name == 'ev_action':
                 result.append({
                     'type': 'event',
-                    'name': 'action',
+                    'name': 'log',
                     'data': {
                         'id': request.user.id,
                         'table_name': row.table_name,
-                        'ts': str(row.ts),
+                        'ts': str(row.ts.strftime("%d/%m/%y %H:%M:%S.%f")),
                         'username': '',
                         'msg': row.fields['name']
                     }
