@@ -98,7 +98,17 @@ Ext.define('Jites.controller.ActionDetails', {
                 },
                 success: function(response, opts) {
                     var json = Ext.decode(response.responseText),
-                    ct = Ext.getCmp('actiondetailscontainer');
+                    ct = Ext.getCmp('actiondetailscontainer'),
+                    app = Jites.getApplication(),
+                    controller = app.getController('ActionGraph');
+
+                    //Cicle for update action status on actiongraph
+                    Ext.Array.each(json.updated_actions,function(el){
+                        var node = Ext.get('node'+el.row_id);
+                        var status = controller.getStyleFromStatus(el);
+
+                        node.dom.className = status;
+                    });
 
                     ct.tpl.overwrite(ct.id,json.action_detail);
                     el.unmask();

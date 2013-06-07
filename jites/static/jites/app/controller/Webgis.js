@@ -81,9 +81,12 @@ Ext.define('Jites.controller.Webgis', {
 //            displayInLayerSwitcher: false
 //        });
         layer = new OpenLayers.Layer.OSM("OpenCycleMap",
-            ["http://a.tile.opencyclemap.org/cycle/${z}/${x}/${y}.png",
-                "http://b.tile.opencyclemap.org/cycle/${z}/${x}/${y}.png",
-                "http://c.tile.opencyclemap.org/cycle/${z}/${x}/${y}.png"],{
+            [
+                "http://otile1.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png",
+                "http://otile2.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png",
+                "http://otile3.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png",
+                "http://otile4.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png"
+            ],{
                 displayInLayerSwitcher: false
             });
 
@@ -205,6 +208,11 @@ Ext.define('Jites.controller.Webgis', {
             map: Jites.maps[0]
         });
         this.addCardBtn(Ext.id(),'Layer switcher / layer opacity','',body7);
+
+        var body8 = Ext.create('Jites.view.WebgisRerouting',{
+            map: Jites.maps[0]
+        });
+        this.addCardBtn(Ext.id(),'Rerouting by AGIS','',body8);
 
         //add evento to special function panel btn
         var btncard = Ext.getCmp('functionpanelcardbtnarea');

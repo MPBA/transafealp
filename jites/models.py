@@ -3,6 +3,8 @@ __author__ = 'ernesto (arbitrio@fbk.eu)'
 
 from django.db import models
 from scenario.models import ManagingAuthority
+from djorm_hstore.fields import DictionaryField
+from djorm_hstore.models import HStoreManager
 
 
 class EvAction(models.Model):
@@ -130,7 +132,10 @@ class EventLog(models.Model):
     table_name = models.TextField()
     action = models.TextField()
     row_id = models.IntegerField()
-    fields = models.TextField()
+    fields = DictionaryField(db_index=True)
+    new_fields = DictionaryField(db_index=True)
+    objects = HStoreManager()
+
 
     class Meta:
         db_table = 'event_log'

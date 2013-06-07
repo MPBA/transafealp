@@ -25,7 +25,6 @@ def dashboard(request, displaymode, event_id):
 
     return render_to_response('jites/dashboard.html', context, context_instance=RequestContext(request))
 
-
 @login_required
 def poll(request):
     # TODO implemented by real request on scenario log table. This is a demo.
@@ -181,15 +180,23 @@ def update_action_status(request, pk):
 
         row = cursor.fetchone()
         txid = row[0]
-        #log is a queryset with all updated related action.
-        log = EventLog.objects.filter(txid=txid, action='U')
-
         cursor.close()
+        #logs_rows is a queryset with all updated related action.
+        logs_rows = EventLog.objects.filter(txid=txid, action='U', table_name='ev_action')
+        updated_actions_dict = []
+        for log in logs_rows:
+            updated_actions_dict.append({
+                'row_id': log.row_id,
+                'status': log.new_fields['status'],
+                'name': log.fields['name']
+            })
+
         action_detail = actiondetail_json(request.user, pk)
 
         msg = {
             "success": True,
-            "action_detail": action_detail
+            "action_detail": action_detail,
+            "updated_actions": updated_actions_dict,
         }
 
     else:
@@ -200,6 +207,7 @@ def update_action_status(request, pk):
 
     json_response = json.dumps(msg, separators=(',', ':'), sort_keys=True, cls=SetEncoder)
     return HttpResponse(json_response, mimetype="application/json;")
+
 
 #standard view for adding message to event
 @login_required()
@@ -273,3 +281,28 @@ def proxy(request):
         response, content = conn.request(url, request.method)
 
     return HttpResponse(content, status=int(response['status']), mimetype=response['content-type'])
+
+
+@login_required
+def run_rerouting(request, type):
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT path_fastest(%s,%s,%s)",
+            [request.POST['polygon'],int(request.POST['source']),int(request.POST['target'])]
+        )
+
+    except DatabaseError, e:
+        transaction.rollback()
+        return HttpResponse(str(e))
+
+    row = cursor.fetchone()
+    cursor.close()
+
+    result = {
+        "success": True,
+        "path": row[0]
+    }
+    json_response = json.dumps(result)
+
+    return HttpResponse(json_response, mimetype='text/javascript;')

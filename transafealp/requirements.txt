@@ -20,4 +20,7 @@ psutil
 #proxy for runtime wms
 httplib2
 #pybab
-https://github.com/davidek/django-tojson.git
+#https://github.com/davidek/django-tojson.git
+#git+http://github.com/MPBAUnofficial/pybab.git@develop#egg=pybab
+git+https://github.com/niwibe/djorm-ext-hstore.git
+
