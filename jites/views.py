@@ -13,7 +13,7 @@ from mixin import LoginRequiredMixin, JSONResponseMixin
 from .models import Event, EvMessage, EvAction, EvActionGraph, EvVisualization, EvActor, EventLog
 from scenario.utility import Membership
 from .utility import make_tree, Actor_Action_Association, SetEncoder, actiondetail_json
-
+from datetime import datetime
 
 @login_required
 def dashboard(request, displaymode, event_id):
@@ -26,30 +26,40 @@ def dashboard(request, displaymode, event_id):
     return render_to_response('jites/dashboard.html', context, context_instance=RequestContext(request))
 
 @login_required
-def poll(request):
+def poll(request, event_id):
     # TODO implemented by real request on scenario log table. This is a demo.
+    result = []
+    #datatime format accepted '2013-06-05 15:39:30.507493+02'
+    if request.method == 'POST' and request.is_ajax():
+        ts_post = datetime.strptime(str(request.POST['ts_post']), '%Y-%m-%d %H:%M:%S.%f+02')
+        log_rows = EventLog.objects.filter(event_id=event_id, ts__gte=ts_post)
+        for row in log_rows:
+            if row.table_name == 'ev_message':
+                #msg =  if row.table_name == 'ev_message' else row.fields['name']
+                result.append({
+                    'type': 'event',
+                    'name': 'message',
+                    'data': {
+                        'id': request.user.id,
+                        'table_name': row.table_name,
+                        'ts': str(row.ts),
+                        'username': row.fields['username'],
+                        'msg': row.fields['content']
+                    }
+                })
+            elif row.table_name == 'ev_action':
+                result.append({
+                    'type': 'event',
+                    'name': 'action',
+                    'data': {
+                        'id': request.user.id,
+                        'table_name': row.table_name,
+                        'ts': str(row.ts),
+                        'username': '',
+                        'msg': row.fields['name']
+                    }
+                })
 
-    result = ({
-                  'type': 'event',
-                  'name': 'log',
-                  'data': {
-                      'id': request.user.id,
-                      'type': 'SYSTEM',
-                      'ts': timezone.now().strftime("%d/%m/%y %H:%M:%S.%f"),
-                      'username': str(request.user),
-                      'msg': 'System ready to accept connections'
-                  }
-              },{
-                  'type': 'event',
-                  'name': 'log',
-                  'data': {
-                      'id': request.user.id,
-                      'type': 'TASK',
-                      'ts': timezone.now().strftime("%d/%m/%y %H:%M:%S.%f"),
-                      'username': str(request.user),
-                      'msg': 'New event <strong>CP/FF/10</strong>'
-                  }
-              })
     j = json.dumps(result)
     return HttpResponse(j, content_type="application/json")
 
