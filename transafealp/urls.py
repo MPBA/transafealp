@@ -37,6 +37,9 @@ urlpatterns = patterns('',
         #################### LAYER MAP URLS ########################
         (r'^api/', include('layer_map.urls')),
 
+        #################### MOBILE ########################
+        (r'^mobile/', include('mobile.urls')),
+
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += staticfiles_urlpatterns()

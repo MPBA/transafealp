@@ -50,7 +50,7 @@ Ext.application({
                     }]
                 });
 
-                $(".loading").delay(1000) /*to remove*/
+                $(".loading").delay(1000); /*to remove*/
                 $(".loading").hide();
 
                 $("#id_navbar").fadeIn("slow"); /*show the navbar*/

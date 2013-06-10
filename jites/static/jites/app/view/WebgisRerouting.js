@@ -146,7 +146,7 @@ Ext.define('Jites.view.WebgisRerouting', {
                         Jites.maps[0].addLayer(vector);
                     },
                     failure: function(){
-                        console.log('errore')
+                        console.log('errore');
                     }
                 });
 

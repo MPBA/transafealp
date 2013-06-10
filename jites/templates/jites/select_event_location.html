@@ -94,9 +94,9 @@
             click.activate();
 
             setTimeout(function(){
-                map.render('geom_scenario')
+                map.render('geom_scenario');
                 map.zoomToExtent(vector.getDataExtent());
-            },2000)
+            },2000);
 
             $("#confirmevent").click(function() {
                 var m = markers.markers[0],

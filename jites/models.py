@@ -112,7 +112,7 @@ class Event(models.Model):
     def as_dict(self):
         return {
             'pk': self.pk,
-            'managing_authority': self.managing_authority.as_dict(),
+            'managing_authority': self.managing_authority.name,
             'event_name': self.event_name,
             'event_description': self.event_description,
             'category_name': self.category_name,
