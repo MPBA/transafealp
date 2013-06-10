@@ -11,6 +11,7 @@ from jites.models import Event, EvActionGraph
 @csrf_exempt
 @render_to_json(mimetype='application/json')
 def auth(request):
+
     if request.method == "POST" and request.POST.__contains__('username') and request.POST.__contains__('password'):
         u = str(request.POST['username'])
         p = str(request.POST['password'])
@@ -43,7 +44,6 @@ def auth(request):
         result = {"success": False,
                   "message": "Bad request"}
         return result, {'cls': HttpResponseBadRequest}
-
 
 
 
