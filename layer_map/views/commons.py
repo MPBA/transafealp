@@ -7,7 +7,7 @@ from ..models.catalog import LayerMeta, CatalogLayer
 
 def get_subtree_for(group_index, group_class, catalog_class, extra_data=None):
     """
-    Given a user and a tree index, it return all the json to send to the client.
+    Given a tree index, return all the json to send to the client.
     """
     if extra_data is None:
         extra_data = []
@@ -35,6 +35,10 @@ login_required_json_default = login_required_json(
 
 
 def get_metadata_for(layer_index):
+    """
+    Given a CatalogLayer index, return all the metadata (as json) related to
+    that CatalogLayer
+    """
     try:
         layer = CatalogLayer.objects.get(id=layer_index)
         meta = layer.metadata

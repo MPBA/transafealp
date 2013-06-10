@@ -1,4 +1,3 @@
-# Create your views here.
 from tojson import render_to_json
 from commons import login_required_json_default, get_subtree_for, \
     get_metadata_for
@@ -18,8 +17,9 @@ def catalog_layer(request, index=0):
 
 @login_required_json_default
 @render_to_json(mimetype='text/html')
-def metadata(request, index=0):
+def metadata(request, index):
     index = int(index)
 
-    return get_metadata_for(index)
+    if request.method == 'GET':
+        return get_metadata_for(index)
 
