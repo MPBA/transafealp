@@ -11,15 +11,11 @@ from jites.models import Event, EvActionGraph
 @csrf_exempt
 @render_to_json(mimetype='application/json')
 def auth(request):
-    if request.method == "POST" and request.__contains__('username') and request.__contains__('password'):
+    if request.method == "POST" and request.POST.__contains__('username') and request.POST.__contains__('password'):
         u = str(request.POST['username'])
         p = str(request.POST['password'])
-    else:
-        result = {"success": False,
-                  "message": "Bad request"}
-        return result, {'cls': HttpResponseBadRequest}
-
         user = authenticate(username=u, password=p)
+
         if user is not None:
             # the password verified for the user
             if user.is_active:
@@ -42,6 +38,13 @@ def auth(request):
                 "message": "The username / password is invalid!"
             }
             return result, {'cls': HttpResponseForbidden}
+
+    else:
+        result = {"success": False,
+                  "message": "Bad request"}
+        return result, {'cls': HttpResponseBadRequest}
+
+
 
 
 @login_required
