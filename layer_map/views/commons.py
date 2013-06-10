@@ -2,6 +2,7 @@ from django.http import HttpResponseNotFound
 from django.utils.translation import ugettext as _
 from tojson import login_required_json
 from ..models.base import get_system_catalogs
+from ..models.catalog import LayerMeta, CatalogLayer
 
 
 def get_subtree_for(group_index, group_class, catalog_class, extra_data=None):
@@ -32,3 +33,17 @@ def get_subtree_for(group_index, group_class, catalog_class, extra_data=None):
 login_required_json_default = login_required_json(
     {'success': False, 'message': _("Logging in is required for this action")})
 
+
+def get_metadata_for(layer_index):
+    try:
+        layer = CatalogLayer.objects.get(id=layer_index)
+        meta = layer.metadata
+    except CatalogLayer.DoesNotExist:
+        return {'success': 'false', 'message':
+                '{0} is not a valid index for CatalogLayer'.format(layer_index)}
+    except LayerMeta.DoesNotExist:
+        return {'success': 'false', 'message':
+                'No metadata found for CatalogLayer {0}'.format(layer_index)}
+    # fixme: is 'requested' actually useful?
+    return {'success': 'true', 'requested': layer.serialize(),
+            'data': meta.serialize()}

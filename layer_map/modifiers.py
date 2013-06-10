@@ -1,10 +1,11 @@
 from .api_settings import MAX_GROUPS
+from layer_map.models.catalog import LayerMeta
 
 
 def add_metadata(obj, current, *args, **kwargs):
     try:
         metadata = obj.metadata.serialize()
-    except AttributeError:
+    except (obj.DoesNotExist, LayerMeta.DoesNotExist):
         metadata = None
 
     current['metadata'] = metadata
