@@ -9,26 +9,26 @@ from base import GeoTreeModel, GeoTreeError, pg_run
 # Utilities
 # ===========================================================================
 
-# @serializable(DjangoModelSerializer())
-# class GenericMetadata(GeoTreeModel):
-#     id = models.AutoField(primary_key=True)
-#     title = models.CharField(max_length=255, blank=True, null=True)
-#     description = models.TextField(blank=True, null=True)
-#     category = models.TextField(blank=True, null=True)
-#     extent = models.TextField(blank=True, null=True)
-#     measure_unit = models.TextField(blank=True, null=True)
-#     author = models.TextField(blank=True, null=True)
-#     ref_year = models.IntegerField(null=True)
-#     creation_year = models.IntegerField(null=True)
-#     native_format = models.TextField(blank=True, null=True)
-#     genealogy = models.TextField(blank=True, null=True)
-#     spatial_resolution = models.TextField(blank=True, null=True)
-#     ref_system = models.TextField(blank=True, null=True)
-#     availability = models.TextField(blank=True, null=True)
-#     has_attributes = models.NullBooleanField()
-#
-#     class Meta(GeoTreeModel.Meta):
-#         abstract = True
+@serializable(DjangoModelSerializer())
+class GenericMetadata(GeoTreeModel):
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    category = models.TextField(blank=True, null=True)
+    extent = models.TextField(blank=True, null=True)
+    measure_unit = models.TextField(blank=True, null=True)
+    author = models.TextField(blank=True, null=True)
+    ref_year = models.IntegerField(null=True)
+    creation_year = models.IntegerField(null=True)
+    native_format = models.TextField(blank=True, null=True)
+    genealogy = models.TextField(blank=True, null=True)
+    spatial_resolution = models.TextField(blank=True, null=True)
+    ref_system = models.TextField(blank=True, null=True)
+    availability = models.TextField(blank=True, null=True)
+    has_attributes = models.NullBooleanField()
+
+    class Meta(GeoTreeModel.Meta):
+        abstract = True
 
 
 TABLETYPE_CHOICES = (
@@ -189,8 +189,8 @@ class LayerTree(GeoTreeModel):
         db_table = u'gt_layer_tree'
 
 
-# class LayerMeta(GenericMetadata):
-#     layer = models.OneToOneField('CatalogLayer', related_name='metadata')
-#
-#     class Meta(GenericMetadata.Meta):
-#         db_table = u'gt_layer_meta'
+class LayerMeta(GenericMetadata):
+    layer = models.OneToOneField('CatalogLayer', related_name='metadata')
+
+    class Meta(GenericMetadata.Meta):
+        db_table = u'gt_layer_meta'
