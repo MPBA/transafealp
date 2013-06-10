@@ -113,11 +113,11 @@ class GroupModel(GeoTreeModel):
         abstract = True
 
 
-# # ===========================================================================
-# # Catalog
-# # ===========================================================================
-#
-#
+# ===========================================================================
+# Catalog
+# ===========================================================================
+
+
 class Catalog(GeoTreeModel):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
@@ -151,7 +151,8 @@ class CatalogLayer(CatalogModel):
     tableschema = models.TextField(blank=True, null=True)
     tablename = models.TextField(blank=True, null=True)
     code_column = models.TextField(blank=True, null=True)
-    group = models.ForeignKey('LayerGroup', default=lambda: LayerGroup.objects.get(pk=1))
+    group = models.ForeignKey('LayerGroup',
+                              default=lambda: LayerGroup.objects.get(pk=1))
     gt_style = models.ForeignKey('Style', null=True, default=lambda: None)
     geom_column = models.TextField(null=True, blank=True)
     ui_qtip = models.CharField(max_length=255, blank=True, null=True)
@@ -162,12 +163,14 @@ class CatalogLayer(CatalogModel):
 
     def import_elements_from(self, name_column, parent_column, elements_rank):
         if self.tablename is None or self.tablename == "":
-            raise GeoTreeError("Can't import layer into catalog because tablename is not defined.")
+            raise GeoTreeError("Can't import layer into catalog because "
+                               "tablename is not defined.")
         args = [self.pk, name_column, parent_column, elements_rank]
         return pg_run(u'gt_layer_import', args)
 
     class Meta(CatalogModel.Meta):
-        unique_together = ('tableschema', 'tablename', 'code_column', 'geom_column')
+        unique_together = ('tableschema', 'tablename',
+                           'code_column', 'geom_column')
         db_table = u'gt_catalog_layer'
 
 
@@ -178,7 +181,8 @@ class LayerGroup(GroupModel):
 
 class LayerTree(GeoTreeModel):
     id = models.AutoField(primary_key=True)
-    group = models.ForeignKey(LayerGroup, unique=True, related_name="child_tree")
+    group = models.ForeignKey(LayerGroup, unique=True,
+                              related_name="child_tree")
     parent_group = models.ForeignKey(LayerGroup, related_name="parent_tree")
 
     class Meta(GroupModel.Meta):

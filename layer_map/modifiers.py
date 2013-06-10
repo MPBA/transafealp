@@ -1,4 +1,3 @@
-from django.core.exceptions import ObjectDoesNotExist
 from .api_settings import MAX_GROUPS
 
 

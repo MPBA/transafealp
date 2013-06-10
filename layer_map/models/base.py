@@ -5,12 +5,14 @@ from django.contrib.gis.db import models
 # API stuff
 # ===========================================================================
 
+
 def get_system_catalogs(catalog_class, group_index):
     return catalog_class.objects.filter(group=group_index)
 
 # ===========================================================================
 # Raw cursor related stuff
 # ===========================================================================
+
 
 def pg_run(cursor, proc_name, args=None):
     """
