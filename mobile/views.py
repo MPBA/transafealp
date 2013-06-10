@@ -4,40 +4,44 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from tojson import render_to_json
 import json
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseBadRequest
 from jites.models import Event, EvActionGraph
 
 
 @csrf_exempt
 @render_to_json(mimetype='application/json')
 def auth(request):
-    u = str(request.POST['username'])
-    p = str(request.POST['password'])
+    if request.method == "POST" and request.__contains__('username') and request.__contains__('password'):
+        u = str(request.POST['username'])
+        p = str(request.POST['password'])
+    else:
+        result = {"success": False,
+                  "message": "Bad request"}
+        return result, {'cls': HttpResponseBadRequest}
 
-    user = authenticate(username=u, password=p)
+        user = authenticate(username=u, password=p)
+        if user is not None:
+            # the password verified for the user
+            if user.is_active:
+                login(request, user)
 
-    if user is not None:
-        # the password verified for the user
-        if user.is_active:
-            login(request, user)
-
-            result = {
-                "success": True
-            }
-            return result
+                result = {
+                    "success": True
+                }
+                return result
+            else:
+                result = {
+                    "success": False,
+                    "message": "The password is valid, but the account has been disabled!"
+                }
+                return result, {'cls': HttpResponseForbidden}
         else:
+            # the authentication system was unable to verify the username and password
             result = {
                 "success": False,
-                "message": "The password is valid, but the account has been disabled!"
+                "message": "The username / password is invalid!"
             }
             return result, {'cls': HttpResponseForbidden}
-    else:
-        # the authentication system was unable to verify the username and password
-        result = {
-            "success": False,
-            "message": "The username / password is invalid!"
-        }
-        return result, {'cls': HttpResponseForbidden}
 
 
 @login_required
