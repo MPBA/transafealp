@@ -17,10 +17,13 @@ git+http://github.com/MPBAUnofficial/plrutils.git@master#egg=plrutils
 #Python imaging library
 PIL
 psutil
+pytc
 #proxy for runtime wms
 httplib2
-#pybab
-#https://github.com/davidek/django-tojson.git
-#git+http://github.com/MPBAUnofficial/pybab.git@develop#egg=pybab
+#pybab catalog
+git+http://github.com/davidek/django-tojson.git@master#egg=django-tojson
+git+http://github.com/MPBAUnofficial/pyhive.git@master#egg=pyhive
+
 git+https://github.com/niwibe/djorm-ext-hstore.git
+
 

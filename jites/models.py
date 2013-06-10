@@ -139,6 +139,7 @@ class EventLog(models.Model):
 
     class Meta:
         db_table = 'event_log'
+        ordering = ['ts']
 
     def __unicode__(self):
         return u'%s %s' % (self.event, self.action)

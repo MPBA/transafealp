@@ -82,7 +82,7 @@ def actionlist(request, pk):
             "action_id": action.action.id,
             "name": action.action.name,
             "numcode": action.action.numcode,
-            "descrition": action.action.description,
+            "description": action.action.description,
             "duration": action.action.duration,
             "status": action.action.status,
             "comment": action.action.comment

@@ -7,13 +7,15 @@ from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 import json
 from django.views.decorators.csrf import csrf_exempt
+import pytz
 from scenario.models import Scenario, ScenarioSubcategory
 from django.views.generic.detail import BaseDetailView
 from mixin import LoginRequiredMixin, JSONResponseMixin
 from .models import Event, EvMessage, EvAction, EvActionGraph, EvVisualization, EvActor, EventLog
-from scenario.utility import Membership
+from django.db.models import Max
 from .utility import make_tree, Actor_Action_Association, SetEncoder, actiondetail_json
 from datetime import datetime
+
 
 @login_required
 def dashboard(request, displaymode, event_id):
@@ -25,6 +27,7 @@ def dashboard(request, displaymode, event_id):
 
     return render_to_response('jites/dashboard.html', context, context_instance=RequestContext(request))
 
+
 @login_required
 def poll(request, event_id):
     # TODO implemented by real request on scenario log table. This is a demo.
@@ -32,7 +35,20 @@ def poll(request, event_id):
     #datatime format accepted '2013-06-05 15:39:30.507493+02'
     if request.method == 'POST' and request.is_ajax():
         ts_post = datetime.strptime(str(request.POST['ts_post']), '%Y-%m-%d %H:%M:%S.%f+02')
-        log_rows = EventLog.objects.filter(event_id=event_id, ts__gte=ts_post)
+        ts_post = ts_post.replace(tzinfo=pytz.timezone('UTC'))
+
+        log_rows = EventLog.objects.filter(event_id=event_id, ts__gt=ts_post)
+        log_new_ts = EventLog.objects.filter(event_id=event_id, ts__gt=ts_post).aggregate(Max('ts'))
+
+        if log_new_ts['ts__max'] is not None:
+            result.append({
+                'type': 'event',
+                'name': 'updatets',
+                'data': {
+                    'ts': log_new_ts['ts__max'].strftime("%Y-%m-%d %H:%M:%S.%f+02")
+                }
+            })
+
         for row in log_rows:
             if row.table_name == 'ev_message':
                 #msg =  if row.table_name == 'ev_message' else row.fields['name']
@@ -48,6 +64,13 @@ def poll(request, event_id):
                     }
                 })
             elif row.table_name == 'ev_action':
+                msg = None
+                if row.action == 'I':
+                    msg = 'The action <b>"{0}"</b> was added to the event with status <b>{1}</b>'.format(row.fields['name'],
+                                                                                         row.fields['status'])
+                else:
+                    msg = 'The status of <b>"{0}"</b> has been upgraded to <b>{1}</b>'.format(row.fields['name'],
+                                                                              row.fields['status'])
                 result.append({
                     'type': 'event',
                     'name': 'log',
@@ -56,7 +79,7 @@ def poll(request, event_id):
                         'table_name': row.table_name,
                         'ts': str(row.ts.strftime("%d/%m/%y %H:%M:%S.%f")),
                         'username': '',
-                        'msg': row.fields['name']
+                        'msg': msg
                     }
                 })
 
@@ -299,7 +322,7 @@ def run_rerouting(request, type):
         cursor = connection.cursor()
         cursor.execute(
             "SELECT path_fastest(%s,%s,%s)",
-            [request.POST['polygon'],int(request.POST['source']),int(request.POST['target'])]
+            [request.POST['polygon'], int(request.POST['source']), int(request.POST['target'])]
         )
 
     except DatabaseError, e:

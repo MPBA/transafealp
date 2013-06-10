@@ -60,24 +60,29 @@ Ext.define('Jites.controller.EventLog', {
         );
 
         //Setting up the PollingProvider (~5 sec). NB> autoconnect to the server-side and begin the polling process.
-        polling = Ext.create('Ext.direct.PollingProvider',{
+        me.polling = Ext.create('Ext.direct.PollingProvider',{
             type:'polling',
             url: '/jites/poll/'+Jites.EVENTID,
             baseParams: {
-                ts_post: Jites.LASTPOLLTIMESTAMP,
+                "ts_post": Jites.LASTPOLLTIMESTAMP,
                 "csrfmiddlewaretoken":Ext.util.Cookies.get('csrftoken')
             },
             method: 'POST',
-            interval: 500000,
+            interval: 1000,
             id: 'eventlog-poll-provider'
         });
-        Ext.direct.Manager.addProvider(polling);
+        p = me.polling;
+
+        Ext.direct.Manager.addProvider(me.polling);
 
         // add a handler for a 'log' event sent by the server
         Ext.direct.Manager.on('log', me.addRowToLogArea, me);
 
         // add a handler for exception sent by the server
         Ext.direct.Manager.on('exception', me.logError, me);
+
+        // add a handler for update last polling timestamp
+        Ext.direct.Manager.on('updatets', me.updateLogTimestamp, me);
 
         //Enable eventlog panel
         parent.setDisabled(false);
@@ -86,6 +91,12 @@ Ext.define('Jites.controller.EventLog', {
 //        $( "#logannotation-submit" ).click(function() {
 //            return false;
 //        });
+    },
+    updateLogTimestamp: function(e){
+        var me = this,
+            data = e.data;
+
+        me.polling.baseParams.ts_post = data.ts
     },
     addRowToLogArea: function(e){
         var me = this,
