@@ -23,7 +23,7 @@ Ext.define('Jites.view.WebgisRerouting', {
 //
 //    defaultType: 'textfield',
 //
-//    autoScroll: true,
+    autoScroll: true,
 
     maps: Jites.maps[0],
 
@@ -33,21 +33,39 @@ Ext.define('Jites.view.WebgisRerouting', {
                 '<p>Re routing model (based on pg_route function)</p>',
                 '<p><span class="label label-info">Heads up!</span> The routing system is based on the alpchek2 road graph and there may be discrepancies with openstreetmap data.</p>',
                 '<form>',
-                    '<fieldset>',
-                        '<div id="routing-start-block">',
-                            '<label><span class="badge">1.</span> Select start point (click on map)</label>',
-                            '<input id="routing-start" class="input-block-level uneditable-input" type="text">',
-                        '</div>',
-                         '<div id="routing-end-block" style="display: none;">',
-                            '<label><span class="badge">2.</span> Select end point (click on map)</label>',
-                            '<input id="routing-end" class="input-block-level uneditable-input" type="text">',
-                        '</div><div id="routing-polygon-block" style="display: none;">',
-                            '<label><span class="badge">3.</span> Draw involved area (click on map)</label>',
-                            '<textarea id="routing-polygon" class="input-block-level uneditable-input" rows=3></textarea>',
-                        '</div>',
-                    '</fieldset>',
+                    '<div id="routing-start-block">',
+                        '<label><span class="badge">1.</span> Select start point (click on map)</label>',
+                        '<input id="routing-start" class="input-block-level uneditable-input" type="text">',
+                    '</div>',
+                     '<div id="routing-end-block" style="display: none;">',
+                        '<label><span class="badge">2.</span> Select end point (click on map)</label>',
+                        '<input id="routing-end" class="input-block-level uneditable-input" type="text">',
+                    '</div><div id="routing-polygon-block" style="display: none;">',
+                        '<label><span class="badge">3.</span> Draw involved area (click on map)</label>',
+                        '<textarea id="routing-polygon" class="input-block-level uneditable-input hidden" rows=3></textarea>',
+                    '</div>',
+//                        '<div id="rounting-type-block" style="display: none;">',
+                    '<div id="rounting-type-block" data-toggle="buttons-radio" style="margin-top:10px; display: none; height: 60px">',
+                        '<label><span class="badge">4.</span> Select routing model</label>',
+                        '<button id="rounting-type-fastest" class="btn" routing="fastest">Fastest</button>',
+                        '<button id="rounting-type-shortest" class="btn" routing="shortest">Shortest</button>',
+                        '<button id="rounting-type-vulnerability" class="btn" routing="vulnerability">Vulnerability</button>',
+                        '<input id="rounting-type" class="hidden" type="text">',
+                    '</div>',
+                    '<div id="rounting-vulnerability-block" data-toggle="buttons-radio" style=" display: none;">',
+                        '<label><span class="badge">4a.</span> Select vulnerability</label>',
+                        '<select id="rounting-vulnerability">',
+                            '<option>landslides</option>',
+                            '<option>mudslides</option>',
+                            '<option>floods</option>',
+                            '<option>earthquakes</option>',
+                            '<option>avalanches</option>',
+                            '<option>forestfires</option>',
+                            '<option>scree</option>',
+                        '</select>',
+                    '</div>',
                 '</form>',
-                '<div id="routing-button-block" style="display: none;">',
+                '<div id="routing-button-block" style="display: none; margin-top: 10px;">',
                 '<button id="routing-submit" type="submit" class="btn btn-primary">Run re-routing</button>',
                 '<button id="routing-cancel" type="button" class="btn">Cancel</button>',
                 '</div>',
@@ -59,22 +77,47 @@ Ext.define('Jites.view.WebgisRerouting', {
 //            width: me.logareaWidth
         };
 
-        //aggiungo markers e vector
-        this.markers = new OpenLayers.Layer.Markers( "Re-routing" );
+        this.markers = new OpenLayers.Layer.Vector(
+            "Re-routing Marker",
+            {
+                isBaseLayer: false,
+                displayInLayerSwitcher: false
+            }
+        );
+
         this.vector = new OpenLayers.Layer.Vector("Re-routing polygon",{
             displayInLayerSwitcher: false
         });
+        this.vector.onFeatureInsert = function(ft){
+            $('#rounting-type-block').fadeIn();
+        };
 
         this.map.addLayers([this.markers, this.vector]);
 
         this.callParent(arguments);
     },
     listeners: {
-        'hide': function(){
-            console.log('azzero tutto');
+        'hide': function(panel){
+            panel.polygoncontrol.deactivate();
+            panel.dragfeaturecontrol.deactivate();
+            panel.markers.removeAllFeatures();
+            panel.vector.removeAllFeatures();
+
+            $('#routing-start').val('');
+            $('#routing-end').val('');
+            $('#routing-polygon').val('');
+
+            $('#routing-polygon-block').fadeOut();
+            $('#routing-button-block').fadeOut();
+            $('#routing-end-block').fadeOut();
+            $('#rounting-type-block').fadeOut();
+            $('#rounting-type-block').button('toggle')
+        },
+        'show': function(panel){
+            panel.startcontrol.activate();
+            panel.dragfeaturecontrol.activate();
         },
         'afterrender': function(panel){
-
             panel.startcontrol = new OpenLayers.Control.Click({
                 handlerOptions: {
                     "single": true,
@@ -98,30 +141,49 @@ Ext.define('Jites.view.WebgisRerouting', {
             panel.map.addControl(this.endcontrol);
             panel.map.addControl(this.polygoncontrol);
 
-            panel.startcontrol.activate();
 
-            //add event to polygon draw
-            panel.vector.onFeatureInsert = function(ft){
-                console.log(ft)
-            };
+            //Add drag feature on markers layers
+            panel.dragfeaturecontrol = new OpenLayers.Control.DragFeature(panel.markers);
+            panel.map.addControl(panel.dragfeaturecontrol);
 
             //Add event to start point
-//            console.log(panel.map);
-            Ext.get('routing-button-block').on('click', function(event, target) {
+            Ext.get('routing-submit').on('click', function(event, target) {
                 var start = $('#routing-start').attr('roadid'),
                     end = $('#routing-end').attr('roadid'),
                     wkt = new OpenLayers.Format.WKT(),
                     csfr = Ext.util.Cookies.get('csrftoken'),
-                    poly = wkt.write(panel.vector.features[0]);
+                    multi = [],
+                    multifeature,
+                    vuln = $('#rounting-vulnerability').val();
+
+                    if(!panel.vector.features.length){
+                        Ext.MessageBox.show({
+                            title: 'Attention',
+                            msg: 'You must draw at least a polygon to continue.',
+                            buttons: Ext.MessageBox.OK,
+                            icon: Ext.MessageBox.INFO
+                        });
+                        return;
+                    }
+
+                    Ext.Array.each(panel.vector.features,function(el){
+                        multi.push(el.geometry)
+                    });
+
+
+                    multifeature = new OpenLayers.Feature.Vector(
+                        new OpenLayers.Geometry.MultiPolygon(multi)
+                    );
 
                 Ext.Ajax.request({
-                    url: '/jites/rerouting/shortest',
+                    url: '/jites/rerouting/'+$('#rounting-type').val(),
                     method: 'POST',
                     params: {
-                        "polygon": poly,
+                        "polygon": wkt.write(multifeature),
                         "source": start,
                         "csrfmiddlewaretoken": csfr,
-                        "target": end
+                        "target": end,
+                        "vuln": vuln
                     },
                     scope: this,
                     success: function(response){
@@ -132,7 +194,9 @@ Ext.define('Jites.view.WebgisRerouting', {
 
 
                         stylemap = new OpenLayers.StyleMap({
-                            strokeWidth: 2,
+                            name: 'Rerouting',
+                            title: "Re-routing",
+                            strokeWidth: 4,
                             strokeColor: '#3d2d84'
                         });
                         vector = new OpenLayers.Layer.Vector("Path",{
@@ -150,7 +214,40 @@ Ext.define('Jites.view.WebgisRerouting', {
                     }
                 });
 
+            }, this);
+
+            //Handler for select routing type
+            Ext.get('rounting-type-block').on('click', function(event, target) {
+                if(target.getAttribute('routing') == 'vulnerability'){
+                    $('#rounting-vulnerability-block').fadeIn()
+                } else {
+                    $('#rounting-vulnerability-block').fadeOut();
+                }
+
+                $('#rounting-type').val(target.getAttribute('routing'));
+                $('#routing-button-block').fadeIn();
             }, this, {delegate: 'button'});
+
+            //handler for cancel button
+            Ext.get('routing-cancel').on('click', function(event, target) {
+                this.polygoncontrol.deactivate();
+                this.dragfeaturecontrol.deactivate();
+                this.markers.removeAllFeatures();
+                this.vector.removeAllFeatures();
+
+                panel.startcontrol.activate();
+                panel.dragfeaturecontrol.activate();
+
+                $('#routing-start').val('');
+                $('#routing-end').val('');
+                $('#routing-polygon').val('');
+
+                $('#routing-polygon-block').fadeOut();
+                $('#routing-button-block').fadeOut();
+                $('#routing-end-block').fadeOut();
+                $('#rounting-type-block').fadeOut();
+                $('#rounting-type-block').button('toggle');
+            }, panel);
         }
     },
 
@@ -159,7 +256,7 @@ Ext.define('Jites.view.WebgisRerouting', {
         var lonlat = this.map.getLonLatFromPixel(e.xy);
         var map = this.map;
 
-        url = Ext.String.format('http://geodata.fbk.eu:50002/geoserver/tsa/wms?' +
+        url = Ext.String.format('http://transafealp.fbk.eu/geoserver/wms?' +
             'REQUEST=GetFeatureInfo&EXCEPTIONS=application/vnd.ogc.se_xml&BBOX={0}' +
             '&SERVICE=WMS&INFO_FORMAT=application/json&QUERY_LAYERS=tsa:alpcheck2_agis_reroute_4326&' +
             'FEATURE_COUNT=1&Layers=tsa:alpcheck2_agis_reroute_4326&WIDTH={1}&HEIGHT={2}&' +
@@ -178,11 +275,18 @@ Ext.define('Jites.view.WebgisRerouting', {
                 success: function(response){
                     var r = Ext.decode(response.responseText);
                     if(r.features.length){
-                        //Add markers to the map
-                        var size = new OpenLayers.Size(32,37);
-                        var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-                        var icon = new OpenLayers.Icon('/static/jites/resources/images/icons/finish2.png', size, offset);
-                        this.handlerOptions.ref.markers.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(lonlat.lon,lonlat.lat),icon));
+                        var lon = lonlat.lon,
+                            lat = lonlat.lat;
+
+                        var ft = new OpenLayers.Feature.Vector(
+                            new OpenLayers.Geometry.Point(lon, lat)
+                        );
+                        ft.style = {
+                            externalGraphic: "/static/jites/resources/images/icons/finish2.png",
+                            pointRadius: 20,
+                            graphicYOffset: -40
+                        };
+                        this.handlerOptions.ref.markers.addFeatures(ft);
 
                         //Set friendly name
                         var text = r.features[0].properties.stateroadn ? r.features[0].properties.stateroadn : '';
@@ -198,13 +302,23 @@ Ext.define('Jites.view.WebgisRerouting', {
 
                         //Visualizing next block
                         $('#routing-polygon-block').fadeIn();
-                        $('#routing-button-block').fadeIn();
+
                     } else {
-                        console.log('nessuna feature selezionata');
+                        Ext.MessageBox.show({
+                            title: 'Click info',
+                            msg: 'Select a section of alpcheck2 road',
+                            buttons: Ext.MessageBox.OK,
+                            icon: Ext.MessageBox.INFO
+                        });
                     }
                 },
                 failure: function(){
-                    console.log('errore')
+                    Ext.MessageBox.show({
+                        title: 'Click info',
+                        msg: 'Select a section of alpcheck2 road',
+                        buttons: Ext.MessageBox.OK,
+                        icon: Ext.MessageBox.INFO
+                    }).show();
                 }
 
             });
@@ -215,7 +329,7 @@ Ext.define('Jites.view.WebgisRerouting', {
         var map = this.map;
 
 
-        url = Ext.String.format('http://geodata.fbk.eu:50002/geoserver/tsa/wms?' +
+        url = Ext.String.format('https://transafealp.fbk.eu/geoserver/wms?' +
             'REQUEST=GetFeatureInfo&EXCEPTIONS=application/vnd.ogc.se_xml&BBOX={0}' +
             '&SERVICE=WMS&INFO_FORMAT=application/json&QUERY_LAYERS=tsa:alpcheck2_agis_reroute_4326&' +
             'FEATURE_COUNT=1&Layers=tsa:alpcheck2_agis_reroute_4326&WIDTH={1}&HEIGHT={2}&' +
@@ -234,11 +348,18 @@ Ext.define('Jites.view.WebgisRerouting', {
             success: function(response){
                 var r = Ext.decode(response.responseText);
                 if(r.features.length){
-                    //Add markers to the map
-                    var size = new OpenLayers.Size(32,37);
-                    var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-                    var icon = new OpenLayers.Icon('/static/jites/resources/images/icons/start-race-2.png', size, offset);
-                    this.handlerOptions.ref.markers.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(lonlat.lon,lonlat.lat),icon));
+                    var lon = lonlat.lon,
+                        lat = lonlat.lat;
+
+                    var ft = new OpenLayers.Feature.Vector(
+                        new OpenLayers.Geometry.Point(lon, lat)
+                    );
+                    ft.style = {
+                        externalGraphic: "/static/jites/resources/images/icons/start-race-2.png",
+                        pointRadius: 20,
+                        graphicYOffset: -40
+                    };
+                    this.handlerOptions.ref.markers.addFeatures(ft);
 
                     //Set friendly name
                     var text = r.features[0].properties.stateroadn ? r.features[0].properties.stateroadn : '';
@@ -255,11 +376,21 @@ Ext.define('Jites.view.WebgisRerouting', {
                     //Visualizing next block
                     $('#routing-end-block').fadeIn();
                 } else {
-                    console.log('nessuna feature selezionata');
+                    Ext.MessageBox.show({
+                        title: 'Click info',
+                        msg: 'Select a section of alpcheck2 road',
+                        buttons: Ext.MessageBox.OK,
+                        icon: Ext.MessageBox.INFO
+                    });
                 }
             },
             failure: function(){
-                console.log('errore')
+                Ext.MessageBox.show({
+                    title: 'Click info',
+                    msg: 'Select a section of alpcheck2 road',
+                    buttons: Ext.MessageBox.OK,
+                    icon: Ext.MessageBox.INFO
+                });
             }
         });
     }

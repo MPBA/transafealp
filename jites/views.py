@@ -318,12 +318,24 @@ def proxy(request):
 @login_required
 def run_rerouting(request, type):
     try:
-        cursor = connection.cursor()
-        cursor.execute(
-            "SELECT path_fastest(%s,%s,%s)",
-            [request.POST['polygon'], int(request.POST['source']), int(request.POST['target'])]
-        )
-
+        if type == 'fastest':
+            cursor = connection.cursor()
+            cursor.execute(
+                "SELECT path_fastest(%s,%s,%s)",
+                [request.POST['polygon'], int(request.POST['source']), int(request.POST['target'])]
+            )
+        elif type == 'shortest':
+            cursor = connection.cursor()
+            cursor.execute(
+                "SELECT path_shortest(%s,%s,%s)",
+                [request.POST['polygon'], int(request.POST['source']), int(request.POST['target'])]
+            )
+        elif type == 'vulnerability':
+            cursor = connection.cursor()
+            cursor.execute(
+                "SELECT path_vulnerability(%s,%s,%s,%s)",
+                [request.POST['vuln'], request.POST['polygon'], int(request.POST['source']), int(request.POST['target'])]
+            )
     except DatabaseError, e:
         transaction.rollback()
         return HttpResponse(str(e))

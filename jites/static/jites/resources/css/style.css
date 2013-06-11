@@ -147,3 +147,6 @@
     -ms-user-select: none;
     user-select: none;
 }
+input, textarea, select {
+    font-size: 14px !important;
+}

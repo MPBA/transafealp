@@ -71,7 +71,6 @@ Ext.define('Jites.controller.EventLog', {
             interval: 5000,
             id: 'eventlog-poll-provider'
         });
-        p = me.polling;
 
         Ext.direct.Manager.addProvider(me.polling);
 
