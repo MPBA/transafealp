@@ -30,7 +30,7 @@ class MainView(LoginRequiredMixin, TemplateView):
         all_event_closed = Event.objects.filter(managing_authority=managing_authority, status='closed').count()
         all_event_open = Event.objects.filter(managing_authority=managing_authority, status='open').count()
         self.request.session["ma"] = managing_authority
-
+        print all_event_open
         context['ma'] = managing_authority
         context['n_users'] = num_users_logged
         context['tot_users'] = tot_users
