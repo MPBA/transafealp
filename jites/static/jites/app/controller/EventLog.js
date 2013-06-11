@@ -68,7 +68,7 @@ Ext.define('Jites.controller.EventLog', {
                 "csrfmiddlewaretoken":Ext.util.Cookies.get('csrftoken')
             },
             method: 'POST',
-            interval: 1000,
+            interval: 5000,
             id: 'eventlog-poll-provider'
         });
         p = me.polling;

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+    <link href="{% static "css/dt_bootstrap.css" %}" rel="stylesheet">
+    <style>
+        table { table-layout: fixed; }
+        table th, table td { overflow: hidden; }
+    </style>
+
+    <script src="{% static 'openlayer/js/open-layer-custom.js' %}"></script>
+    <script type="text/javascript" charset="utf-8">
+        jQuery('#geom_scenario').ready(function() {
+            OpenLayers.ImgPath = "{% static 'openlayer/img/' %}";
+            var map, layer, event_layer, json, extent, click, markers;
+
+            extent =  new OpenLayers.Bounds(596825.316768,5437464.443338,1800249.889923,6097880.36763);
+
+            layer =  new OpenLayers.Layer.OSM("OpenCycleMap",
+                    [
+                        "http://otile1.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png",
+                        "http://otile2.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png",
+                        "http://otile3.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png",
+                        "http://otile4.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png"
+                    ],{
+                        displayInLayerSwitcher: false
+                    });
+
+            map = new OpenLayers.Map({
+                theme:"{% static 'openlayer/css/style.css' %}",
+                restrictedExtent: extent,
+                maxExtent: extent,
+                projection: 'EPSG:900913',
+                controls: [
+                    new OpenLayers.Control.Navigation(),
+                    new OpenLayers.Control.Attribution(),
+                    new OpenLayers.Control.Scale(),
+                    new OpenLayers.Control.ScaleLine()
+                ]
+            });
+
+            event_layer = new OpenLayers.Layer.WMS(
+                    "tsa:event_view", "http://geodata.fbk.eu:50002/geoserver/wms",
+                    {
+                        LAYERS: 'tsa:event_view',
+                        format: 'image/png',
+                        transparent: true
+                    },
+                    {
+                        projection: map.projection,
+                        singleTile: true,
+                        isBaseLayer: false
+                    }
+            );
+
+            map.addLayers([layer]);
+            map.addLayers([event_layer]);
+
+            setTimeout(function(){
+                map.render('geom_scenario');
+                map.zoomToMaxExtent();
+            },2000);
+
+        });
+	</script>
+{% endblock %}
+{% block content %}
+
+
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+        </div>
+        {% endfor %}
+    {% endif %}
+    <table class="table table-striped table-bordered" id="scenarios" >
+    <caption>Actual emergency event</caption>
+        <thead>
+            <tr>
+                <th style="width: 10px">#</th>
+                <th style="width: 20%">Event</th>
+                <th style="width: 20%">Owner</th>
+                <th style="width: 45%">Running action</th>
+                <th style="width: 50px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+                <tr>
+                    <td>{{ event.pk }}</td>
+                    <td>
+                        <span class="label label-info">{{ event.event_name }}</span><span> [ {{ event.category_name }}/<b>{{ event.subcategory_name }}</b> ]</span><br/>
+                        <span>{{ event.time_start }}</span>
+                    </td>
+                    <td>
+                        <strong>{{ event.managing_authority.auth_user.get_full_name }} [{{ event.managing_authority.name }}]</strong><br/>
+                        {{ event.managing_authority.address }}<br/>
+                        <abbr title="Phone">P:</abbr> {{ event.managing_authority.phone }} <abbr title="Email">E:</abbr> <a href="mailto:{email}">{{ event.managing_authority.email }}</a>
+                    </td>
+                    <td>
+                        {% for act in event.get_running_action %}
+                            <b>{{ act.name }}:</b> {{ act.description|truncatewords:50 }}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <a href="{% url 'jites.views.dashboard' 'single' event.pk %}" target="_blank">Go to event</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="5">
+                    <div id="geom_scenario" style=" height: 500px;"></div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+
+{% endblock %}

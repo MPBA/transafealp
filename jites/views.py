@@ -114,12 +114,11 @@ def start_event(request, scenario_id, type):
     point = request.GET['point']
     scenario = Scenario.objects.get(pk=scenario_id)
 
+    is_real = None
     if type == 'simulation':
-        is_real = True
-        pass
-    elif type == 'emergency':
         is_real = False
-        pass
+    elif type == 'emergency':
+        is_real = True
 
     geom = 'SRID=900913;POINT({0})'.format(point)
 
@@ -339,3 +338,13 @@ def run_rerouting(request, type):
     json_response = json.dumps(result)
 
     return HttpResponse(json_response, mimetype='text/javascript;')
+
+
+def eventlist(request):
+    events = Event.objects.filter(status='open', is_real=True)
+    print events
+    context = {
+        "events": events
+    }
+
+    return render_to_response('jites/eventlist.html', context, context_instance=RequestContext(request))

@@ -20,4 +20,6 @@ urlpatterns = patterns('jites.views',
 
    (r'^proxy/', 'proxy'),
 
+   (r'^event/list', 'eventlist'),
+
 )

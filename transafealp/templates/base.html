@@ -136,6 +136,10 @@ In this file there are all the importing string command for js and css files.-->
                   <li class="{% active_pattern request emergency  %}">
                       <a href="{% url 'scenario.views.search_event' 'emergency' %}">Emergencies</a>
                   </li>
+                  {% url 'jites.views.eventlist' as eventlist %}
+                  <li class="{% active_pattern request eventlist  %}">
+                      <a href="{% url 'jites.views.eventlist' %}">Event list</a>
+                  </li>
                   <li class="divider"></li>
                   <li class="nav-header">HowTo</li>
                   <li class="dropdown-submenu">

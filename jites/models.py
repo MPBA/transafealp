@@ -109,10 +109,17 @@ class Event(models.Model):
     def __unicode__(self):
         return u'%s %s' % (self.event_name, self.status)
 
+    def get_running_action(self):
+        actions = self.evaction_set.filter(status='running')
+        return actions
+
     def as_dict(self):
         return {
             'pk': self.pk,
-            'managing_authority': self.managing_authority.name,
+            'managing_authority_name': self.managing_authority.name,
+            'managing_authority_full_name': self.managing_authority.auth_user.get_full_name(),
+            'managing_authority_phone': self.managing_authority.phone,
+            'managing_authority_email': self.managing_authority.email,
             'event_name': self.event_name,
             'event_description': self.event_description,
             'category_name': self.category_name,

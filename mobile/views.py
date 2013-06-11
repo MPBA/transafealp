@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from tojson import render_to_json
 import json
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseBadRequest, Http404
 from jites.models import Event, EvActionGraph
 
 
@@ -63,35 +63,62 @@ def eventlist(request):
 @login_required
 @render_to_json(mimetype='application/json')
 def actionlist(request, pk):
-    event = Event.objects.get(pk=pk)
-    # root_action = EvAction.objects.get(event=event, name='root')
-    actions = EvActionGraph.objects.filter(action__event=event, parent__event=event, is_main_parent=True)
-    pc = ([])
-    # pc.append([root_action.id,
-    #            root_action.id,
-    #            root_action.name,
-    #            root_action.numcode,
-    #            root_action.description,
-    #            root_action.duration,
-    #            root_action.status,
-    #            root_action.comment
-    # ])
-    for action in actions:
-        pc.append({
-            "parent_id": action.parent.id,
-            "action_id": action.action.id,
-            "name": action.action.name,
-            "numcode": action.action.numcode,
-            "description": action.action.description,
-            "duration": action.action.duration,
-            "status": action.action.status,
-            "comment": action.action.comment
+    try:
+        event = Event.objects.get(pk=pk)
+        actions = EvActionGraph.objects.filter(action__event=event, parent__event=event, is_main_parent=True)
+        pc = ([])
+        for action in actions:
+            pc.append({
+                "parent_id": action.parent.id,
+                "action_id": action.action.id,
+                "name": action.action.name,
+                "numcode": action.action.numcode,
+                "description": action.action.description,
+                "duration": action.action.duration,
+                "status": action.action.status,
+                "comment": action.action.comment
 
+            })
+
+        json_response = json.dumps({
+            "success": True,
+            "data": pc
         })
+        return HttpResponse(json_response, mimetype='application/json;')
 
-    json_response = json.dumps({
-        "success": True,
-        "data": pc
-    })
+    except Event.DoesNotExist:
+        result = {"success": False,
+                  "message": "Invalid ID. Event does not exist"}
+        return result, {'cls': Http404}
+#
+# @login_required
+# @render_to_json(mimetype='application/json')
+# def actiondetails(request, pk):
+#     try:
+#         event = Event.objects.get(pk=pk)
+#         actions = EvActionGraph.objects.filter(action__event=event, parent__event=event, is_main_parent=True)
+#         pc = ([])
+#         for action in actions:
+#             pc.append({
+#                 "parent_id": action.parent.id,
+#                 "action_id": action.action.id,
+#                 "name": action.action.name,
+#                 "numcode": action.action.numcode,
+#                 "description": action.action.description,
+#                 "duration": action.action.duration,
+#                 "status": action.action.status,
+#                 "comment": action.action.comment
+#
+#             })
+#
+#         json_response = json.dumps({
+#             "success": True,
+#             "data": pc
+#         })
+#         return HttpResponse(json_response, mimetype='application/json;')
+#
+#     except Event.DoesNotExist:
+#         result = {"success": False,
+#                   "message": "Invalid ID. Event does not exist"}
+#         return result, {'cls': Http404}
 
-    return HttpResponse(json_response, mimetype='application/json;')
