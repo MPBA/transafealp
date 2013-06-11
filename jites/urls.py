@@ -14,10 +14,8 @@ urlpatterns = patterns('jites.views',
    (r'update_action_status/(?P<pk>\d+)$', 'update_action_status' ),
    (r'event/(?P<event_id>\d+)/add/message/$', 'save_event_message'),
    (r'tree/to/json/(?P<event_id>\d+)/$', 'tree_to_json'),
-   (r'get_action/(?P<pk>\d+)$', ActionDetailView.as_view()),
-
+   (r'get_action/(?P<pk>\d+)$', ActionDetailView.as_view() ),
    (r'^rerouting/(?P<type>\w+)', 'run_rerouting'),
-
    (r'^proxy/', 'proxy'),
 
    (r'^event/list', 'eventlist'),

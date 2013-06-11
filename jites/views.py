@@ -15,14 +15,20 @@ from .models import Event, EvMessage, EvAction, EvActionGraph, EvVisualization, 
 from django.db.models import Max
 from .utility import make_tree, Actor_Action_Association, SetEncoder, actiondetail_json
 from datetime import datetime
-
+from scenario.utility import Membership
 
 @login_required
 def dashboard(request, displaymode, event_id):
+    event = Event.objects.get(pk=event_id)
+    if event.managing_authority == Membership(request.user).membership_auth:
+        can_edit = True
+    else:
+        can_edit = False
     context = {
         'displaymode': displaymode,
         'event_id': event_id,
-        'username': request.user
+        'username': request.user,
+        'can_edit': can_edit
     }
 
     return render_to_response('jites/dashboard.html', context, context_instance=RequestContext(request))
@@ -340,9 +346,9 @@ def run_rerouting(request, type):
     return HttpResponse(json_response, mimetype='text/javascript;')
 
 
+@login_required
 def eventlist(request):
     events = Event.objects.filter(status='open', is_real=True)
-    print events
     context = {
         "events": events
     }
