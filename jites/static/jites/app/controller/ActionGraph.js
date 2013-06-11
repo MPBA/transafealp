@@ -94,7 +94,7 @@ Ext.define('Jites.controller.ActionGraph', {
                 color: '#FFFFFF',
                 overridable: true,
                 width:  Jites.ACTIONGRAPHLABELWIDHT,
-                height: 43
+                height: 53
             },
 
             Label: {

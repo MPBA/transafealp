@@ -318,7 +318,7 @@ Ext.define('Jites.view.WebgisRerouting', {
                         msg: 'Select a section of alpcheck2 road',
                         buttons: Ext.MessageBox.OK,
                         icon: Ext.MessageBox.INFO
-                    }).show();
+                    })
                 }
 
             });

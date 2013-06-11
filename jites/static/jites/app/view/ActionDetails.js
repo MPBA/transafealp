@@ -100,7 +100,8 @@ Ext.define('Jites.view.ActionDetails',{
                         function(el){
                             var btn,
                                 btn_label,
-                                act;
+                                act,
+                                disable;
 
                             //todo is necessary for maintaining  the compatibility whit action structure
                             act = {
@@ -110,8 +111,13 @@ Ext.define('Jites.view.ActionDetails',{
                             //retrive btn style class and btn label
                             btn = ct.getBtnFromStatus(act);
                             btn_label = ct.getLabelFromStatus(act);
+                            if(Jites.CANEDIT){
+                                disable = '';
+                            } else {
+                               disable = 'disabled="disabled"';
+                            }
 
-                            result.push(Ext.String.format('<li><button class="{0}" status="{2}" action_id="{3}">{1}</button></li>',btn, btn_label, el, pk));
+                            result.push(Ext.String.format('<li><button class="{0}" status="{2} " action_id="{3}" {4}>{1}</button></li>',btn, btn_label, el, pk,disable));
                         }
                     );
 

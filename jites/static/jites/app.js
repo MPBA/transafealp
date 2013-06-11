@@ -21,6 +21,7 @@ Ext.application({
         Jites.DISPLAYMODE = displaymode;
         Jites.USERNAME = username;
         Jites.EVENTID = event_id;
+        Jites.CANEDIT = can_edit;
         Jites.ACTIONGRAPHLABELWIDHT = 210;
         Jites.LASTPOLLTIMESTAMP = Ext.Date.format(new Date('1980-01-01'),'Y-j-d H:i:s.u+02');
 
