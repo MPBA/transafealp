@@ -58,7 +58,6 @@ Ext.define('Jites.controller.ActionGraph', {
         parent.setDisabled(false);
     },
     initJit: function(container){
-        //TODO implement ajax request to get real task tree
         var me = this,
         parent = me.getActiongraph(),
         offset = ((parent.getWidth()/2)-120);
@@ -79,7 +78,7 @@ Ext.define('Jites.controller.ActionGraph', {
             //set distance between node and its children
             levelDistance: 50,
             //set max indentention level to show
-            levelsToShow: 10,
+            levelsToShow: 30,
 
             constrained: false,
 
@@ -220,7 +219,8 @@ Ext.define('Jites.controller.ActionGraph', {
             text;
 
         label.id = id;
-        label.innerHTML = '<h4>' + Ext.String.ellipsis(node.name, 25, true) + '</h4>';
+//        label.innerHTML = '<div style="margin: 5px; height: 35px;">' + Ext.String.ellipsis(node.name, 35, true) + '</div>';
+        label.innerHTML = '<div style="margin: 5px; height: 35px; white-space: normal;">' +  Ext.String.ellipsis(node.name,75, true) + '</div>';
         //TODO set style according to the event status
         label.className = ct.getStyleFromStatus(data);
 

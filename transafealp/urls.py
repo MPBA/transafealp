@@ -35,7 +35,7 @@ urlpatterns = patterns('',
         (r'^jites/',   include('jites.urls')),
 
         #################### LAYER MAP URLS ########################
-        #(r'^api/', include('layer_map.urls')),
+        (r'^api/', include('layer_map.urls')),
 
         #################### MOBILE ########################
         (r'^mobile/', include('mobile.urls')),
