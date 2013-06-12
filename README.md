@@ -34,6 +34,9 @@ authorities have a tool that can simplify the choices of action and information 
 * psutil
 * httplib2
 * pytz
+* git+http://github.com/davidek/django-tojson.git@master#egg=django-tojson
+* git+http://github.com/MPBAUnofficial/pyhive.git@master#egg=pyhive
+* git+https://github.com/niwibe/djorm-ext-hstore.git
 
 ```python
     pip install -r transafealp/requirements.txt
