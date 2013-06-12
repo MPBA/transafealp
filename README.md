@@ -33,6 +33,7 @@ authorities have a tool that can simplify the choices of action and information 
 * PIL
 * psutil
 * httplib2
+* pytz
 
 ```python
     pip install -r transafealp/requirements.txt
