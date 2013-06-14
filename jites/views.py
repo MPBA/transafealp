@@ -38,7 +38,8 @@ def dashboard(request, displaymode, event_id):
         'event_id': event_id,
         'username': request.user,
         'can_edit': can_edit,
-        'is_open': is_open
+        'is_open': is_open,
+        'event': event
     }
 
     return render_to_response('jites/dashboard.html', context, context_instance=RequestContext(request))
@@ -405,6 +406,7 @@ def run_rerouting(request, type):
 
     result = {
         "success": True,
+        "type:": type,
         "path": row[0]
     }
     json_response = json.dumps(result)
