@@ -11,7 +11,6 @@
 
         $(document).ready(function () {
 
-
             $('#container2').highcharts({
             chart: {
                 type: 'column'
@@ -20,7 +19,7 @@
                 text: 'Event Stats'
             },
             xAxis: {
-                categories: ['# Total Action', '# Closed with Success', '# Closed without Success'],
+                categories: ['# Total Action', '# Closed with Success', '# Closed without Success', '# Executable', '# Non Executable'],
                 labels: {
                     rotation: -45,
                     align: 'right',
@@ -51,6 +50,9 @@
                        {y: {{ total }}, color: '#4BA600'},
                        {y: {{ term_w_success }}, color: '#DE6800'},
                        {y: {{ term_wo_success }}, color: '#1B91E0'},
+                       {y: {{ exec }}, color: '#990033'},
+                       {y: {{ nonexec }}, color: '#663399'},
+
                 ]
             }]
         });
@@ -63,7 +65,7 @@
     <div class="hero-unit">
             <div class="row-fluid">
                 <div class="span12">
-                    <h3>The event <span style="text-decoration: underline; font-style: oblique">{{ event }}</span> is closed</h3>
+                    <h3>The event <span style="text-decoration: underline; font-style: oblique">{{ event }}</span> is {{ event.status }}</h3>
                     <hr>
                     <div class="row-fluid">
                         <div class="span6">
@@ -74,8 +76,13 @@
                             <p><strong>The event execution time is:</strong> {{ exec_time }}</p>
                             <hr>
                             <a href="/" class="btn btn-info btn-large">
-                                Back to home page
+                                Go to home page
                             </a>
+                            {% if request.META.HTTP_REFERER %}
+                            <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-success btn-large">
+                                Go back
+                            </a>
+                            {% endif %}
 
                         </div>
                         <div class="span6">
@@ -99,11 +106,7 @@
                 </div>
             </div>
     </div>
-    <!-- Example row of columns -->
-     <div class="row-fluid marketing">
 
-        <div class="span6">
-      </div>
-     </div>
+
 
 {% endblock %}
