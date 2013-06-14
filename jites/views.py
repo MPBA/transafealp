@@ -20,14 +20,15 @@ from scenario.utility import Membership
 @login_required
 def dashboard(request, displaymode, event_id):
     event = Event.objects.get(pk=event_id)
-    if event.managing_authority == Membership(request.user).membership_auth and event.is_real == 'true':
+    if event.managing_authority == Membership(request.user).membership_auth and event.is_real is True:
         can_edit = True
-    elif event.managing_authority != Membership(request.user).membership_auth and event.is_real == 'false':
+    elif event.managing_authority != Membership(request.user).membership_auth and event.is_real is False:
         can_edit = True
-    elif event.managing_authority == Membership(request.user).membership_auth and event.is_real == 'false':
+    elif event.managing_authority == Membership(request.user).membership_auth and event.is_real is False:
         can_edit = True
     else:
         can_edit = False
+
     if event.status == 'open':
         is_open = True
     else:
