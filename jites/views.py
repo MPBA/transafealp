@@ -420,6 +420,17 @@ def eventlist(request):
 
     return render_to_response('jites/eventlist.html', context, context_instance=RequestContext(request))
 
+
+@login_required
+def closedevents(request):
+    events = Event.objects.filter(status='closed', is_real=True)
+    context = {
+        "events": events
+    }
+
+    return render_to_response('jites/closedevents.html', context, context_instance=RequestContext(request))
+
+
 #standard view for adding message to event
 @login_required()
 def close_event(request, scenario_id):
@@ -454,6 +465,8 @@ def event_statistics(request, event_id):
     actions_total = EvAction.objects.filter(event=event).count()
     actions_terminated_without_success = EvAction.objects.filter(event=event, status__icontains="terminated").count()
     actions_terminated_with_success = EvAction.objects.filter(event=event, status__icontains="(success)").count()
+    actions_executalbe = EvAction.objects.filter(event=event, status="executable").count()
+    actions_non_executable = EvAction.objects.filter(event=event, status="non executable").count()
     exec_time = event.time_end - event.time_start
     actions_log = EventLog.objects.filter(event=event, table_name='ev_action', action='U').order_by('ts')
     result = []
@@ -471,6 +484,8 @@ def event_statistics(request, event_id):
         'term_wo_success': actions_terminated_without_success,
         'exec_time': exec_time,
         'event': event,
-        'result': result
+        'result': result,
+        'exec': actions_executalbe,
+        'nonexec': actions_non_executable
     }
     return render_to_response('jites/event_stats.html', context, context_instance=RequestContext(request))

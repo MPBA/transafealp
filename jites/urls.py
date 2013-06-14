@@ -18,7 +18,9 @@ urlpatterns = patterns('jites.views',
    (r'get_action/(?P<pk>\d+)$', ActionDetailView.as_view() ),
    (r'^rerouting/(?P<type>\w+)', 'run_rerouting'),
    (r'^proxy/', 'proxy'),
-   (r'^event/list', 'eventlist'),
+   (r'^event/list/$', 'eventlist'),
+   (r'^events/closed/$', 'closedevents'),
+
 
    (r'^event/stats/(?P<event_id>\d+)/$', 'event_statistics'),
 
