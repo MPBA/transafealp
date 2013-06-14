@@ -55,6 +55,7 @@ def scenario_detail(request, scenario_id):
                'graph': graph_img,
                'actors': actors,
                'visualizations': visualizations,
+               'scenario_id': scenario_id
               }
     return render_to_response('scenario/scenario_detail.html', context, context_instance=RequestContext(request))
 
