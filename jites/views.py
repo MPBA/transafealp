@@ -17,6 +17,7 @@ from .utility import make_tree, Actor_Action_Association, SetEncoder, actiondeta
 from datetime import datetime
 from scenario.utility import Membership
 
+
 @login_required
 def dashboard(request, displaymode, event_id):
     event = Event.objects.get(pk=event_id)
