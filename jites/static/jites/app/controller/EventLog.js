@@ -87,10 +87,6 @@ Ext.define('Jites.controller.EventLog', {
         //Enable eventlog panel
         parent.setDisabled(false);
 
-        //Enable log annotation event
-//        $( "#logannotation-submit" ).click(function() {
-//            return false;
-//        });
     },
     updateLogTimestamp: function(e){
         var me = this,
@@ -108,9 +104,11 @@ Ext.define('Jites.controller.EventLog', {
             var node = Ext.get('node'+data.id);
             var status = controller.getStyleFromStatus(data);
 
-            node.dom.className = status;
-            if(!Jites.CANEDIT){
-                node.highlight()
+            if(node){
+                node.dom.className = status;
+                if(!Jites.CANEDIT){
+                    node.highlight()
+                }
             }
     },
     addRowToLogArea: function(e){

@@ -29,11 +29,12 @@ Ext.define('Jites.view.ActionGraphCloseButton',{
                     '<h3 id="myModalLabel">{event}</h3>',
                 '</div>',
                 '<div class="modal-body">',
-                    '<p>One fine body…</p>',
+                    '<span class="label label-important">Important!</span> This action can not be undone!',
+
                 '</div>',
                 '<div class="modal-footer">',
-                    '<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>',
-                    '<button id="close-event-modal-confirm" class="btn btn-primary btn-danger">Save changes</button>',
+                    '<button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>',
+                    '<button id="close-event-modal-confirm" class="btn btn-primary btn-danger">OK, close event</button>',
                 '</div>',
             '</div>'
         );

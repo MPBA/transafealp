@@ -52,11 +52,19 @@
 
 {% block topnavbarleft %}
     <p class="navbar-text pull-left">
+        <span id="dashboard-connect-info">
         {% if can_edit %}
             Connected to the system as <b>"modarator"</b>
-        {% else%}
-            Connected to the system as <b>"partecipant"</b>
+        {% else %}
+            Connected to the system as <b>"partecipant" (read-only privileges)</b>
         {% endif %}
+        </span><br/>
+        <span id="dashboard-status-info">
+            {% if is_open %}
+            {% else %}
+                This event is <b>"closed"</b>
+            {% endif %}
+        </span>
     </p>
 {% endblock %}
 

@@ -150,6 +150,7 @@ Ext.define('Jites.controller.ActionGraph', {
                 success: function(response, opts) {
                     Jites.CANEDIT = false;
                     $('#close-event-modal').modal('hide')
+                    window.location = '/jites/event/stats/'+Jites.EVENTID
                 },
                 failure: function(response, opts) {
                     $('#close-event-modal').modal('hide');

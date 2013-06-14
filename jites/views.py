@@ -2,7 +2,7 @@
 from django.utils import timezone
 from django.db import transaction, connection, DatabaseError
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, redirect
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 import json
@@ -424,25 +424,25 @@ def close_event(request, scenario_id):
     event = Event.objects.get(pk=scenario_id)
     ts = timezone.now()
 
-    # try:
-    event.status = "closed"
-    event.time_end = ts
-    event.save()
+    try:
+        event.status = "closed"
+        event.time_end = ts
+        event.save()
 
-    result = {
-        "success": True
-    }
-    json_response = json.dumps(result)
+        result = {
+            "success": True
+        }
+        json_response = json.dumps(result)
 
-    return HttpResponse(json_response, mimetype="application/json;")
-    # except DatabaseError, e:
-    #     result = {
-    #         "success": True,
-    #         "message": str(e)
-    #     }
-    #     json_response = json.dumps(result)
+        return HttpResponse(json_response, mimetype="application/json;")
+    except DatabaseError, e:
+        result = {
+            "success": True,
+            "message": str(e)
+        }
+        json_response = json.dumps(result)
 
-        # return HttpResponseBadRequest(json_response)
+        return HttpResponseBadRequest(json_response)
 
 
 @login_required
