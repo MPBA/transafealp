@@ -308,7 +308,7 @@ Ext.define('Jites.controller.Webgis', {
                 myMask.destroy();
             },
             failure: function(){
-                Ext.Msg.alert('Errore', 'Siamo spiacenti il server indicato ha fornito un documento di "capabilities" che non e\' stato possibile processare.');
+                Ext.Msg.alert('Error', 'Sorry, but the remote server has encountered an error.');
                 myMask.destroy();
             }
         });

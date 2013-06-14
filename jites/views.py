@@ -1,7 +1,7 @@
 # Create your views here.
 from django.utils import timezone
 from django.db import transaction, connection, DatabaseError
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
@@ -24,11 +24,18 @@ def dashboard(request, displaymode, event_id):
         can_edit = True
     else:
         can_edit = False
+
+    if event.status == 'open':
+        is_open = True
+    else:
+        is_open = False
+
     context = {
         'displaymode': displaymode,
         'event_id': event_id,
         'username': request.user,
-        'can_edit': can_edit
+        'can_edit': can_edit,
+        'is_open': is_open
     }
 
     return render_to_response('jites/dashboard.html', context, context_instance=RequestContext(request))
@@ -63,10 +70,28 @@ def poll(request, event_id):
                     'name': 'log',
                     'data': {
                         'id': request.user.id,
-                        'table_name': row.table_name,
+                        'table_name': 'Message',
                         'ts': str(row.ts.strftime("%d/%m/%y %H:%M:%S.%f")),
                         'username': row.fields['username'],
                         'msg': row.fields['content']
+                    }
+                })
+            if row.table_name == 'event':
+                msg = None
+                if row.action == 'I':
+                    msg = 'The event <b>"{0}"</b> is started'.format(row.fields['event_name'])
+                else:
+                    msg = 'Event <b>"{0}" completed</b> '.format(row.fields['event_name'])
+
+                result.append({
+                    'type': 'event',
+                    'name': 'log',
+                    'data': {
+                        'id': request.user.id,
+                        'table_name': 'Event',
+                        'ts': str(row.ts.strftime("%d/%m/%y %H:%M:%S.%f")),
+                        'username': row.event.managing_authority.name,
+                        'msg': msg
                     }
                 })
             elif row.table_name == 'ev_action':
@@ -77,17 +102,27 @@ def poll(request, event_id):
                 else:
                     msg = 'The status of <b>"{0}"</b> has been upgraded to <b>{1}</b>'.format(row.fields['name'],
                                                                               row.fields['status'])
+                    result.append({
+                        'type': 'event',
+                        'name': 'update_action_status',
+                        'data': {
+                            'id': format(row.fields['id']),
+                            'status': format(row.fields['status'])
+                        }
+                    })
+
                 result.append({
                     'type': 'event',
                     'name': 'log',
                     'data': {
                         'id': request.user.id,
-                        'table_name': row.table_name,
+                        'table_name': 'Action',
                         'ts': str(row.ts.strftime("%d/%m/%y %H:%M:%S.%f")),
-                        'username': '',
+                        'username':  row.event.managing_authority.name,
                         'msg': msg
                     }
                 })
+
 
     j = json.dumps(result)
     return HttpResponse(j, content_type="application/json")
@@ -103,7 +138,11 @@ def select_event_location(request, scenario_id, type):
 
     except DatabaseError, e:
         transaction.rollback()
-        return HttpResponse(str(e))
+        msg = {
+            "success": False,
+            "message": str(e)
+        }
+        return HttpResponseBadRequest(json.dumps(msg))
 
     row = cursor.fetchone()
     cursor.close()
@@ -135,7 +174,11 @@ def start_event(request, scenario_id, type):
             [scenario.name, is_real, geom])
     except DatabaseError, e:
         transaction.rollback()
-        return HttpResponse(str(e))
+        msg = {
+            "success": False,
+            "message": str(e)
+        }
+        return HttpResponseBadRequest(json.dumps(msg))
 
     row = cursor.fetchone()
     cursor.close()
@@ -167,7 +210,11 @@ class EventDetailView(LoginRequiredMixin, JSONResponseMixin, BaseDetailView):
                 [kwargs['pk']])
         except DatabaseError, e:
             transaction.rollback()
-            return HttpResponse(str(e))
+            msg = {
+                "success": False,
+                "message": str(e)
+            }
+            return HttpResponseBadRequest(json.dumps(msg))
 
         row = cursor.fetchone()
         cursor.close()
@@ -214,7 +261,11 @@ def update_action_status(request, pk):
                            [status, comment, pk])
         except DatabaseError, e:
             transaction.rollback()
-            return HttpResponse(str(e))
+            msg = {
+                "success": False,
+                "message": str(e)
+            }
+            return HttpResponseBadRequest(json.dumps(msg))
 
         row = cursor.fetchone()
         txid = row[0]
@@ -366,3 +417,29 @@ def eventlist(request):
     }
 
     return render_to_response('jites/eventlist.html', context, context_instance=RequestContext(request))
+
+#standard view for adding message to event
+@login_required()
+def close_event(request, scenario_id):
+    event = Event.objects.get(pk=scenario_id)
+    ts = timezone.now()
+
+    # try:
+    event.status = "closed"
+    event.time_end = ts
+    event.save()
+
+    result = {
+        "success": True
+    }
+    json_response = json.dumps(result)
+
+    return HttpResponse(json_response, mimetype="application/json;")
+    # except DatabaseError, e:
+    #     result = {
+    #         "success": True,
+    #         "message": str(e)
+    #     }
+    #     json_response = json.dumps(result)
+
+        # return HttpResponseBadRequest(json_response)

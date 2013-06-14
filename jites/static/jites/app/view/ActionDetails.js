@@ -117,7 +117,7 @@ Ext.define('Jites.view.ActionDetails',{
                                disable = 'disabled="disabled"';
                             }
 
-                            result.push(Ext.String.format('<li><button class="{0}" status="{2} " action_id="{3}" {4}>{1}</button></li>',btn, btn_label, el, pk,disable));
+                            result.push(Ext.String.format('<li><button class="{0}" status="{2}" action_id="{3}" {4}>{1}</button></li>',btn, btn_label, el, pk,disable));
                         }
                     );
 

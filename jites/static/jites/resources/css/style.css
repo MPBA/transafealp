@@ -150,3 +150,11 @@
 input, textarea, select {
     font-size: 14px !important;
 }
+
+.modal-backdrop {
+    z-index: 190001;
+}
+
+#close-event-modal {
+    z-index: 190002;
+}

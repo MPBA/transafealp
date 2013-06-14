@@ -47,9 +47,9 @@ Ext.define('Jites.view.WebgisRerouting', {
 //                        '<div id="rounting-type-block" style="display: none;">',
                     '<div id="rounting-type-block" data-toggle="buttons-radio" style="margin-top:10px; display: none; height: 60px">',
                         '<label><span class="badge">4.</span> Select routing model</label>',
-                        '<button id="rounting-type-fastest" class="btn" routing="fastest">Fastest</button>',
-                        '<button id="rounting-type-shortest" class="btn" routing="shortest">Shortest</button>',
-                        '<button id="rounting-type-vulnerability" class="btn" routing="vulnerability">Vulnerability</button>',
+                        '<button id="rounting-type-fastest" type="button" class="btn" routing="fastest">Fastest</button>',
+                        '<button id="rounting-type-shortest" type="button" class="btn" routing="shortest">Shortest</button>',
+                        '<button id="rounting-type-vulnerability" type="button" class="btn" routing="vulnerability">Vulnerability</button>',
                         '<input id="rounting-type" class="hidden" type="text">',
                     '</div>',
                     '<div id="rounting-vulnerability-block" data-toggle="buttons-radio" style=" display: none;">',
@@ -256,7 +256,7 @@ Ext.define('Jites.view.WebgisRerouting', {
         var lonlat = this.map.getLonLatFromPixel(e.xy);
         var map = this.map;
 
-        url = Ext.String.format('http://transafealp.fbk.eu/geoserver/wms?' +
+        url = Ext.String.format('https://transafealp.fbk.eu/geoserver/wms?' +
             'REQUEST=GetFeatureInfo&EXCEPTIONS=application/vnd.ogc.se_xml&BBOX={0}' +
             '&SERVICE=WMS&INFO_FORMAT=application/json&QUERY_LAYERS=tsa:alpcheck2_agis_reroute_4326&' +
             'FEATURE_COUNT=1&Layers=tsa:alpcheck2_agis_reroute_4326&WIDTH={1}&HEIGHT={2}&' +

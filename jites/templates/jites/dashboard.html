@@ -19,6 +19,11 @@
         {% else%}
             can_edit = false;
         {% endif %}
+        {% if is_open %}
+            is_open = true;
+        {% else%}
+            is_open = false;
+        {% endif %}
 
         OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
             defaultHandlerOptions: {
@@ -43,6 +48,16 @@
             }
         });
     </script>
+{% endblock %}
+
+{% block topnavbarleft %}
+    <p class="navbar-text pull-left">
+        {% if can_edit %}
+            Connected to the system as <b>"modarator"</b>
+        {% else%}
+            Connected to the system as <b>"partecipant"</b>
+        {% endif %}
+    </p>
 {% endblock %}
 
 {% block loadingfnc %}

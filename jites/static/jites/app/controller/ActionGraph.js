@@ -51,6 +51,8 @@ Ext.define('Jites.controller.ActionGraph', {
             }),
             Ext.create('Jites.view.ActionGraphArea',{
                 flex: 1
+            }),
+            Ext.create('Jites.view.ActionGraphCloseButton',{
             })
         );
 
@@ -135,11 +137,27 @@ Ext.define('Jites.controller.ActionGraph', {
             },
             failure: function(response, opts) {
                 console.log('server-side failure with status code ' + response.status);
+                Ext.Msg.alert('Error', 'Sorry, but the remote server has encountered an error. Exit whit status:'+response.status);
             }
         });
 //
 //        top.onchange = left.onchange = bottom.onchange = right.onchange = changeHandler;
 //        //end
+
+        Ext.get('close-event-modal-confirm').on('click',function(){
+            Ext.Ajax.request({
+                url: '/jites/event/close/'+Jites.EVENTID,
+                success: function(response, opts) {
+                    Jites.CANEDIT = false;
+                    $('#close-event-modal').modal('hide')
+                },
+                failure: function(response, opts) {
+                    $('#close-event-modal').modal('hide');
+                    $('#action-graph-close-event').attr('disable','disable');
+                    Ext.Msg.alert('Error', 'Sorry, but the remote server has encountered an error. Exit whit status:'+response.status);
+                }
+            });
+        })
     },
     getStyleFromStatus: function(data){
         var me = this,

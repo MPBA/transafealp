@@ -70,6 +70,9 @@ In this file there are all the importing string command for js and css files.-->
           <a class="brand" href="/"><img class="navbar-link" data-toggle="tooltip" title="TransafeAlp"  src="{% static "img/logo_toosmall.png" %}"></a>
           <div class="nav-collapse collapse">
             <!-- template block for auth section -->
+            {% block topnavbarleft %}
+
+            {% endblock %}
             {% block logged %}
                 {% if user.is_authenticated %}
                     <p class="navbar-text pull-right">
@@ -80,7 +83,7 @@ In this file there are all the importing string command for js and css files.-->
                         <img class="navbar-link" data-toggle="tooltip" title="Alpine Space" src="{% static "img/alpine.png" %}">
                     </p>
                 {% else %}
-                    <p class="navbar-text pull-right">ciao</p>
+                    <p class="navbar-text pull-right">Error</p>
                 {% endif %}
             {% endblock %}
             <!-- endblock auth section -->

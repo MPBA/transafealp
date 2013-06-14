@@ -82,6 +82,7 @@ Ext.define('Jites.controller.EventLog', {
 
         // add a handler for update last polling timestamp
         Ext.direct.Manager.on('updatets', me.updateLogTimestamp, me);
+        Ext.direct.Manager.on('update_action_status', me.updateActionStatus, me);
 
         //Enable eventlog panel
         parent.setDisabled(false);
@@ -96,6 +97,21 @@ Ext.define('Jites.controller.EventLog', {
             data = e.data;
 
         me.polling.baseParams.ts_post = data.ts
+    },
+    updateActionStatus: function(e){
+
+        var me = this,
+            data = e.data,
+            app = Jites.getApplication(),
+            controller = app.getController('ActionGraph');
+
+            var node = Ext.get('node'+data.id);
+            var status = controller.getStyleFromStatus(data);
+
+            node.dom.className = status;
+            if(!Jites.CANEDIT){
+                node.highlight()
+            }
     },
     addRowToLogArea: function(e){
         var me = this,
@@ -115,10 +131,12 @@ Ext.define('Jites.controller.EventLog', {
                 getColor: function(type){
                     var color;
 
-                    if(type=='ev_action'){
+                    if(type=='Action'){
                         color = 'badge-success'
-                    } else if (type=='ev_message') {
+                    } else if (type=='Message') {
                         color = 'badge-warning'
+                    } else if (type=='Event') {
+                        color = 'badge-info'
                     } else {
                         color = ''
                     }
@@ -179,6 +197,7 @@ Ext.define('Jites.controller.EventLog', {
         ct = me.getEventLogContainer();
         ct.setStyle('max-height', p.getHeight() + 'px');
     },
+
     logAnnotationEvent: function(){
         var me = this;
 

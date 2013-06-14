@@ -13,6 +13,10 @@ Ext.define('Jites.controller.ActionDetails', {
         selector: '#actiondetails'
     }],
 
+    requires: [
+        'Ext.window.MessageBox'
+    ],
+
     init: function() {
         //Loads required classes by the given names (and all their direct dependencies)
         this.control({
@@ -69,11 +73,14 @@ Ext.define('Jites.controller.ActionDetails', {
             },
             failure: function(response, opts) {
                 console.log('server-side failure with status code ' + response.status);
-                var json = Ext.decode(response.responseText),
-                    ct = Ext.getCmp('actiondetailscontainer');
-
-                ct.tpl.overwrite(ct.id,json);
                 el.unmask();
+                var r = Ext.decode(response.responseText);
+                Ext.MessageBox.show({
+                    title: 'Internal error',
+                    msg: r.message,
+                    buttons: Ext.MessageBox.OK,
+                    icon: Ext.MessageBox.WARNING
+                });
             }
         });
     },
@@ -117,6 +124,13 @@ Ext.define('Jites.controller.ActionDetails', {
                 failure: function(response, opts) {
                     console.log('server-side failure with status code ' + response.status);
                     el.unmask();
+                    var r = Ext.decode(response.responseText);
+                    Ext.MessageBox.show({
+                        title: 'Internal error',
+                        msg: r.message,
+                        buttons: Ext.MessageBox.OK,
+                        icon: Ext.MessageBox.WARNING
+                    });
                 }
             });
         }, null, {delegate: 'button'});
