@@ -107,7 +107,7 @@ class Event(models.Model):
         db_table = 'event'
 
     def __unicode__(self):
-        return u'%s %s' % (self.event_name, self.status)
+        return u'%s' % (self.event_name)
 
     def get_running_action(self):
         actions = self.evaction_set.filter(status='running')

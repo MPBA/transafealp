@@ -443,3 +443,32 @@ def close_event(request, scenario_id):
     #     json_response = json.dumps(result)
 
         # return HttpResponseBadRequest(json_response)
+
+
+@login_required
+def event_statistics(request, event_id):
+    print "ciao"
+    event = Event.objects.get(pk=event_id)
+    actions_total = EvAction.objects.filter(event=event).count()
+    actions_terminated_without_success = EvAction.objects.filter(event=event, status__icontains="terminated").count()
+    actions_terminated_with_success = EvAction.objects.filter(event=event, status__icontains="(success)").count()
+    exec_time = event.time_end - event.time_start
+    actions_log = EventLog.objects.filter(event=event, table_name='ev_action', action='U').order_by('ts')
+    result = []
+    for row in actions_log:
+        msg = 'The status to <b>{0}</b>'.format(row.fields['status'])
+        result.append({
+            'name': row.fields['name'],
+            'ts': str(row.ts.strftime("%d/%m/%y %H:%M:%S.%f")),
+            'username': '',
+            'msg': msg
+        })
+    context = {
+        'total': actions_total,
+        'term_w_success': actions_terminated_with_success,
+        'term_wo_success': actions_terminated_without_success,
+        'exec_time': exec_time,
+        'event': event,
+        'result': result
+    }
+    return render_to_response('jites/event_stats.html', context, context_instance=RequestContext(request))

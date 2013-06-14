@@ -213,7 +213,7 @@
         <thead>
             <tr>
                 <th style="width: 3%">#</th>
-                <th style="width: 25%">Name</th>
+                <th style="width: 45%">Name</th>
                 <th style="width: 20%">Num code</th>
                 <th style="width: 90%">Description</th>
                 <th style="width: 20%">Duration</th>
@@ -226,7 +226,7 @@
                     <td>{{ action.pk }}</td>
                     <td>{{ action.name }}</td>
                     <td>{{ action.numcode }}</td>
-                    <td>{{ action.description }}</td>
+                    <td>{{ action.description|truncatechars:60 }}</td>
                     <td>{{ action.duration }}</td>
                     <td>
 
