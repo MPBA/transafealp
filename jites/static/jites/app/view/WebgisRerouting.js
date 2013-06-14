@@ -210,7 +210,12 @@ Ext.define('Jites.view.WebgisRerouting', {
                         Jites.maps[0].addLayer(vector);
                     },
                     failure: function(){
-                        console.log('errore');
+                        Ext.MessageBox.show({
+                            title: 'Re routing',
+                            msg: 'Error occured on rerouting process.',
+                            buttons: Ext.MessageBox.OK,
+                            icon: Ext.MessageBox.INFO
+                        });
                     }
                 });
 
