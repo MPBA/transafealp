@@ -2,7 +2,7 @@
 __author__ = 'ernesto (arbitrio@fbk.eu)'
 
 from django.shortcuts import render_to_response, redirect
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseBadRequest, HttpResponseServerError
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from .models import (Scenario, ScenarioSubcategory, ActionM2MActor, Action, Actor,
@@ -10,7 +10,7 @@ from .models import (Scenario, ScenarioSubcategory, ActionM2MActor, Action, Acto
 from .forms import (ScenarioAddForm, ActionAddForm, ActorAddForm, ActionGraphAddForm, VisualizationForm,
                     SelectActionForm, StartActionForm, SelectScenarioForm)
 from utility import Membership, Actor_Action_Association, handle_uploaded_file
-from django.db import connection, transaction
+from django.db import connection, transaction, DatabaseError
 from django.contrib import messages
 from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import user_passes_test
@@ -30,16 +30,27 @@ def scenario_list(request):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def scenario_detail(request, scenario_id):
-    cursor = connection.cursor()
-    cursor.execute(
-        "SELECT name, subcategory_id, description , ST_AsGeoJSON(ST_Transform(geom,900913)) FROM scenario WHERE id=%s AND managing_authority_id=%s",
-        [scenario_id, Membership(request.user).membership_auth.pk])
-    row = cursor.fetchone()
-
-    transaction.commit_unless_managed()
-    category = ScenarioSubcategory.objects.get(pk=int(list(row)[1]))
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT name, subcategory_id, description , ST_AsGeoJSON(ST_Transform(geom,900913)) FROM scenario WHERE id=%s AND managing_authority_id=%s",
+            [scenario_id, Membership(request.user).membership_auth.pk])
+        row = cursor.fetchone()
+        transaction.commit_unless_managed()
+    except DatabaseError:
+        transaction.rollback()
+    if not row:
+        return redirect('scenario.views.scenario_list')
+    try:
+        category = ScenarioSubcategory.objects.get(pk=int(list(row)[1]))
+    except ScenarioSubcategory.DoesNotExist:
+        return HttpResponseBadRequest()
     geometry = list(row)[3]
-    actions = Action.objects.filter(scenario__id=scenario_id)
+    try:
+        actions = Action.objects.filter(scenario__id=scenario_id)
+    except Action.DoesNotExist:
+        actions = None
+        pass
     graph_img = '/plr/execute/graph_action/'+str(scenario_id)+'/800/600'
     actors = ActionM2MActor.objects.values('actor__pk').annotate().filter(action__scenario__id=scenario_id).\
                                                               filter(action__scenario__managing_authority=Membership(request.user).
