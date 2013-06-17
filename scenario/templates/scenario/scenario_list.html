@@ -198,7 +198,7 @@
                 <th style="width: 25%">Category</th>
                 <th style="width: 45%">Name</th>
                 <th style="width: 60%">Description</th>
-                <th style="width: 26%"></th>
+                <th style="width: 33%"></th>
 
             </tr>
         </thead>
@@ -227,6 +227,9 @@
                         </a>
                         <a href="{% url 'scenario.views.scenario_detail' scenario.id %}" data-toggle="tooltip" title="Scenario Detail" class="sublink">
                             <img src="{% static 'img/lens.gif' %}">
+                        </a>
+                        <a href="{% url 'scenario.views.scenario_edit' scenario.id %}" data-toggle="tooltip" title="Scenario Detail" class="sublink">
+                            <img src="{% static 'img/edit.png' %}">
                         </a>
                         <a href="{% url 'scenario.views.del_scenario' scenario.id %}"
                            onclick="return confirm('You are deleting {{ scenario }}! Are you sure?')">

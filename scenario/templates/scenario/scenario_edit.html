@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block extrahead %}
+    <script src="{% static "autocomplete/js/jquery_autocomplete.js" %}"></script>
+    <script src="{% static "autocomplete/js/jquery-ui.min.js" %}"></script>
+    <link rel="stylesheet" href="{% static "autocomplete/css/jquery-ui.css" %}">
+    <script src="{% static 'openlayer/js/open-layer-custom.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+        </div>
+        {% endfor %}
+    {% endif %}
+    <form method="POST" id="scenario_form">
+    {% csrf_token %}
+        <fieldset>
+            <legend>Edit Scenario {{ scenario }}</legend>
+
+            {{ form.as_p }}
+
+        </fieldset>
+        <div class="form-actions">
+            <input type="submit" class="btn btn-info" value="Save">
+        </div>
+    </form>
+{% endblock %}

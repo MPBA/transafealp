@@ -8,7 +8,7 @@ from django.template import RequestContext
 from .models import (Scenario, ScenarioSubcategory, ActionM2MActor, Action, Actor,
                      ActionGraph, Visualization, ManagingAuthority)
 from .forms import (ScenarioAddForm, ActionAddForm, ActorAddForm, ActionGraphAddForm, VisualizationForm,
-                    SelectActionForm, StartActionForm, SelectScenarioForm)
+                    ScenarioEditForm, SelectActionForm, StartActionForm, SelectScenarioForm)
 from utility import Membership, Actor_Action_Association, handle_uploaded_file
 from django.db import connection, transaction, DatabaseError
 from django.contrib import messages
@@ -102,6 +102,21 @@ def scenario_add(request):
 
     context = {'form': form}
     return render_to_response('scenario/scenario_add.html', context, context_instance=RequestContext(request))
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def scenario_edit(request, scenario_id):
+    scenario = Scenario.objects.get(pk=scenario_id)
+    form = ScenarioEditForm(instance=scenario)
+    if request.method == 'POST':
+        form = ScenarioEditForm(request.POST, instance=scenario)
+        if form.is_valid:
+            form.save()
+            messages.add_message(request, messages.SUCCESS, 'Scenario correctly edited!')
+            return redirect('scenario.views.scenario_list')
+    context = {'form': form, 'scenario': scenario}
+    return render_to_response('scenario/scenario_edit.html', context, context_instance=RequestContext(request))
 
 
 @login_required

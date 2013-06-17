@@ -5,11 +5,21 @@ from django import forms
 from autocomplete.utils import autocomplete_formfield
 from scenario.models import Scenario, ScenarioSubcategory, ScenarioCategory, Action, Actor, Visualization, ManagingAuthority
 
+
 class ScenarioAddForm(forms.Form):
     subcategory = forms.ModelChoiceField(queryset=ScenarioSubcategory.objects.all().order_by('category__name'), widget=forms.Select(attrs={'required': 'True'}))
     name = forms.CharField(widget=forms.TextInput(attrs={'required': 'True'}))
     description = forms.CharField(widget=forms.Textarea(attrs={'class': 'field span6', 'required': 'True'}))
     geometry = forms.CharField(widget=forms.Textarea(attrs={'style': 'display:none'}))
+
+
+class ScenarioEditForm(forms.ModelForm):
+    subcategory = forms.ModelChoiceField(queryset=ScenarioSubcategory.objects.all().order_by('category__name'), widget=forms.Select(attrs={'required': 'True'}))
+    name = forms.CharField(widget=forms.TextInput(attrs={'required': 'True'}))
+    description = forms.CharField(widget=forms.Textarea(attrs={'class': 'field span6', 'required': 'True'}))
+    class Meta:
+        model = Scenario
+        exclude = ('geom',)
 
 
 class ActionAddForm(forms.ModelForm):

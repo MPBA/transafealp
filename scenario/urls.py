@@ -4,6 +4,7 @@ from django.conf.urls import patterns, include, url
 urlpatterns = patterns('scenario.views',
                        (r'^add/$', 'scenario_add'),
                        (r'^list/$', 'scenario_list'),
+                       (r'^edit/(?P<scenario_id>\d+)/$', 'scenario_edit'),
                        (r'^detail/(?P<scenario_id>\d+)/$', 'scenario_detail'),
                        (r'^del/(?P<scenario_id>\d+)/$', 'del_scenario'),
                        (r'^action/add/(?P<scenario_id>\d+)/$', 'action_add'),
