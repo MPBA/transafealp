@@ -178,61 +178,7 @@
 
 
 	</script>
-    <script src="{% static 'openlayer/js/open-layer-custom.js' %}"></script>
-    <script type="text/javascript" charset="utf-8">
-        jQuery('#geom_scenario').ready(function() {
-            OpenLayers.ImgPath = "{% static 'openlayer/img/' %}";
-            var map, layer, event_layer, json, extent, click, markers;
 
-            extent =  new OpenLayers.Bounds(596825.316768,5437464.443338,1800249.889923,6097880.36763);
-
-            layer =  new OpenLayers.Layer.OSM("OpenCycleMap",
-                    [
-                        "http://otile1.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png",
-                        "http://otile2.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png",
-                        "http://otile3.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png",
-                        "http://otile4.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png"
-                    ],{
-                        displayInLayerSwitcher: false
-                    });
-
-            map = new OpenLayers.Map({
-                theme:"{% static 'openlayer/css/style.css' %}",
-                restrictedExtent: extent,
-                maxExtent: extent,
-                projection: 'EPSG:900913',
-                controls: [
-                    new OpenLayers.Control.Navigation(),
-                    new OpenLayers.Control.Attribution(),
-                    new OpenLayers.Control.Scale(),
-                    new OpenLayers.Control.ScaleLine()
-                ]
-            });
-
-            event_layer = new OpenLayers.Layer.WMS(
-                    "tsa:event_view", "https://transafealp.fbk.eu/geoserver/wms",
-                    {
-                        LAYERS: 'tsa:event_view',
-                        format: 'image/png',
-                        transparent: true
-                    },
-                    {
-                        projection: map.projection,
-                        singleTile: true,
-                        isBaseLayer: false
-                    }
-            );
-
-            map.addLayers([layer]);
-            map.addLayers([event_layer]);
-
-            setTimeout(function(){
-                map.render('geom_scenario');
-                map.zoomToMaxExtent();
-            },2000);
-
-        });
-	</script>
 {% endblock %}
 {% block content %}
 
@@ -284,8 +230,5 @@
 
         </tbody>
     </table>
-
-    <div id="geom_scenario" style=" height: 500px;"></div>
-
 
 {% endblock %}

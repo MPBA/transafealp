@@ -465,10 +465,10 @@ def close_event(request, scenario_id):
 
 @login_required
 def event_statistics(request, event_id):
-    print "ciao"
     event = Event.objects.get(pk=event_id)
     actions_total = EvAction.objects.filter(event=event).count()
-    actions_terminated_without_success = EvAction.objects.filter(event=event, status__icontains="terminated").count()
+    actions_terminated_without_success = EvAction.objects.filter(event=event, status__icontains="terminated")\
+                                                         .exclude(status__icontains="(success)").count()
     actions_terminated_with_success = EvAction.objects.filter(event=event, status__icontains="(success)").count()
     actions_executalbe = EvAction.objects.filter(event=event, status="executable").count()
     actions_non_executable = EvAction.objects.filter(event=event, status="non executable").count()
