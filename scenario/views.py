@@ -519,7 +519,8 @@ def search_event(request, type):
         category = ScenarioSubcategory.objects.filter(pk__in=[cat.subcategory_id for cat in ma_scenarios])
     elif type == 'simulation':
         managing_authority = ManagingAuthority.objects.all()
-        category = ScenarioSubcategory.objects.all()
+        scenarios = Scenario.objects.all()
+        category = ScenarioSubcategory.objects.filter(pk__in=[cat.subcategory_id for cat in scenarios])
     form = StartActionForm(category, managing_authority)
     if request.method == 'POST':
         form = StartActionForm(category, managing_authority, request.POST)
