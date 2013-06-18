@@ -1,4 +1,5 @@
-# Create your views here.
+# -*- encoding: utf-8 -*-
+__author__ = 'ernesto (arbitrio@fbk.eu) droghetti@fbk.eu'
 from django.utils import timezone
 from django.db import transaction, connection, DatabaseError
 from django.http import HttpResponse, HttpResponseBadRequest
