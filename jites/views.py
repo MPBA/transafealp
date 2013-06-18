@@ -86,9 +86,9 @@ def poll(request, event_id):
             if row.table_name == 'event':
                 msg = None
                 if row.action == 'I':
-                    msg = 'The event <b>"{0}"</b> is started'.format(row.fields['event_name'])
+                    msg = u'The event <b>"{0}"</b> is started'.format(row.fields['event_name'])
                 else:
-                    msg = 'Event <b>"{0}" completed</b> '.format(row.fields['event_name'])
+                    msg = u'Event <b>"{0}" completed</b> '.format(row.fields['event_name'])
 
                 result.append({
                     'type': 'event',
@@ -104,10 +104,9 @@ def poll(request, event_id):
             elif row.table_name == 'ev_action':
                 msg = None
                 if row.action == 'I':
-                    msg = 'The action <b>"{0}"</b> was added to the event with status <b>{1}</b>'.format(row.fields['name'],
-                                                                                         row.fields['status'])
+                    msg = u'The action <b>"{0}"</b> was added to the event with status <b>{1}</b>'.format(row.fields['name'], row.fields['status'])
                 else:
-                    msg = 'The status of <b>"{0}"</b> has been upgraded to <b>{1}</b>'.format(row.fields['name'],
+                    msg = u'The status of <b>"{0}"</b> has been upgraded to <b>{1}</b>'.format(row.fields['name'],
                                                                               row.fields['status'])
                     result.append({
                         'type': 'event',
@@ -477,7 +476,7 @@ def event_statistics(request, event_id):
     actions_log = EventLog.objects.filter(event=event, table_name='ev_action', action='U').order_by('ts')
     result = []
     for row in actions_log:
-        msg = 'The status to <b>{0}</b>'.format(row.fields['status'])
+        msg = u'The status to <b>{0}</b>'.format(row.fields['status'])
         result.append({
             'name': row.fields['name'],
             'ts': str(row.ts.strftime("%d/%m/%y %H:%M:%S.%f")),
