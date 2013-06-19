@@ -253,12 +253,17 @@ def actors_add_popup(request, scenario_id):
     if request.method == 'POST':
         form = ActorAddForm(request.POST)
         if form.is_valid:
-            obj = form.save(commit=False)
-            obj.save()
-            actor = Actor.objects.get(pk=obj.id)
-            actorm2maction = ActionM2MActor(action=action, actor=actor)
-            actorm2maction.save()
-            messages.add_message(request, messages.SUCCESS, 'Actor correctly saved!')
+
+            try:
+                obj = form.save(commit=False)
+                obj.save()
+                actor = Actor.objects.get(pk=obj.id)
+                actorm2maction = ActionM2MActor(action=action, actor=actor)
+                actorm2maction.save()
+                messages.add_message(request, messages.SUCCESS, 'Actor correctly saved!')
+            except:
+                messages.add_message(request, messages.ERROR, 'An error occurred! The email already exist!')
+                pass
         form = ActorAddForm()
     context = {'form': form}
     return render_to_response('scenario/add_actor_popup.html', context, context_instance=RequestContext(request))
@@ -346,7 +351,7 @@ def insert_actors_to_action(request, scenario_id, action_id=None):
         actions = Action.objects.filter(scenario=scenario)
         oneaction = 0
     else:
-        actions = Action.objects.filter(scenario=scenario, pk=action_id)
+        actions = Action.objects.filter(scenario=scenario)
         oneaction = 1
 
     form = SelectActionForm(actions)

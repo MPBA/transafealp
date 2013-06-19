@@ -17,7 +17,10 @@
                'transitionIn'  : 'none',
                'transitionOut' : 'none',
                'type'          : 'iframe',
-               'hideOnOverlayClick': false
+               'hideOnOverlayClick': false,
+               'onClosed'          : function() {
+                                  parent.location.reload(true);
+                                  }
 
         });
     });
