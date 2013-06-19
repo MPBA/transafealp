@@ -19,7 +19,7 @@ class ScenarioEditForm(forms.ModelForm):
     description = forms.CharField(widget=forms.Textarea(attrs={'class': 'field span6', 'required': 'True'}))
     class Meta:
         model = Scenario
-        exclude = ('geom',)
+        exclude = ('geom', 'managing_authority')
 
 
 class ActionAddForm(forms.ModelForm):
